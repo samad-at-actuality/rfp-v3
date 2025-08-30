@@ -1,0 +1,72 @@
+'use client';
+import { useRouter } from 'next/navigation';
+
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+export function UserProfileDropDown({
+  name,
+  email,
+}: {
+  name: string;
+  email: string;
+}) {
+  const router = useRouter();
+  const onLogout = () => {
+    router.push('/auth/logout');
+  };
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant='ghost'
+            className=' h-10 w-10 rounded-full  text-[#3B82F6] border-[1px] border-[#BFDBFE] '
+            style={{
+              background: 'linear-gradient(180deg, #EFF6FF 0%, #DBEAFE 100%)',
+            }}
+          >
+            <Avatar className='h-8 w-8'>
+              <AvatarFallback>
+                <div className='text-lg'>{email![0].toUpperCase()}</div>
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className='w-56' align='end' forceMount>
+          <DropdownMenuLabel className='font-normal'>
+            <div className='flex flex-col space-y-1'>
+              <p className='text-sm font-medium leading-none'>{name}</p>
+              <p className='text-xs leading-none text-muted-foreground'>
+                {email}
+              </p>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem className='cursor-pointer'>
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem className='cursor-pointer'>
+              Change Password
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem className='cursor-pointer' onClick={onLogout}>
+            Logout
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
+  );
+}

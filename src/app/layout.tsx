@@ -2,6 +2,10 @@ import React from 'react';
 import { Inter } from 'next/font/google';
 
 import './globals.css';
+import { Auth0Provider } from '@auth0/nextjs-auth0';
+import { auth0 } from '@/lib/auth0';
+
+import { TOKEN_SETTER_server } from './__TOKEN_SETTER_server';
 
 const interSans = Inter({
   variable: '--font-inter-sans',
@@ -24,14 +28,26 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): React.ReactNode {
+  const getToken = async () => {
+    'use server';
+    try {
+      const { token } = await auth0.getAccessToken();
+      return token || '';
+    } catch {
+      return '';
+    }
+  };
+
   return (
     <html lang='en'>
       <body
         id='super_body'
-        className={`${interSans.variable} flex h-screen w-screen flex-col overflow-hidden antialiased`}
+        className={`${interSans.variable} h-screen w-screen overflow-hidden antialiased`}
       >
-        <nav id='header'></nav>
-        <main className='flex-1 overflow-hidden'>{children}</main>
+        <Auth0Provider>
+          <TOKEN_SETTER_server getToken={getToken} />
+          {children}
+        </Auth0Provider>
       </body>
     </html>
   );
