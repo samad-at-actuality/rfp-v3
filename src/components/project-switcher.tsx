@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/popover';
 
 import { TOrg } from '@/types/TOrg';
+import { setLastVisitedOrgAction } from '@/actions/last-visited-org-actions';
 
 // along with display all the orgs, it should also redirect to the first org if no org is selected i.e. /app/orgs -> /app/orgs/{orgId}.
 export function ProjectSwitcher({ orgs }: { orgs: TOrg[] }) {
@@ -67,6 +68,9 @@ export function ProjectSwitcher({ orgs }: { orgs: TOrg[] }) {
                   <Link
                     href={`/app/orgs/${org.id}`}
                     className='w-full cursor-pointer'
+                    onClick={() => {
+                      setLastVisitedOrgAction({ orgId: org.id });
+                    }}
                     key={org.id}
                   >
                     <CommandItem className='flex cursor-pointer justify-start gap-4 text-sm'>

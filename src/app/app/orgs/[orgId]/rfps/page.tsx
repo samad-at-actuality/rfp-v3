@@ -15,7 +15,7 @@ export default async function RfpHomePage({
   }
   console.log('rfps: ', rfps);
   return (
-    <div className='p-6 space-y-6'>
+    <div className='p-6 space-y-6 h-[400vh]'>
       <h2 className='text-2xl font-bold'>RFPs</h2>
       <div className='grid grid-cols-5 gap-8'>
         <div className='flex items-center justify-center border-[1px] border-dashed border-gray-600 gap-2 rounded-lg h-[100px] hover:shadow-xl cursor-pointer transition-shadow duration-300 bg-white p-4 '>

@@ -4,7 +4,6 @@ import { Sidebar } from '@/components/sidebar';
 
 import { getUserInfo } from '@/lib/apis/userProfileApi';
 import { getMyOrgs } from '@/lib/apis/organisationsApi';
-import { setLastVisitedOrgAction } from '@/actions/last-visited-org-actions';
 
 const HEADER_HEIGHT = 64;
 
@@ -29,7 +28,6 @@ export default async function AppLayout({
   if (!org) {
     return notFound();
   }
-  await setLastVisitedOrgAction({ orgId: org.id });
 
   return (
     <div className='flex h-screen w-screen flex-col overflow-hidden'>
