@@ -1,4 +1,4 @@
-import { auth0 } from './auth0';
+import { getAuth0AccessToken } from '@/actions/getAuth0AccessToken';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -8,23 +8,7 @@ export async function apiFetch<T>(
   path: string,
   options?: RequestInit & { token?: string }
 ) {
-  let token: string | null | undefined = options?.token;
-  if (!options?.token) {
-    if (typeof window === 'undefined') {
-      try {
-        const { token: accessToken } = await auth0.getAccessToken();
-        token = accessToken;
-      } catch {}
-    } else {
-      const storedToken = localStorage.getItem(
-        process.env.NEXT_PUBLIC_AUTH0_ACCESS_TOKEN!
-      );
-
-      if (storedToken) {
-        token = storedToken;
-      }
-    }
-  }
+  const token = options?.token || (await getAuth0AccessToken());
 
   const path_ = path.startsWith('http') ? path : `${BASE_URL}${path}`;
 
