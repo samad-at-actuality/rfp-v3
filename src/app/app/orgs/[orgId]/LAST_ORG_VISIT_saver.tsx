@@ -1,7 +1,7 @@
 'use client';
 
-import { setLastVisitedOrgAction } from '@/actions/last-visited-org-actions';
 import { useEffect } from 'react';
+import { setLastVisitedOrgAction } from '@/actions/last-visited-org-actions';
 
 // Reason to have this weired component is to save the last visited org in the cookie
 // as cookies.set now allowed in server component

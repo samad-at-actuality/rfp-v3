@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth0 } from '@/lib/auth0';
 import { cookies } from 'next/headers';
+import { auth0 } from '@/lib/auth0';
 import { getMyOrgs } from '@/lib/apis/organisationsApi';
 
 export async function middleware(request: NextRequest) {
