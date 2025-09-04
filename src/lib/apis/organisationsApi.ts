@@ -6,9 +6,20 @@ export const getMyOrgs = (token?: string) => {
 };
 
 export const getSuperAdminOrgs = (token?: string) => {
-  return apiFetch<TOrg[]>('/api/super-admin/orgs', { token });
+  return apiFetch<TOrg[]>('/api/super-admin/orgs', {
+    token,
+  });
 };
 
 export const getOrgById = (orgId: string) => {
   return apiFetch<TOrg>(`/api/orgs/${orgId}`);
+};
+
+export const createOrg = (payload: {
+  name: string;
+  description: string;
+  adminName: string;
+  adminEmail: string;
+}) => {
+  return apiFetch<TOrg>(`/api/super-admin/orgs`, { method: 'POST' }, payload);
 };

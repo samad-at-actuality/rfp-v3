@@ -10,10 +10,11 @@ export default async function RfpHomePage({
   params: Promise<{ orgId: string }>;
 }) {
   const orgId = (await params).orgId;
-  const rfps = await getOrgRfps({ orgId });
-  if (!rfps) {
+  const rfps_ = await getOrgRfps({ orgId });
+  if (!rfps_.data) {
     return redirect('/auth/logout');
   }
+  const rfps = rfps_.data;
 
   return (
     <div className='p-6 space-y-6 h-[400vh]'>

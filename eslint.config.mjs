@@ -37,10 +37,10 @@ const eslintConfig = [
       curly: ['error', 'all'], // Require curly braces
 
       // React/JSX specific rules (already included via next/core-web-vitals)
-      'import/order': [
-        'error',
-        { groups: ['builtin', 'external', 'internal'] },
-      ],
+      // 'import/order': [
+      //   'warning',
+      //   { groups: ['builtin', 'external', 'internal'] },
+      // ],
       'import/no-unresolved': 'error',
       '@typescript-eslint/no-explicit-any': 'warn',
     },

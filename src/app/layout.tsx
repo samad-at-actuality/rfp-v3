@@ -5,6 +5,7 @@ import './globals.css';
 import { Auth0Provider } from '@auth0/nextjs-auth0';
 import { getUserInfo } from '@/lib/apis/userProfileApi';
 import { UserInfoWrapper } from '@/ctx/user-context';
+import { notFound } from 'next/navigation';
 
 const interSans = Inter({
   variable: '--font-inter-sans',
@@ -28,6 +29,10 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>): Promise<React.ReactNode> {
   const userInfo = await getUserInfo();
+  if (userInfo.error) {
+    return notFound();
+  }
+
   return (
     <html lang='en'>
       <body
@@ -35,7 +40,9 @@ export default async function RootLayout({
         className={`${interSans.variable} h-screen w-screen overflow-hidden antialiased bg-white`}
       >
         <Auth0Provider>
-          <UserInfoWrapper userInfo={userInfo!}>{children}</UserInfoWrapper>
+          <UserInfoWrapper userInfo={userInfo.data!}>
+            {children}
+          </UserInfoWrapper>
         </Auth0Provider>
       </body>
     </html>

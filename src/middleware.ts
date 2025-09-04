@@ -19,7 +19,12 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(`${origin}/auth/login`);
     }
 
-    const userInfo = await getUserInfo(session.tokenSet.accessToken);
+    const userInfo_ = await getUserInfo(session.tokenSet.accessToken);
+    if (userInfo_.error || !userInfo_?.data) {
+      return NextResponse.redirect(`${origin}/auth/login`);
+    }
+
+    const userInfo = userInfo_.data;
     if (request.nextUrl.pathname === '/app/admin') {
       // If user is not a super admin, redirect to orgs page
       if (!userInfo?.isSuperAdmin) {
@@ -40,13 +45,17 @@ export async function middleware(request: NextRequest) {
         process.env.COOKIE_NAME_FOR_ORG_PREFERENCE!
       );
 
-      const orgs = userInfo?.isSuperAdmin
+      const orgs_ = userInfo?.isSuperAdmin
         ? await getSuperAdminOrgs(session.tokenSet.accessToken)
         : await getMyOrgs(session.tokenSet.accessToken);
-
-      if (!orgs || orgs.length === 0) {
+      if (orgs_.error || !orgs_.data) {
         return NextResponse.redirect(`${origin}/not-found`);
       }
+      if (!orgs_.data || orgs_.data.length === 0) {
+        return NextResponse.redirect(`${origin}/not-found`);
+      }
+
+      const orgs = orgs_.data;
 
       if (lastTimeVisitedOrg) {
         const org = orgs.find((org) => org.id === lastTimeVisitedOrg.value);

@@ -18,24 +18,28 @@ export default async function AppLayout({
 }) {
   const userInfo = await getUserInfo();
 
-  const orgs = userInfo?.isSuperAdmin
+  if (!userInfo.data) {
+    return redirect('/auth/logout');
+  }
+
+  const orgs_ = userInfo.data.isSuperAdmin
     ? await getSuperAdminOrgs()
     : await getMyOrgs();
 
-  if (!orgs) {
+  if (!orgs_.data) {
     return redirect('/auth/logout');
   }
 
   const orgId = (await params).orgId;
 
-  const org = orgs.find((org) => org.id === orgId);
+  const org = orgs_.data.find((org) => org.id === orgId);
 
   if (!org) {
     return notFound();
   }
 
   return (
-    <OrgsWrapper orgs={orgs} currentOrgId={org.id}>
+    <OrgsWrapper orgs={orgs_.data} currentOrgId={org.id}>
       <div className='flex h-screen w-screen flex-col overflow-hidden'>
         <LastOrgVisitSaver orgId={org.id} />
         <Header
