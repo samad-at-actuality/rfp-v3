@@ -1,5 +1,5 @@
 'use client';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -12,18 +12,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useUserInfoCtx } from '@/ctx/user-context';
 
-export function UserProfileDropDown({
-  name,
-  email,
-}: {
-  name: string;
-  email: string;
-}) {
-  const router = useRouter();
-  const onLogout = () => {
-    router.push('/auth/logout');
-  };
+export function UserProfileDropDown() {
+  const { userInfo } = useUserInfoCtx();
 
   return (
     <>
@@ -38,7 +30,9 @@ export function UserProfileDropDown({
           >
             <Avatar className='h-8 w-8'>
               <AvatarFallback>
-                <div className='text-lg'>{email![0].toUpperCase()}</div>
+                <div className='text-lg'>
+                  {userInfo.email![0].toUpperCase()}
+                </div>
               </AvatarFallback>
             </Avatar>
           </Button>
@@ -46,9 +40,11 @@ export function UserProfileDropDown({
         <DropdownMenuContent className='w-56' align='end' forceMount>
           <DropdownMenuLabel className='font-normal'>
             <div className='flex flex-col space-y-1'>
-              <p className='text-sm font-medium leading-none'>{name}</p>
+              <p className='text-sm font-medium leading-none'>
+                {userInfo.name}
+              </p>
               <p className='text-xs leading-none text-muted-foreground'>
-                {email}
+                {userInfo.email}
               </p>
             </div>
           </DropdownMenuLabel>
@@ -62,8 +58,8 @@ export function UserProfileDropDown({
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className='cursor-pointer' onClick={onLogout}>
-            Logout
+          <DropdownMenuItem className='cursor-pointer'>
+            <Link href='/auth/logout'>Logout</Link>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { auth0 } from '@/lib/auth0';
-import { getMyOrgs } from '@/lib/apis/organisationsApi';
+import { getMyOrgs, getSuperAdminOrgs } from '@/lib/apis/organisationsApi';
+import { getUserInfo } from '@/lib/apis/userProfileApi';
 
 export async function middleware(request: NextRequest) {
   try {
@@ -18,6 +19,17 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(`${origin}/auth/login`);
     }
 
+    const userInfo = await getUserInfo(session.tokenSet.accessToken);
+    if (request.nextUrl.pathname === '/app/admin') {
+      // If user is not a super admin, redirect to orgs page
+      if (!userInfo?.isSuperAdmin) {
+        return NextResponse.redirect(`${origin}/app/orgs`);
+      }
+
+      // If user is a super admin, allow access to /app/admin
+      return NextResponse.next();
+    }
+
     if (
       request.nextUrl.pathname === '/app/orgs' ||
       request.nextUrl.pathname === '/app' ||
@@ -28,9 +40,12 @@ export async function middleware(request: NextRequest) {
         process.env.COOKIE_NAME_FOR_ORG_PREFERENCE!
       );
 
-      const orgs = await getMyOrgs(session.tokenSet.accessToken);
+      const orgs = userInfo?.isSuperAdmin
+        ? await getSuperAdminOrgs(session.tokenSet.accessToken)
+        : await getMyOrgs(session.tokenSet.accessToken);
+
       if (!orgs || orgs.length === 0) {
-        return NextResponse.redirect(`${origin}/auth/login`);
+        return NextResponse.redirect(`${origin}/not-found`);
       }
 
       if (lastTimeVisitedOrg) {
@@ -45,8 +60,8 @@ export async function middleware(request: NextRequest) {
     return await auth0.middleware(request);
   } catch (error) {
     const { origin } = new URL(request.url);
-    console.log(error);
-    return NextResponse.redirect(`${origin}/auth/login`);
+    console.error(error);
+    return NextResponse.redirect(`${origin}/not-found`);
   }
 }
 

@@ -22,11 +22,12 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 
-import { TOrg } from '@/types/TOrg';
 import { setLastVisitedOrgAction } from '@/actions/last-visited-org-actions';
+import { useOrgCtx } from '@/ctx/org-ctx';
 
 // along with display all the orgs, it should also redirect to the first org if no org is selected i.e. /app/orgs -> /app/orgs/{orgId}.
-export function ProjectSwitcher({ orgs }: { orgs: TOrg[] }) {
+export function ProjectSwitcher() {
+  const { orgs } = useOrgCtx();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const currentProjectSlug: string | undefined = pathname

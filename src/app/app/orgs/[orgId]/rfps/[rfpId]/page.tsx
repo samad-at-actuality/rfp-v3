@@ -5,11 +5,7 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 
-// import { useParams } from 'next/navigation';
-
 export default function RfpPage() {
-  // const { rfpId } = useParams();
-  // console.log(rfpId);
   return (
     <div className='w-full h-full overflow-hidden log-1'>
       <ResizablePanelGroup direction='horizontal' autoSaveId='rfp-layout'>

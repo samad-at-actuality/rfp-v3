@@ -3,7 +3,8 @@ import { Inter } from 'next/font/google';
 
 import './globals.css';
 import { Auth0Provider } from '@auth0/nextjs-auth0';
-import { auth0 } from '@/lib/auth0';
+import { getUserInfo } from '@/lib/apis/userProfileApi';
+import { UserInfoWrapper } from '@/ctx/user-context';
 
 const interSans = Inter({
   variable: '--font-inter-sans',
@@ -21,28 +22,21 @@ export const metadata = {
   description: 'Your personal assistant for construction professionals',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>): React.ReactNode {
-  const getToken = async () => {
-    'use server';
-    try {
-      const { token } = await auth0.getAccessToken();
-      return token || '';
-    } catch {
-      return '';
-    }
-  };
-
+}>): Promise<React.ReactNode> {
+  const userInfo = await getUserInfo();
   return (
     <html lang='en'>
       <body
         id='super_body'
         className={`${interSans.variable} h-screen w-screen overflow-hidden antialiased bg-white`}
       >
-        <Auth0Provider>{children}</Auth0Provider>
+        <Auth0Provider>
+          <UserInfoWrapper userInfo={userInfo!}>{children}</UserInfoWrapper>
+        </Auth0Provider>
       </body>
     </html>
   );

@@ -2,15 +2,16 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Home, Package, Users, FilePen } from 'lucide-react';
+import { Home, Package, Users, FilePen, User } from 'lucide-react';
 
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useUserInfoCtx } from '@/ctx/user-context';
 
-export const Sidebar = () => {
+export const Sidebar = ({ showAdminButton }: { showAdminButton?: boolean }) => {
   const [currentPath, setCurrentPath] = React.useState('');
 
   React.useLayoutEffect(() => {
@@ -21,11 +22,41 @@ export const Sidebar = () => {
     ?.split('/app/orgs/')[1]
     ?.split('/')[0];
 
+  const { userInfo } = useUserInfoCtx();
+
+  if (showAdminButton) {
+    return (
+      <aside className='z-10 w-full flex-col border-r bg-background flex'>
+        <nav className='flex-1 flex flex-col items-center gap-4 px-2 sm:py-4'>
+          <LinkComponent
+            onClick={() => {
+              setCurrentPath(`/app/orgs`);
+            }}
+            whenEqual={currentPath === `/app/orgs`}
+            currentPath={currentPath}
+            linkPath={`/app/orgs`}
+            name='Orgs'
+          >
+            <Home className='h-5 w-5' />
+          </LinkComponent>
+
+          <LinkComponent
+            onClick={() => {
+              setCurrentPath(`/app/admin`);
+            }}
+            whenEqual={currentPath === `/app/admin`}
+            currentPath={currentPath}
+            linkPath={`/app/admin`}
+            name='Admin'
+          >
+            <User className='h-5 w-5' />
+          </LinkComponent>
+        </nav>
+      </aside>
+    );
+  }
   return (
-    <aside
-      className='z-10 w-full flex-col border-r bg-background flex
-    '
-    >
+    <aside className='z-10 w-full flex-col border-r bg-background flex'>
       <nav className='flex-1 flex flex-col items-center gap-4 px-2 sm:py-4'>
         <LinkComponent
           onClick={() => {
@@ -38,6 +69,20 @@ export const Sidebar = () => {
         >
           <Home className='h-5 w-5' />
         </LinkComponent>
+        {userInfo.isSuperAdmin && (
+          <LinkComponent
+            onClick={() => {
+              setCurrentPath(`/app/admin`);
+            }}
+            whenEqual={currentPath === `/app/admin`}
+            currentPath={currentPath}
+            linkPath={`/app/admin`}
+            name='Admin'
+          >
+            <User className='h-5 w-5 text-gray-600' />
+          </LinkComponent>
+        )}
+
         <LinkComponent
           onClick={() => {
             setCurrentPath(`/app/orgs/${projectSlug}/rfps`);

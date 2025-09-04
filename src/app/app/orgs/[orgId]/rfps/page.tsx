@@ -5,15 +5,16 @@ import { getOrgRfps } from '@/lib/apis/rfpApi';
 import { getRelativeTime } from '@/lib/utils';
 
 export default async function RfpHomePage({
-  params: { orgId },
+  params,
 }: {
-  params: { orgId: string };
+  params: Promise<{ orgId: string }>;
 }) {
+  const orgId = (await params).orgId;
   const rfps = await getOrgRfps({ orgId });
   if (!rfps) {
     return redirect('/auth/logout');
   }
-  console.log('rfps: ', rfps);
+
   return (
     <div className='p-6 space-y-6 h-[400vh]'>
       <h2 className='text-2xl font-bold'>RFPs</h2>

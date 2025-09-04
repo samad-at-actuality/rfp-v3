@@ -3,21 +3,18 @@ import Image from 'next/image';
 
 import { BellRingIcon } from 'lucide-react';
 
-import { TUser } from '@/types/TUser';
-import { TOrg } from '@/types/TOrg';
-
 import { ProjectSwitcher } from './project-switcher';
 import { HeaderSearchBar } from './header-search-bar';
 import { UserProfileDropDown } from './user-profile-dropdown';
 
 export const Header = async ({
   headerHeight,
-  orgs,
-  user,
+  disableOrgSwitcher,
+  disableAskAi,
 }: {
   headerHeight: string;
-  orgs: TOrg[];
-  user: TUser;
+  disableOrgSwitcher: boolean;
+  disableAskAi: boolean;
 }) => {
   return (
     <div
@@ -37,16 +34,17 @@ export const Header = async ({
         </Link>
       </div>
 
-      <ProjectSwitcher orgs={orgs} />
+      {!disableOrgSwitcher && <ProjectSwitcher />}
       <div className='gap-6 flex flex-1 justify-end items-center'>
-        <div className='border-r-2 border-gray-200 pr-4 mr-2'>
-          <HeaderSearchBar />
-        </div>
+        {!disableAskAi && (
+          <div className='border-r-2 border-gray-200 pr-4 mr-2'>
+            <HeaderSearchBar />
+          </div>
+        )}
         <span>
           <BellRingIcon className='w-6 h-6 text-gray-400' />
         </span>
-
-        <UserProfileDropDown name={user.name} email={user.email} />
+        <UserProfileDropDown />
       </div>
     </div>
   );
