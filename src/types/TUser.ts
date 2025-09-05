@@ -1,4 +1,4 @@
-import { TOrgRole } from './TRole';
+import { TOrgRole } from './TUserRole';
 
 type orgMemberships = {
   orgId: string;

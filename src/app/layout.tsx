@@ -1,11 +1,12 @@
 import React from 'react';
 import { Inter } from 'next/font/google';
+import { notFound } from 'next/navigation';
 
 import './globals.css';
 import { Auth0Provider } from '@auth0/nextjs-auth0';
 import { getUserInfo } from '@/lib/apis/userProfileApi';
 import { UserInfoWrapper } from '@/ctx/user-context';
-import { notFound } from 'next/navigation';
+import { Toaster } from '@/components/ui/sonner';
 
 const interSans = Inter({
   variable: '--font-inter-sans',
@@ -44,6 +45,7 @@ export default async function RootLayout({
             {children}
           </UserInfoWrapper>
         </Auth0Provider>
+        <Toaster richColors={true} position='bottom-right' expand={true} />{' '}
       </body>
     </html>
   );

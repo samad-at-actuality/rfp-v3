@@ -11,10 +11,10 @@ export async function apiFetch<T>(
 ) {
   const token = options?.token || (await getAuth0AccessToken());
   const path_ = path.startsWith('http') ? path : `${BASE_URL}${path}`;
-
+  console.log(`Bearer ${token}`);
   const res = await fetch(path_, {
     headers: {
-      'Content-Type': 'application/json',
+      ...(payload ? { 'Content-Type': 'application/json' } : {}),
       Authorization: `Bearer ${token}`,
       ...options?.headers,
     },

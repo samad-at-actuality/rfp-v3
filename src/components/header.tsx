@@ -29,8 +29,8 @@ export const Header = async ({
         <Link href='/'>
           <Image
             src='/assets/actuality_logo.svg'
-            width='38'
-            height='38'
+            width={38}
+            height={38}
             alt='Actuality logo'
           />
         </Link>

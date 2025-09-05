@@ -1,4 +1,4 @@
-import { TOrgRole } from './TRole';
+import { TOrgRole } from './TUserRole';
 
 export type TMember = {
   id: string;
@@ -25,8 +25,10 @@ export type TMemberClient = {
   createdAt: string;
   isSuperAdmin: boolean;
   updatedAt: string;
-  memebrShipCreatedAt: string;
-  memberShipRole: TOrgRole;
-  memberShipUpdatedAt: string;
-  memberShipCreatedBy: string;
+  memberShip: {
+    createdAt: string;
+    role: TOrgRole;
+    updatedAt: string;
+    createdBy: string;
+  };
 };

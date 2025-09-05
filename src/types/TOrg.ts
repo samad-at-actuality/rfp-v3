@@ -1,4 +1,4 @@
-import { TOrgRole } from './TRole';
+import { TOrgRole } from './TUserRole';
 
 export type TOrg = {
   name: string;

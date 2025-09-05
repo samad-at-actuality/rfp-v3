@@ -2,6 +2,7 @@ import { getTeamMembers } from '@/lib/apis/teamMemberApi';
 import { TMemberClient } from '@/types/TMember';
 import { notFound } from 'next/navigation';
 import { TeamMemberPage } from './TeamMemberPage';
+import { TOrgRole } from '@/types/TUserRole';
 
 export default async function TeamPage({
   params,
@@ -16,22 +17,29 @@ export default async function TeamPage({
   }
 
   const teamMembers__ = teamMembers_.data;
-  const teamMembers: TMemberClient[] = teamMembers__.map(
-    ({ orgMemberships, ...rest }) => {
-      const orgMembership = orgMemberships.find(({ orgId }) => {
-        return orgId === orgId;
-      });
+
+  const teamMembers = teamMembers__.map(
+    ({ orgMemberships, ...rest }): TMemberClient => {
+      const orgMembership = orgMemberships.find((memberShip) => {
+        return memberShip.orgId === orgId;
+      }) as {
+        createdAt: string;
+        role: TOrgRole;
+        updatedAt: string;
+        createdBy: string;
+      };
+
       return {
         ...rest,
-        ...{
-          memebrShipCreatedAt: orgMembership?.createdAt,
-          memberShipRole: orgMembership?.role,
-          memberShipUpdatedAt: orgMembership?.updatedAt,
-          memberShipCreatedBy: orgMembership?.createdBy,
+        memberShip: {
+          createdAt: orgMembership.createdAt!,
+          role: orgMembership.role!,
+          updatedAt: orgMembership.updatedAt!,
+          createdBy: orgMembership.createdBy!,
         },
       };
     }
-  ) as TMemberClient[];
+  );
 
   return <TeamMemberPage members={teamMembers} />;
 }

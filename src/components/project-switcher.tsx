@@ -74,7 +74,10 @@ export function ProjectSwitcher() {
                     }}
                     key={org.id}
                   >
-                    <CommandItem className='flex cursor-pointer justify-start gap-4 text-sm'>
+                    <CommandItem
+                      value={org.id}
+                      className='flex cursor-pointer justify-start gap-4 text-sm'
+                    >
                       {currentProjectSlug !== org.id ? (
                         <div className='h-4 w-4' />
                       ) : (

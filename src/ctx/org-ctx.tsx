@@ -28,7 +28,6 @@ export const OrgsWrapper = ({
   currentOrgId: string;
 }) => {
   const [orgs, setOrgs] = React.useState<TOrg[]>(initialOrgs);
-
   const currentOrg = orgs.find((org) => org.id === currentOrgId)!;
 
   return (
