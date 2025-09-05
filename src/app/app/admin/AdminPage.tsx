@@ -29,7 +29,7 @@ export default function AdminPage({ orgs: orgs_ }: { orgs: TOrg[] }) {
     setIsLoading(true);
     try {
       const data = await createOrg(form);
-      console.log(data);
+
       if (data.data) {
         setOrgs((p) => [...p, data.data]);
         setForm({

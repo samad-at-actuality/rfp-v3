@@ -1,12 +1,11 @@
 'use client';
-import React, { useState } from 'react';
+import React from 'react';
 import { TOrg } from '@/types/TOrg';
 
 const OrgContext = React.createContext<{
   orgs: TOrg[];
   setOrgs: React.Dispatch<React.SetStateAction<TOrg[]>>;
-  currentOrgId: string;
-  setCurrentOrgId: React.Dispatch<React.SetStateAction<string>>;
+  currentOrg: TOrg;
 } | null>(null);
 
 const OrgProvider = OrgContext.Provider;
@@ -22,17 +21,17 @@ export const useOrgCtx = () => {
 export const OrgsWrapper = ({
   children,
   orgs: initialOrgs,
-  currentOrgId: initialCurrentOrgId,
+  currentOrgId,
 }: {
   children: React.ReactNode;
   orgs: TOrg[];
   currentOrgId: string;
 }) => {
   const [orgs, setOrgs] = React.useState<TOrg[]>(initialOrgs);
-  const [currentOrgId, setCurrentOrgId] = useState<string>(initialCurrentOrgId);
+
+  const currentOrg = orgs.find((org) => org.id === currentOrgId)!;
+
   return (
-    <OrgProvider value={{ orgs, setOrgs, currentOrgId, setCurrentOrgId }}>
-      {children}
-    </OrgProvider>
+    <OrgProvider value={{ orgs, setOrgs, currentOrg }}>{children}</OrgProvider>
   );
 };

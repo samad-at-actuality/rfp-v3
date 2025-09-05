@@ -1,0 +1,206 @@
+{
+  "userInfo": {
+    "data": {
+      "id": "685f8c8aac7ec870550ab359",
+      "email": "manish@actuality.live",
+      "name": "Manish Kumar",
+      "createdAt": "2025-07-29T10:45:23.181Z",
+      "isSuperAdmin": true,
+      "updatedAt": "2025-07-29T10:45:23.181Z",
+      "orgMemberships": []
+    },
+    "status": 200
+  },
+  "orgs": [
+    {
+      "name": "Actuality Dev",
+      "id": "6877eefeb4fe0e876873f501",
+      "createdAt": "2025-07-29T10:45:16.532Z",
+      "updatedAt": "2025-07-29T10:45:16.532Z",
+      "createdBy": "685f8c6aac7ec870550ab356"
+    },
+    {
+      "name": "Actuality Demo",
+      "id": "6877eefeb4fe0e876873f502",
+      "createdAt": "2025-07-29T10:45:18.414Z",
+      "updatedAt": "2025-07-29T10:45:18.414Z",
+      "createdBy": "685f8c6aac7ec870550ab356"
+    },
+    {
+      "name": "DevTest1",
+      "id": "6888afb761d88b9f7261008c",
+      "createdAt": "2025-07-29T11:25:43.531Z",
+      "updatedAt": "2025-07-29T11:25:43.531Z",
+      "createdBy": "685f8c8aac7ec870550ab359"
+    },
+    {
+      "name": "DevTest2",
+      "id": "68a32239925a9dd261830cf7",
+      "createdAt": "2025-08-18T12:53:13.331Z",
+      "updatedAt": "2025-08-18T12:53:13.331Z",
+      "createdBy": "685f8c8aac7ec870550ab359"
+    },
+    {
+      "name": "Groupe Lacasse",
+      "id": "68a85ea0275c880e8e2ba336",
+      "createdAt": "2025-08-22T12:12:16.043Z",
+      "updatedAt": "2025-08-22T12:12:16.043Z",
+      "createdBy": "685f8c8aac7ec870550ab359"
+    },
+    {
+      "name": "Vestacon",
+      "id": "68a9d3bc275c880e8e2ba366",
+      "createdAt": "2025-08-23T14:44:12.984Z",
+      "updatedAt": "2025-08-23T14:44:12.984Z",
+      "createdBy": "685f8c8aac7ec870550ab359"
+    },
+    {
+      "name": "DevTest3",
+      "id": "68b67d94502f89334af61dc2",
+      "createdAt": "2025-09-02T05:16:04.775Z",
+      "updatedAt": "2025-09-02T05:16:04.775Z",
+      "createdBy": "685f8c8aac7ec870550ab359"
+    },
+    {
+      "name": "DevTest010",
+      "id": "68b6e73881b31e6bf7a5fa16",
+      "createdAt": "2025-09-02T12:46:48.068Z",
+      "updatedAt": "2025-09-02T12:46:48.068Z",
+      "createdBy": "685f8c8aac7ec870550ab359"
+    },
+    {
+      "name": "DevTest4",
+      "id": "68b7ce6e81b31e6bf7a5fa29",
+      "createdAt": "2025-09-03T05:13:18.686Z",
+      "updatedAt": "2025-09-03T05:13:18.686Z",
+      "createdBy": "685f8c8aac7ec870550ab359"
+    },
+    {
+      "name": "Actuality Dev",
+      "id": "68b965de81b31e6bf7a5fafb",
+      "createdAt": "2025-09-04T10:11:42.047Z",
+      "updatedAt": "2025-09-04T10:11:42.047Z",
+      "createdBy": "685f8c8aac7ec870550ab359"
+    },
+    {
+      "name": "Actuality Dev",
+      "id": "68b965e781b31e6bf7a5fafc",
+      "createdAt": "2025-09-04T10:11:51.947Z",
+      "updatedAt": "2025-09-04T10:11:51.947Z",
+      "createdBy": "685f8c8aac7ec870550ab359"
+    },
+    {
+      "name": "Actuality Dev",
+      "id": "68b9666881b31e6bf7a5fafd",
+      "createdAt": "2025-09-04T10:14:00.754Z",
+      "updatedAt": "2025-09-04T10:14:00.754Z",
+      "createdBy": "685f8c8aac7ec870550ab359"
+    },
+    {
+      "name": "Actuality Dev",
+      "id": "68b9667d81b31e6bf7a5fafe",
+      "createdAt": "2025-09-04T10:14:21.651Z",
+      "updatedAt": "2025-09-04T10:14:21.651Z",
+      "createdBy": "685f8c8aac7ec870550ab359"
+    },
+    {
+      "name": "actualitydummy",
+      "id": "68b9681381b31e6bf7a5faff",
+      "createdAt": "2025-09-04T10:21:07.961Z",
+      "updatedAt": "2025-09-04T10:21:07.961Z",
+      "createdBy": "685f8c8aac7ec870550ab359"
+    },
+    {
+      "name": "actuaity-landing",
+      "id": "68b968d481b31e6bf7a5fb00",
+      "createdAt": "2025-09-04T10:24:20.899Z",
+      "updatedAt": "2025-09-04T10:24:20.899Z",
+      "createdBy": "685f8c8aac7ec870550ab359"
+    }
+  ],
+  "members": [
+    {
+      "id": "68ac4aa9cae99e463b0fae78",
+      "email": "imsamad00@gmail.com",
+      "name": "samad",
+      "createdAt": "2025-08-25T11:37:08.169Z",
+      "isSuperAdmin": false,
+      "updatedAt": "2025-09-04T10:14:21.665Z",
+      "orgMemberships": [
+        {
+          "orgId": "6888afb761d88b9f7261008c",
+          "role": "ADMIN",
+          "createdAt": "2025-08-25T11:37:08.189Z",
+          "updatedAt": "2025-09-03T11:38:18.421Z",
+          "createdBy": "687f9249e92aa5e7523433b4"
+        },
+        {
+          "orgId": "68b67d94502f89334af61dc2",
+          "role": "VIEWER",
+          "createdAt": "2025-09-02T12:10:19.414Z",
+          "updatedAt": "2025-09-03T11:38:18.421Z",
+          "createdBy": "685f8c8aac7ec870550ab359"
+        },
+        {
+          "orgId": "68b6e73881b31e6bf7a5fa16",
+          "role": "ADMIN",
+          "createdAt": "2025-09-02T12:46:48.096Z",
+          "updatedAt": "2025-09-03T11:38:18.421Z",
+          "createdBy": "685f8c8aac7ec870550ab359"
+        },
+        {
+          "orgId": "68b7ce6e81b31e6bf7a5fa29",
+          "role": "ADMIN",
+          "createdAt": "2025-09-03T06:22:33.175Z",
+          "updatedAt": "2025-09-03T11:38:18.421Z",
+          "createdBy": "685f8c8aac7ec870550ab359"
+        },
+        {
+          "orgId": "68b965de81b31e6bf7a5fafb",
+          "role": "ADMIN",
+          "createdAt": "2025-09-04T10:11:42.075Z",
+          "updatedAt": "2025-09-04T10:11:42.075Z",
+          "createdBy": "685f8c8aac7ec870550ab359"
+        },
+        {
+          "orgId": "68b965e781b31e6bf7a5fafc",
+          "role": "ADMIN",
+          "createdAt": "2025-09-04T10:11:51.961Z",
+          "updatedAt": "2025-09-04T10:11:51.961Z",
+          "createdBy": "685f8c8aac7ec870550ab359"
+        },
+        {
+          "orgId": "68b9666881b31e6bf7a5fafd",
+          "role": "ADMIN",
+          "createdAt": "2025-09-04T10:14:00.780Z",
+          "updatedAt": "2025-09-04T10:14:00.780Z",
+          "createdBy": "685f8c8aac7ec870550ab359"
+        },
+        {
+          "orgId": "68b9667d81b31e6bf7a5fafe",
+          "role": "ADMIN",
+          "createdAt": "2025-09-04T10:14:21.665Z",
+          "updatedAt": "2025-09-04T10:14:21.665Z",
+          "createdBy": "685f8c8aac7ec870550ab359"
+        }
+      ]
+    },
+    {
+      "id": "68b6e8d9f00e7d5f3271dfe6",
+      "email": "asdevlpr1206@gmail.com",
+      "name": "samad01",
+      "createdAt": "2025-09-02T12:53:46.153Z",
+      "isSuperAdmin": false,
+      "updatedAt": "2025-09-02T12:53:46.175Z",
+      "orgMemberships": [
+        {
+          "orgId": "68b6e73881b31e6bf7a5fa16",
+          "role": "VIEWER",
+          "createdAt": "2025-09-02T12:53:46.175Z",
+          "updatedAt": "2025-09-02T12:53:46.175Z",
+          "createdBy": "68ac4aa9cae99e463b0fae78"
+        }
+      ]
+    }
+  ]
+}

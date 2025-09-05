@@ -1,0 +1,77 @@
+{
+  "/api/users/me": {
+    "id": "68b96814af8bd4774ea92fc8",
+    "email": "samad.cs010@gmail.com",
+    "name": "samad",
+    "createdAt": "2025-09-04T10:21:08.873Z",
+    "isSuperAdmin": false,
+    "updatedAt": "2025-09-04T10:24:20.925Z",
+    "orgMemberships": [
+      {
+        "orgId": "68b9681381b31e6bf7a5faff",
+        "role": "ADMIN",
+        "createdAt": "2025-09-04T10:21:08.882Z",
+        "updatedAt": "2025-09-04T10:21:08.882Z",
+        "createdBy": "685f8c8aac7ec870550ab359"
+      },
+      {
+        "orgId": "68b968d481b31e6bf7a5fb00",
+        "role": "ADMIN",
+        "createdAt": "2025-09-04T10:24:20.925Z",
+        "updatedAt": "2025-09-04T10:24:20.925Z",
+        "createdBy": "685f8c8aac7ec870550ab359"
+      }
+    ]
+  },
+  "/api/orgs": [
+    {
+      "name": "actualitydummy",
+      "id": "68b9681381b31e6bf7a5faff",
+      "createdAt": "2025-09-04T10:21:07.961Z",
+      "updatedAt": "2025-09-04T10:21:07.961Z",
+      "createdBy": "685f8c8aac7ec870550ab359",
+      "role": "ADMIN"
+    },
+    {
+      "name": "actuaity-landing",
+      "id": "68b968d481b31e6bf7a5fb00",
+      "createdAt": "2025-09-04T10:24:20.899Z",
+      "updatedAt": "2025-09-04T10:24:20.899Z",
+      "createdBy": "685f8c8aac7ec870550ab359",
+      "role": "ADMIN"
+    }
+  ],
+  "/api/orgs/68b9681381b31e6bf7a5faff": {
+    "name": "actualitydummy",
+    "id": "68b9681381b31e6bf7a5faff",
+    "createdAt": "2025-09-04T10:21:07.961Z",
+    "updatedAt": "2025-09-04T10:21:07.961Z",
+    "createdBy": "685f8c8aac7ec870550ab359"
+  },
+  "/api/68b9681381b31e6bf7a5faff/team": [
+    {
+      "id": "68b96814af8bd4774ea92fc8",
+      "email": "samad.cs010@gmail.com",
+      "name": "samad",
+      "createdAt": "2025-09-04T10:21:08.873Z",
+      "isSuperAdmin": false,
+      "updatedAt": "2025-09-04T10:24:20.925Z",
+      "orgMemberships": [
+        {
+          "orgId": "68b9681381b31e6bf7a5faff",
+          "role": "ADMIN",
+          "createdAt": "2025-09-04T10:21:08.882Z",
+          "updatedAt": "2025-09-04T10:21:08.882Z",
+          "createdBy": "685f8c8aac7ec870550ab359"
+        },
+        {
+          "orgId": "68b968d481b31e6bf7a5fb00",
+          "role": "ADMIN",
+          "createdAt": "2025-09-04T10:24:20.925Z",
+          "updatedAt": "2025-09-04T10:24:20.925Z",
+          "createdBy": "685f8c8aac7ec870550ab359"
+        }
+      ]
+    }
+  ]
+}

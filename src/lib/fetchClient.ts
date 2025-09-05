@@ -10,7 +10,6 @@ export async function apiFetch<T>(
   payload?: any
 ) {
   const token = options?.token || (await getAuth0AccessToken());
-
   const path_ = path.startsWith('http') ? path : `${BASE_URL}${path}`;
 
   const res = await fetch(path_, {

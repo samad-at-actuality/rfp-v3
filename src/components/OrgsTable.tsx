@@ -20,7 +20,7 @@ export function OrgsTable({ orgs }: { orgs: TOrg[] }) {
         <TableRow>
           <TableHead className='w-[100px]'>Link</TableHead>
           <TableHead>Name</TableHead>
-          <TableHead>Description</TableHead>
+          {/* <TableHead>Description</TableHead> */}
           {/* <TableHead>Admin Name</TableHead> */}
         </TableRow>
       </TableHeader>
@@ -37,7 +37,7 @@ export function OrgsTable({ orgs }: { orgs: TOrg[] }) {
               </Link>
             </TableCell>
             <TableCell>{org.name}</TableCell>
-            <TableCell>{org.description || 'No description'}</TableCell>
+            {/* <TableCell>{org.description || 'No description'}</TableCell> */}
             {/* <TableCell>{org.adminName}</TableCell> */}
           </TableRow>
         ))}
