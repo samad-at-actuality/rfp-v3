@@ -196,70 +196,75 @@ export const TeamMemberPage = ({
           <CardTitle>Members of the Organization</CardTitle>
         </CardHeader>
         <CardContent className='space-y-6'>
-          <CardDescription>
-            Send email to invite users to the organization
-          </CardDescription>
+          {currentOrgRole === TOrgRole.ADMIN && (
+            <>
+              <CardDescription>
+                Send email to invite users to the organization
+              </CardDescription>
 
-          <form className='flex flex-col gap-2' onSubmit={handleSubmit}>
-            <div className='flex gap-2'>
-              <div className='flex-1'>
-                <Input
-                  required={true}
-                  onChange={handleChange}
-                  name='name'
-                  id='name'
-                  placeholder='Member name'
-                  type='userName'
-                  value={newMember.name}
-                />
-                {error.name && <p className='text-red-500'>{error.name}</p>}
-              </div>
-              <div>
-                <Select
-                  required
-                  onValueChange={handleSelectChange}
-                  defaultValue={TOrgRole.VIEWER}
-                  value={newMember.role}
-                >
-                  <SelectTrigger className='w-[120px]'>
-                    <SelectValue placeholder='Select access' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[TOrgRole.ADMIN, TOrgRole.EDITOR, TOrgRole.VIEWER].map(
-                      (accessLevel) => (
-                        <SelectItem key={accessLevel} value={accessLevel}>
-                          {accessLevel}
-                        </SelectItem>
-                      )
+              <form className='flex flex-col gap-2' onSubmit={handleSubmit}>
+                <div className='flex gap-2'>
+                  <div className='flex-1'>
+                    <Input
+                      required={true}
+                      onChange={handleChange}
+                      name='name'
+                      id='name'
+                      placeholder='Member name'
+                      type='userName'
+                      value={newMember.name}
+                    />
+                    {error.name && <p className='text-red-500'>{error.name}</p>}
+                  </div>
+                  <div>
+                    <Select
+                      required
+                      onValueChange={handleSelectChange}
+                      defaultValue={TOrgRole.VIEWER}
+                      value={newMember.role}
+                    >
+                      <SelectTrigger className='w-[120px]'>
+                        <SelectValue placeholder='Select access' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[TOrgRole.ADMIN, TOrgRole.EDITOR, TOrgRole.VIEWER].map(
+                          (accessLevel) => (
+                            <SelectItem key={accessLevel} value={accessLevel}>
+                              {accessLevel}
+                            </SelectItem>
+                          )
+                        )}
+                      </SelectContent>
+                    </Select>
+                    {error.role && <p className='text-red-500'>{error.role}</p>}
+                  </div>
+                </div>
+                <div className='flex justify-end gap-2'>
+                  <div className='flex-1'>
+                    <Input
+                      required={true}
+                      onChange={handleChange}
+                      placeholder='example@exmple.com'
+                      type='email'
+                      name='email'
+                      id='email'
+                      value={newMember.email}
+                    />
+                    {error.email && (
+                      <p className='text-red-500'>{error.email}</p>
                     )}
-                  </SelectContent>
-                </Select>
-                {error.role && <p className='text-red-500'>{error.role}</p>}
-              </div>
-            </div>
-            <div className='flex justify-end gap-2'>
-              <div className='flex-1'>
-                <Input
-                  required={true}
-                  onChange={handleChange}
-                  placeholder='example@exmple.com'
-                  type='email'
-                  name='email'
-                  id='email'
-                  value={newMember.email}
-                />
-                {error.email && <p className='text-red-500'>{error.email}</p>}
-              </div>
+                  </div>
 
-              <LoadingButton
-                label='Send Invite'
-                isLoading={isSubmittingNewMember}
-                className='sm'
-                onClick={handleSubmit}
-              />
-            </div>
-          </form>
-
+                  <LoadingButton
+                    label='Send Invite'
+                    isLoading={isSubmittingNewMember}
+                    className='sm'
+                    onClick={handleSubmit}
+                  />
+                </div>
+              </form>
+            </>
+          )}
           <div className='space-y-6'>
             {members.map((member) => (
               <div className='flex items-center gap-4' key={member.id}>
