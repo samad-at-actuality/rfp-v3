@@ -44,7 +44,6 @@ export default function AdminPage({ orgs: orgs_ }: { orgs: TOrg[] }) {
     } finally {
       setIsLoading(false);
     }
-    console.log(e.currentTarget);
   };
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,6 +54,9 @@ export default function AdminPage({ orgs: orgs_ }: { orgs: TOrg[] }) {
 
   return (
     <div className='w-[80%] border-[1px] border-gray-200 bg-white mx-auto my-20 rounded-lg shadow p-6  space-y-8'>
+      <h1 className='text-3xl font-semibold italic text-center underline'>
+        Super Admin Console
+      </h1>
       <h3 className='scroll-m-20 text-2xl font-semibold tracking-tight'>
         Create Organization
       </h3>

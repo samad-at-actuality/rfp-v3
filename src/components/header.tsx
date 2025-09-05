@@ -11,10 +11,12 @@ export const Header = async ({
   headerHeight,
   disableOrgSwitcher,
   disableAskAi,
+  disableNotification,
 }: {
   headerHeight: string;
   disableOrgSwitcher: boolean;
   disableAskAi: boolean;
+  disableNotification: boolean;
 }) => {
   return (
     <div
@@ -41,9 +43,11 @@ export const Header = async ({
             <HeaderSearchBar />
           </div>
         )}
-        <span>
-          <BellRingIcon className='w-6 h-6 text-gray-400' />
-        </span>
+        {!disableNotification && (
+          <span>
+            <BellRingIcon className='w-6 h-6 text-gray-400' />
+          </span>
+        )}
         <UserProfileDropDown />
       </div>
     </div>

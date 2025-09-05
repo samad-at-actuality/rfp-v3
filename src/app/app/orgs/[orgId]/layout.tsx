@@ -2,8 +2,7 @@ import { notFound, redirect } from 'next/navigation';
 import { Header } from '@/components/header';
 import { Sidebar } from '@/components/sidebar';
 
-import { getMyOrgs, getSuperAdminOrgs } from '@/lib/apis/organisationsApi';
-import { getUserInfo } from '@/lib/apis/userProfileApi';
+import { getMyOrgs } from '@/lib/apis/organisationsApi';
 import { OrgsWrapper } from '@/ctx/org-ctx';
 import { LastOrgVisitSaver } from './LAST_ORG_VISIT_saver';
 
@@ -16,15 +15,7 @@ export default async function AppLayout({
   children: React.ReactNode;
   params: Promise<{ orgId: string }>;
 }) {
-  const userInfo = await getUserInfo();
-
-  if (!userInfo.data) {
-    return redirect('/auth/logout');
-  }
-
-  const orgs_ = userInfo.data.isSuperAdmin
-    ? await getSuperAdminOrgs()
-    : await getMyOrgs();
+  const orgs_ = await getMyOrgs();
 
   if (!orgs_.data) {
     return redirect('/auth/logout');
@@ -46,6 +37,7 @@ export default async function AppLayout({
           headerHeight={`${HEADER_HEIGHT}px`}
           disableOrgSwitcher={false}
           disableAskAi={false}
+          disableNotification={false}
         />
         <div className='flex h-full w-full flex-1 overflow-hidden'>
           <div

@@ -4,6 +4,18 @@ import { twMerge } from 'tailwind-merge';
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+export function convertToReadableDate(isoDate: string) {
+  const date = new Date(isoDate);
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  });
+}
 export function getRelativeTime(createdAt: string) {
   const now = new Date();
   const pastDate = new Date(createdAt);
