@@ -30,3 +30,28 @@ export const createFolder = ({
     { type, name }
   );
 };
+
+export const getFolderById = ({
+  orgId,
+  folderId,
+}: {
+  orgId: string;
+  folderId: string;
+}) => {
+  return apiFetch<TFolderInfo>(
+    `/api/${orgId}/knowledge-hub/folders/${folderId}`
+  );
+};
+
+export const getFilesInFolder = ({
+  orgId,
+  folderId,
+}: {
+  orgId: string;
+  folderId: string;
+}) => {
+  return apiFetch<TFile[]>(
+    `/api/${orgId}/knowledge-hub/files?folderId=${folderId}`,
+    { method: 'GET' }
+  );
+};

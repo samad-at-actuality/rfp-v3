@@ -55,7 +55,8 @@ export default async function DataPage({
       </h2>
       <SecondaryFolders
         folders={folders.data || []}
-        type={primaryFolder.type}
+        primaryFolderSlug={primaryFolderSlug}
+        primaryFolderType={primaryFolder.type}
       />
     </div>
   );

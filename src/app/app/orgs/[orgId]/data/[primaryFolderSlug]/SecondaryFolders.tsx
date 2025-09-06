@@ -13,11 +13,14 @@ import { toast } from 'sonner';
 
 export const SecondaryFolders = ({
   folders: folders_,
-  type,
+  primaryFolderSlug,
+  primaryFolderType,
 }: {
   folders: TFolderInfo[];
-  type: TPrimaryFolderEnum;
+  primaryFolderSlug: string;
+  primaryFolderType: TPrimaryFolderEnum;
 }) => {
+  console.log('folders_:', folders_);
   const {
     currentOrg: { id: orgId, role: currentOrgRole },
   } = useOrgCtx();
@@ -28,7 +31,7 @@ export const SecondaryFolders = ({
   const handleCreateFolder = async ({ name }: { name: string }) => {
     try {
       setIsLoading(true);
-      const res = await createFolder({ orgId, type, name });
+      const res = await createFolder({ orgId, type: primaryFolderType, name });
 
       if (res.data) {
         toast.success('Folder created successfully');
@@ -63,7 +66,7 @@ export const SecondaryFolders = ({
       )}
       {folders.map((rfp) => (
         <Link
-          href={`/app/orgs/${orgId}/data/${rfp.id}`}
+          href={`/app/orgs/${orgId}/data/${primaryFolderSlug}/${rfp.id}`}
           key={rfp.id}
           className='flex rounded-lg h-[100px] shadow-[0px_1px_12px_0px_#1F29370D] hover:shadow-xl cursor-pointer transition-shadow duration-300 bg-white p-4 '
         >
