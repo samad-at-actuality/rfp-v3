@@ -1,45 +1,5 @@
+import { PrimaryFolders } from '@/lib/PrimaryFolders';
 import Link from 'next/link';
-import {
-  Users,
-  Briefcase,
-  Building2,
-  FileText,
-  FolderOpen,
-} from 'lucide-react';
-
-// Update your existingFolders array with these icons:
-const existingFolders = [
-  {
-    name: 'People',
-    type: 'PEOPLE',
-    slug: 'people',
-    icon: Users, // 👥 Represents people/team
-  },
-  {
-    name: 'Projects',
-    type: 'PROJECTS',
-    slug: 'projects',
-    icon: Briefcase, // 💼 Represents projects/work
-  },
-  {
-    name: 'Company Profile',
-    type: 'COMPANY_INFO',
-    slug: 'company-info',
-    icon: Building2, // 🏢 Represents company/organization
-  },
-  {
-    name: 'Past RFPs',
-    type: 'PAST_RFPS',
-    slug: 'past-rfps',
-    icon: FileText, // 📄 Represents documents/RFPs
-  },
-  {
-    name: 'Other',
-    type: 'OTHER',
-    slug: 'other',
-    icon: FolderOpen, // 📁 Generic folder for miscellaneous
-  },
-];
 
 export default async function DataPage({
   params,
@@ -53,7 +13,7 @@ export default async function DataPage({
       <h2 className='text-2xl font-bold'>Knowledge Hub</h2>
 
       <div className='grid grid-cols-6 gap-8'>
-        {existingFolders.map((folder) => (
+        {PrimaryFolders.map((folder) => (
           <Link
             key={folder.slug}
             href={`/app/orgs/${orgId}/data/${folder.slug}`}
