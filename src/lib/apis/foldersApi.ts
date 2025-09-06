@@ -1,4 +1,4 @@
-import { TFolderInfo } from '@/types/TFolderInfo';
+import { TFileType, TFolderInfo } from '@/types/TFolderInfo';
 import { TPrimaryFolderEnum } from '@/types/TPrimaryFolderEnum';
 import { apiFetch } from '../fetchClient';
 
@@ -50,7 +50,7 @@ export const getFilesInFolder = ({
   orgId: string;
   folderId: string;
 }) => {
-  return apiFetch<TFile[]>(
+  return apiFetch<TFileType[]>(
     `/api/${orgId}/knowledge-hub/files?folderId=${folderId}`,
     { method: 'GET' }
   );

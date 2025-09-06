@@ -1,5 +1,20 @@
 import { TPrimaryFolderEnum } from './TPrimaryFolderEnum';
 
+type TOtherInfo = {
+  key: string;
+  value: string;
+};
+export enum TPROGRESS_ENUM {
+  PROCESSED = 'PROCESSED',
+}
+
+export type TPeopleProject = {
+  name: string;
+  designations: string[];
+  description: string;
+  otherInfo: TOtherInfo[];
+};
+
 export type TFolderInfo = {
   name: string;
   type: TPrimaryFolderEnum;
@@ -8,13 +23,13 @@ export type TFolderInfo = {
   createdAt: string;
   updatedAt: string;
   createdBy: string;
-  summary: {
+  summary: null | {
     type: TPrimaryFolderEnum;
     createdAt: string;
     person: {
       name: string;
       about: string;
-      profilePics: [];
+      profilePics: string[];
       email: string;
       phone: string;
       address: string;
@@ -24,28 +39,11 @@ export type TFolderInfo = {
       country: string;
       website: string;
       socialMedia: [];
-      projects: {
-        name: string;
-        designations: [];
-        description: string;
-        otherInfo: [
-          {
-            key: string;
-            value: string;
-          },
-          {
-            key: string;
-            value: string;
-          },
-        ];
-      }[];
+      projects: TPeopleProject[];
       skills: string[];
       qualifications: string[];
       exp_years: string;
-      otherInfo: {
-        key: string;
-        value: string;
-      }[];
+      otherInfo: TOtherInfo[];
     };
     project: null;
     media: [];
@@ -53,4 +51,17 @@ export type TFolderInfo = {
     rfpSummary: null;
     dynamicFolder: null;
   };
+};
+
+export type TFileType = {
+  name: string;
+  fileKey: string;
+  type: TPrimaryFolderEnum;
+  folderId: string;
+  id: string;
+  orgId: string;
+  status: TPROGRESS_ENUM;
+  createdBy: string;
+  createdAt: string;
+  size: number;
 };

@@ -24,8 +24,28 @@ export default async function TertiaryFolderPage({
       orgId,
       folderId: secondaryFolderSlug,
     });
-    return <pre className='w-full'>{JSON.stringify(folderInfo, null, 2)}</pre>;
+
+    const files = await getFilesInFolder({
+      orgId,
+      folderId: secondaryFolderSlug,
+    });
+    return (
+      <>
+        <SummaryForm
+          folderInfo={folderInfo.data!}
+          orgId={orgId}
+          primaryFolderName={primaryFolder.name}
+          primaryFolderSlug={primaryFolderSlug}
+          files={files.data || []}
+        />
+        <pre className='w-full'>
+          {JSON.stringify({ folderInfo, files }, null, 2)}
+        </pre>
+        ;
+      </>
+    );
   }
+
   const files = await getFilesInFolder({
     orgId,
     folderId: secondaryFolderSlug,

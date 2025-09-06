@@ -9,7 +9,7 @@ export default async function DataPage({
   const orgId = (await params).orgId;
 
   return (
-    <div className='p-6 space-y-6 h-[400vh]'>
+    <div className='p-6 space-y-6'>
       <h2 className='text-2xl font-bold'>Knowledge Hub</h2>
 
       <div className='grid grid-cols-6 gap-8'>

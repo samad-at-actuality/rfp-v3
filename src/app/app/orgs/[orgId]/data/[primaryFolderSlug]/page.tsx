@@ -31,28 +31,27 @@ export default async function DataPage({
   });
   return (
     <div className='p-6 space-y-6 h-[400vh]'>
-      <h2 className='text-2xl font-bold'>
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link
-                  href={`/app/orgs/${orgId}/data`}
-                  className='text-2xl font-bold'
-                >
-                  Knowledge Hub
-                </Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <span className='text-2xl font-bold'>{primaryFolder.name}</span>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </h2>
+      <Breadcrumb>
+        <BreadcrumbList className='text-[rgb(3.939% 3.939% 3.939%)]'>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link
+                href={`/app/orgs/${orgId}/data`}
+                className='text-2xl font-bold'
+              >
+                Knowledge Hub
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <span className='text-2xl font-bold'>{primaryFolder.name}</span>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <SecondaryFolders
         folders={folders.data || []}
         primaryFolderSlug={primaryFolderSlug}
