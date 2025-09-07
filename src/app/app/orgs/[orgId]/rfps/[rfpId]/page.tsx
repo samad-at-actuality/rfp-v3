@@ -24,7 +24,7 @@ export default function RfpPage() {
         <ResizablePanel defaultSize={0} minSize={0} maxSize={20}>
           <div className='w-full h-full overflow-x-hidden overflow-y-auto'>
             <div className='h-[400vh]' />
-          </div>{' '}
+          </div>
         </ResizablePanel>
         <ResizableHandle />
       </ResizablePanelGroup>

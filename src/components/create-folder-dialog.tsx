@@ -17,12 +17,16 @@ export function CreateFolderDialog({
   setIsOpen,
   onSave,
   isLoading,
+  formLabel = 'Create Folder',
+  inputPlaceholder = 'Folder Name',
 }: {
   trigger: React.ReactNode;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   onSave: (_: { name: string }) => Promise<void>;
   isLoading: boolean;
+  formLabel?: string;
+  inputPlaceholder?: string;
 }) {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
@@ -36,11 +40,11 @@ export function CreateFolderDialog({
         }}
       >
         <DialogHeader>
-          <DialogTitle>Create Folder</DialogTitle>
+          <DialogTitle>{formLabel}</DialogTitle>
         </DialogHeader>
         <div className='space-y-2'>
           <Input
-            placeholder='Folder Name'
+            placeholder={inputPlaceholder}
             value={name}
             name='name'
             id='name'

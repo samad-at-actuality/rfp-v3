@@ -4,3 +4,15 @@ import { apiFetch } from '../fetchClient';
 export const getOrgRfps = ({ orgId }: { orgId: string }) => {
   return apiFetch<TRFP[]>(`/api/${orgId}/rfps`);
 };
+
+export const createRfp = ({ orgId, name }: { orgId: string; name: string }) => {
+  return apiFetch<TRFP>(
+    `/api/${orgId}/rfps`,
+    {
+      method: 'POST',
+    },
+    {
+      name,
+    }
+  );
+};
