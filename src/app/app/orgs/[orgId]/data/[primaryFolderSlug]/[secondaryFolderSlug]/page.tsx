@@ -3,6 +3,7 @@ import { PrimaryFolders } from '@/lib/PrimaryFolders';
 import { notFound } from 'next/navigation';
 import { PersonSummaryForm } from '@/components/person-summary-form/person-summary-form';
 import { TFolderInfoSummayType } from '@/types/TFolderInfo';
+import { FilesTable } from '@/components/files-table';
 
 export default async function FolderInfoPage({
   params,
@@ -53,6 +54,10 @@ export default async function FolderInfoPage({
         files={files.data || []}
       />
     );
+  }
+
+  if (folderInfo.data.type === TFolderInfoSummayType.COMPANY_INFO) {
+    return <FilesTable files={files.data || []} />;
   }
 
   return (
