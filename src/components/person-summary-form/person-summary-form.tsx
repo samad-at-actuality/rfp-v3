@@ -32,6 +32,8 @@ import { apiFetch } from '@/lib/fetchClient';
 import { toast } from 'sonner';
 import { LoadingButton } from '../loading-button';
 import { ImageBase64 } from '../image-base64';
+import { useOrgCtx } from '@/ctx/org-ctx';
+import { TOrgRole } from '@/types/TUserRole';
 
 export const PersonSummaryForm = ({
   folderInfo: folderInfo_,
@@ -46,6 +48,10 @@ export const PersonSummaryForm = ({
   primaryFolderSlug: string;
   files: TFolderFile[];
 }) => {
+  const {
+    currentOrg: { role: crtOrgAccess },
+  } = useOrgCtx();
+  const disableEdit = crtOrgAccess !== TOrgRole.ADMIN;
   const [personSummary, setPersonSummary] = useState<
     NonNullable<TFolderInfo['summary']>['person']
   >({
@@ -103,6 +109,7 @@ export const PersonSummaryForm = ({
       setIsSavingSummary(false);
     }
   };
+
   return (
     <div className='p-6 flex flex-col min-h-screen'>
       <div className='space-y-6 flex-1'>
@@ -144,6 +151,7 @@ export const PersonSummaryForm = ({
                 Full Name
               </Label>
               <Input
+                disabled={disableEdit}
                 id='name'
                 className='bg-white'
                 name='name'
@@ -162,6 +170,7 @@ export const PersonSummaryForm = ({
                 About
               </Label>
               <Textarea
+                disabled={disableEdit}
                 id='description'
                 className='bg-white'
                 name='description'
@@ -182,6 +191,7 @@ export const PersonSummaryForm = ({
                 Email
               </Label>
               <Input
+                disabled={disableEdit}
                 id='email'
                 className='bg-white'
                 name='email'
@@ -202,6 +212,7 @@ export const PersonSummaryForm = ({
                 Phone No.
               </Label>
               <Input
+                disabled={disableEdit}
                 id='phone'
                 className='bg-white'
                 name='phone'
@@ -222,6 +233,7 @@ export const PersonSummaryForm = ({
                 Experience
               </Label>
               <Input
+                disabled={disableEdit}
                 id='exp_years'
                 className='bg-white'
                 name='exp_years'
@@ -240,6 +252,8 @@ export const PersonSummaryForm = ({
               )}
             </div>
             <MediaDisplayer
+              showUpload={!disableEdit}
+              showDelete={!disableEdit}
               files={files}
               folderId={folderInfo_.id}
               orgId={orgId}
@@ -248,55 +262,61 @@ export const PersonSummaryForm = ({
           <div className='flex-[0.3]  space-y-6 '>
             <div className='space-y-2'>
               <Label className='text-lg'>Qualifications</Label>
-              <div className='  relative'>
-                <Input
-                  className='bg-white'
-                  value={qualificaitionTemp}
-                  onChange={(e) => {
-                    setQualificaitionTemp(e.target.value);
-                  }}
-                />
-                <div className='absolute right-[1px] top-0 scale-[0.8]'>
-                  <Button
-                    disabled={!qualificaitionTemp}
-                    className='bg-white hover:bg-gray-300 cursor-pointer text-blue-500'
-                    onClick={() => {
-                      setPersonSummary((p) => ({
-                        ...p,
-                        qualifications: [
-                          ...p?.qualifications,
-                          qualificaitionTemp,
-                        ],
-                      }));
-                      setQualificaitionTemp('');
+              {!disableEdit && (
+                <div className='  relative'>
+                  <Input
+                    disabled={disableEdit}
+                    className='bg-white'
+                    value={qualificaitionTemp}
+                    onChange={(e) => {
+                      setQualificaitionTemp(e.target.value);
                     }}
-                  >
-                    <PlusIcon className='w-8 h-8 ' />
-                    <span className='text-lg font-semibold'>Add</span>
-                  </Button>
+                  />
+
+                  <div className='absolute right-[1px] top-0 scale-[0.8]'>
+                    <Button
+                      disabled={!qualificaitionTemp}
+                      className='bg-white hover:bg-gray-300 cursor-pointer text-blue-500'
+                      onClick={() => {
+                        setPersonSummary((p) => ({
+                          ...p,
+                          qualifications: [
+                            ...p?.qualifications,
+                            qualificaitionTemp,
+                          ],
+                        }));
+                        setQualificaitionTemp('');
+                      }}
+                    >
+                      <PlusIcon className='w-8 h-8 ' />
+                      <span className='text-lg font-semibold'>Add</span>
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className='flex flex-wrap gap-2'>
                 {personSummary?.qualifications?.map((qualification) => (
                   <span
                     key={qualification}
-                    className='bg-white flex cursor-pointer items-center gap-2 rounded-full border-[1px] border-gray-500 pl-2'
+                    className='bg-white flex cursor-pointer items-center gap-2 rounded-full border-[1px] border-gray-500 pl-2 pr-2'
                   >
                     <span>{qualification}</span>
-                    <button
-                      className='bg-white rounded-full p-1 active:outline-gray-500 active:outline-[1px] cursor-pointer transition-all duration-300'
-                      onClick={() => {
-                        setPersonSummary((p) => ({
-                          ...p,
-                          qualifications: p?.qualifications?.filter(
-                            (q) => q !== qualification
-                          ),
-                        }));
-                      }}
-                    >
-                      <XIcon className='w-4 h-4' />
-                    </button>
+                    {!disableEdit && (
+                      <button
+                        className='bg-white rounded-full p-1 active:outline-gray-500 active:outline-[1px] cursor-pointer transition-all duration-300'
+                        onClick={() => {
+                          setPersonSummary((p) => ({
+                            ...p,
+                            qualifications: p?.qualifications?.filter(
+                              (q) => q !== qualification
+                            ),
+                          }));
+                        }}
+                      >
+                        <XIcon className='w-4 h-4' />
+                      </button>
+                    )}
                   </span>
                 ))}
               </div>
@@ -308,20 +328,22 @@ export const PersonSummaryForm = ({
             <div className='space-y-2'>
               <div className='flex items-center gap-2'>
                 <Label className='flex-1 text-lg'>Past Projects</Label>
-                <PersonProjectDialog
-                  onSave={(project) => {
-                    setPersonSummary((p) => ({
-                      ...p,
-                      projects: [...p?.projects, project],
-                    }));
-                  }}
-                  trigger={
-                    <Button className=' hover:bg-gray-300 cursor-pointer text-blue-500 outline-0 border-0 bg-transparent shadow-none '>
-                      <PlusIcon className='w-8 h-8 ' />
-                      <span className='text-lg font-semibold'>Add</span>
-                    </Button>
-                  }
-                />
+                {!disableEdit && (
+                  <PersonProjectDialog
+                    onSave={(project) => {
+                      setPersonSummary((p) => ({
+                        ...p,
+                        projects: [...p?.projects, project],
+                      }));
+                    }}
+                    trigger={
+                      <Button className=' hover:bg-gray-300 cursor-pointer text-blue-500 outline-0 border-0 bg-transparent shadow-none '>
+                        <PlusIcon className='w-8 h-8 ' />
+                        <span className='text-lg font-semibold'>Add</span>
+                      </Button>
+                    }
+                  />
+                )}
               </div>
 
               <div className='rounded-lg shadow-[0px_1px_12px_0px_#1F29370D] p-4 space-y-4 bg-white'>
@@ -342,20 +364,22 @@ export const PersonSummaryForm = ({
                         {project?.designations[0] || 'No designation'}
                       </p>
                     </div>
-                    <Button
-                      variant='ghost'
-                      className='p-0 cursor-pointer'
-                      onClick={() => {
-                        setPersonSummary({
-                          ...personSummary,
-                          projects: personSummary?.projects?.filter(
-                            (p) => p.name !== project.name
-                          ),
-                        });
-                      }}
-                    >
-                      <Trash2 className='w-4 h-4 text-red-400' />
-                    </Button>
+                    {!disableEdit && (
+                      <Button
+                        variant='ghost'
+                        className='p-0 cursor-pointer'
+                        onClick={() => {
+                          setPersonSummary({
+                            ...personSummary,
+                            projects: personSummary?.projects?.filter(
+                              (p) => p.name !== project.name
+                            ),
+                          });
+                        }}
+                      >
+                        <Trash2 className='w-4 h-4 text-red-400' />
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -363,15 +387,17 @@ export const PersonSummaryForm = ({
           </div>
         </div>
       </div>
-      <div className='sticky bottom-0 py-4 mt-6 bg-[#F9FAFB]'>
-        <div className='flex justify-end'>
-          <LoadingButton
-            onClick={handleUpdateSummary}
-            isLoading={isSavingSummary}
-            label='Save'
-          />
+      {!disableEdit && (
+        <div className='sticky bottom-0 py-4 mt-6 bg-[#F9FAFB]'>
+          <div className='flex justify-end'>
+            <LoadingButton
+              onClick={handleUpdateSummary}
+              isLoading={isSavingSummary}
+              label='Save'
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
@@ -380,10 +406,14 @@ export const MediaDisplayer = ({
   files: files_,
   orgId,
   folderId,
+  showUpload,
+  showDelete,
 }: {
   files: TFolderFile[];
   orgId: string;
   folderId: string;
+  showUpload: boolean;
+  showDelete: boolean;
 }) => {
   const [files, setFiles] = useState(files_);
   const [deletingMediaFile, setDeletingMediaFile] = useState<string>('');
@@ -409,14 +439,16 @@ export const MediaDisplayer = ({
         <Label className='text-lg flex-1' htmlFor='media'>
           Media
         </Label>
-        <FileUploaderDialog
-          orgId={orgId}
-          folderId={folderId}
-          type={TFolderInfoSummayType.PEOPLE}
-          onUpload={(files) => {
-            setFiles((p) => [...p, ...files]);
-          }}
-        />
+        {showUpload && (
+          <FileUploaderDialog
+            orgId={orgId}
+            folderId={folderId}
+            type={TFolderInfoSummayType.PEOPLE}
+            onUpload={(files) => {
+              setFiles((p) => [...p, ...files]);
+            }}
+          />
+        )}
       </div>
       <div className='flex flex-wrap gap-4 min-h-[150px] '>
         {files
@@ -464,21 +496,25 @@ export const MediaDisplayer = ({
                 <TooltipContent side='bottom'>{media.name}</TooltipContent>
               </Tooltip>
 
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  console.log('from button');
-                  handleDeleteMediaFile(media.id);
-                }}
-                className='text-red-500 hover:text-red-700'
-              >
-                {deletingMediaFile === media.id ? (
-                  <Loader2 className='w-4 h-4 animate-spin' />
-                ) : (
-                  <Trash2 className='w-4 h-4' />
-                )}
-              </button>
+              {showDelete && (
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    console.log('from button');
+                    handleDeleteMediaFile(media.id);
+                  }}
+                  className='text-red-500 hover:text-red-700'
+                >
+                  {deletingMediaFile === media.id ? (
+                    <Loader2 className='w-4 h-4 animate-spin' />
+                  ) : (
+                    <Trash2 className='w-4 h-4' />
+                  )}
+                </Button>
+              )}
             </div>
           ))}
       </div>
