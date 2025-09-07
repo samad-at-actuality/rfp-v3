@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { PersonSummaryForm } from '@/components/person-summary-form/person-summary-form';
 import { TFolderInfoSummayType } from '@/types/TFolderInfo';
 import { FilesTable } from '@/components/files-table';
+import { ProjectSummaryForm } from '@/components/project-summary-form';
 
 export default async function FolderInfoPage({
   params,
@@ -47,6 +48,17 @@ export default async function FolderInfoPage({
   if (folderInfo.data.type === TFolderInfoSummayType.PEOPLE) {
     return (
       <PersonSummaryForm
+        folderInfo={folderInfo.data!}
+        orgId={orgId}
+        primaryFolderName={primaryFolder.name}
+        primaryFolderSlug={primaryFolderSlug}
+        files={files.data || []}
+      />
+    );
+  }
+  if (folderInfo.data.type === TFolderInfoSummayType.PROJECTS) {
+    return (
+      <ProjectSummaryForm
         folderInfo={folderInfo.data!}
         orgId={orgId}
         primaryFolderName={primaryFolder.name}

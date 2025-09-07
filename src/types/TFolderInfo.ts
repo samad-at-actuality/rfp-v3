@@ -172,7 +172,7 @@ type TFolderInfoSummary_Project = {
   value: string | null;
   startDate: string | null;
   endDate: string | null;
-  team: ['string'];
+  team: string[];
   client: string | null;
   clientDescription: string | null;
   otherInfo: TOtherInfo[];

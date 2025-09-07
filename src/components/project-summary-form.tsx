@@ -26,16 +26,15 @@ import {
 import { Loader2, PlusIcon, Trash2, XIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { PersonProjectDialog } from './project-dialog';
 import { deleteMediaFile } from '@/lib/apis/foldersApi';
 import { apiFetch } from '@/lib/fetchClient';
 import { toast } from 'sonner';
-import { LoadingButton } from '../loading-button';
-import { ImageBase64 } from '../image-base64';
+import { LoadingButton } from './loading-button';
+import { ImageBase64 } from './image-base64';
 import { useOrgCtx } from '@/ctx/org-ctx';
 import { TOrgRole } from '@/types/TUserRole';
 
-export const PersonSummaryForm = ({
+export const ProjectSummaryForm = ({
   folderInfo: folderInfo_,
   orgId,
   primaryFolderName,
@@ -52,40 +51,42 @@ export const PersonSummaryForm = ({
     currentOrg: { role: crtOrgAccess },
   } = useOrgCtx();
   const disableEdit = crtOrgAccess !== TOrgRole.ADMIN;
-  const [personSummary, setPersonSummary] = useState<
-    NonNullable<TFolderInfo['summary']>['person']
+  const [projectSummary, setProjectSummary] = useState<
+    NonNullable<NonNullable<TFolderInfo['summary']>['project']>
   >({
-    name: folderInfo_?.summary?.person?.name || '',
-    about: folderInfo_?.summary?.person?.about || '',
-    email: folderInfo_?.summary?.person?.email || '',
-    phone: folderInfo_?.summary?.person?.phone || '',
-    exp_years: folderInfo_?.summary?.person?.exp_years || '',
-    qualifications: folderInfo_?.summary?.person?.qualifications || [],
-    projects: folderInfo_?.summary?.person?.projects || [],
+    name: folderInfo_?.summary?.project?.name || '',
+    about: folderInfo_?.summary?.project?.about || '',
+    designer: folderInfo_?.summary?.project?.designer || '',
+    contractType: folderInfo_?.summary?.project?.contractType || '',
+    location: folderInfo_?.summary?.project?.location || '',
+    value: folderInfo_?.summary?.project?.value || '',
+    startDate: folderInfo_?.summary?.project?.startDate || '',
+    endDate: folderInfo_?.summary?.project?.endDate || '',
+    team: folderInfo_?.summary?.project?.team || [],
+    client: folderInfo_?.summary?.project?.client || '',
+    clientDescription: folderInfo_?.summary?.project?.clientDescription || '',
+    otherInfo: folderInfo_?.summary?.project?.otherInfo || [],
 
     // fields need processing
-    profilePics: folderInfo_?.summary?.person?.profilePics || [],
-    otherInfo: [],
-    address: folderInfo_?.summary?.person?.address || '',
-    city: folderInfo_?.summary?.person?.city || '',
-    state: folderInfo_?.summary?.person?.state || '',
-    zip: folderInfo_?.summary?.person?.zip || '',
-    country: folderInfo_?.summary?.person?.country || '',
-    website: folderInfo_?.summary?.person?.website || '',
-    socialMedia: folderInfo_?.summary?.person?.socialMedia || [],
-    skills: folderInfo_?.summary?.person?.skills || [],
+    images: folderInfo_?.summary?.project?.images || [],
+    projectSize: folderInfo_?.summary?.project?.projectSize || '',
   });
 
   const [error, _setError] = useState({
     name: '',
-    email: '',
     about: '',
-    phone: '',
-    exp_years: '',
-    qualifications: '',
-    projects: '',
+    designer: '',
+    contractType: '',
+    location: '',
+    value: '',
+    startDate: '',
+    endDate: '',
+    team: '',
+    client: '',
+    clientDescription: '',
+    otherInfo: '',
   });
-  const [qualificaitionTemp, setQualificaitionTemp] = useState<string>('');
+
   const [isSavingSummary, setIsSavingSummary] = useState<boolean>(false);
   const handleUpdateSummary = async () => {
     try {
@@ -95,7 +96,7 @@ export const PersonSummaryForm = ({
         {
           method: 'PUT',
         },
-        { type: folderInfo_.type, person: personSummary }
+        { type: folderInfo_.type, project: projectSummary }
       );
       if (response.data) {
         toast.success('Summary updated successfully');
@@ -148,16 +149,16 @@ export const PersonSummaryForm = ({
           <div className='flex-[0.7]    space-y-6 '>
             <div className='space-y-2'>
               <Label className='text-lg' htmlFor='name'>
-                Full Name
+                Project Name
               </Label>
               <Input
                 disabled={disableEdit}
                 id='name'
                 className='bg-white'
                 name='name'
-                value={personSummary?.name}
+                value={projectSummary?.name || ''}
                 onChange={(e) =>
-                  setPersonSummary((p) => ({
+                  setProjectSummary((p) => ({
                     ...p,
                     name: e.target.value,
                   }))
@@ -167,16 +168,37 @@ export const PersonSummaryForm = ({
             </div>
             <div className='space-y-2'>
               <Label className='text-lg' htmlFor='description'>
-                About
+                Designer
               </Label>
-              <Textarea
+              <Input
                 disabled={disableEdit}
                 id='description'
                 className='bg-white'
                 name='description'
-                value={personSummary?.about}
+                value={projectSummary?.designer || ''}
                 onChange={(e) =>
-                  setPersonSummary((p) => ({
+                  setProjectSummary((p) => ({
+                    ...p,
+                    designer: e.target.value,
+                  }))
+                }
+              />
+              {error.designer && (
+                <span className='text-red-500'>{error.designer}</span>
+              )}
+            </div>
+            <div className='space-y-2'>
+              <Label className='text-lg' htmlFor='email'>
+                About
+              </Label>
+              <Textarea
+                disabled={disableEdit}
+                id='email'
+                className='bg-white'
+                name='email'
+                value={projectSummary?.about || ''}
+                onChange={(e) =>
+                  setProjectSummary((p) => ({
                     ...p,
                     about: e.target.value,
                   }))
@@ -186,71 +208,7 @@ export const PersonSummaryForm = ({
                 <span className='text-red-500'>{error.about}</span>
               )}
             </div>
-            <div className='space-y-2'>
-              <Label className='text-lg' htmlFor='email'>
-                Email
-              </Label>
-              <Input
-                disabled={disableEdit}
-                id='email'
-                className='bg-white'
-                name='email'
-                value={personSummary?.email}
-                onChange={(e) =>
-                  setPersonSummary((p) => ({
-                    ...p,
-                    email: e.target.value,
-                  }))
-                }
-              />
-              {error.email && (
-                <span className='text-red-500'>{error.email}</span>
-              )}
-            </div>
-            <div className='space-y-2'>
-              <Label className='text-lg' htmlFor='phone'>
-                Phone No.
-              </Label>
-              <Input
-                disabled={disableEdit}
-                id='phone'
-                className='bg-white'
-                name='phone'
-                value={personSummary?.phone}
-                onChange={(e) =>
-                  setPersonSummary((p) => ({
-                    ...p,
-                    phone: e.target.value,
-                  }))
-                }
-              />
-              {error.phone && (
-                <span className='text-red-500'>{error.phone}</span>
-              )}
-            </div>
-            <div className='space-y-2'>
-              <Label className='text-lg' htmlFor='exp_years'>
-                Experience
-              </Label>
-              <Input
-                disabled={disableEdit}
-                id='exp_years'
-                className='bg-white'
-                name='exp_years'
-                type='number'
-                min={0}
-                value={personSummary?.exp_years}
-                onChange={(e) =>
-                  setPersonSummary((p) => ({
-                    ...p,
-                    exp_years: e.target.value,
-                  }))
-                }
-              />
-              {error.exp_years && (
-                <span className='text-red-500'>{error.exp_years}</span>
-              )}
-            </div>
+
             <MediaDisplayer
               showUpload={!disableEdit}
               showDelete={!disableEdit}
@@ -261,128 +219,46 @@ export const PersonSummaryForm = ({
           </div>
           <div className='flex-[0.3]  space-y-6 '>
             <div className='space-y-2'>
-              <Label className='text-lg'>Qualifications</Label>
-              {!disableEdit && (
-                <div className='  relative'>
-                  <Input
-                    disabled={disableEdit}
-                    className='bg-white'
-                    value={qualificaitionTemp}
-                    onChange={(e) => {
-                      setQualificaitionTemp(e.target.value);
-                    }}
-                  />
-
-                  <div className='absolute right-[1px] top-0 scale-[0.8]'>
-                    <Button
-                      disabled={!qualificaitionTemp}
-                      className='bg-white hover:bg-gray-300 cursor-pointer text-blue-500'
-                      onClick={() => {
-                        setPersonSummary((p) => ({
-                          ...p,
-                          qualifications: [
-                            ...p?.qualifications,
-                            qualificaitionTemp,
-                          ],
-                        }));
-                        setQualificaitionTemp('');
-                      }}
-                    >
-                      <PlusIcon className='w-8 h-8 ' />
-                      <span className='text-lg font-semibold'>Add</span>
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              <div className='flex flex-wrap gap-2'>
-                {personSummary?.qualifications?.map((qualification) => (
-                  <span
-                    key={qualification}
-                    className='bg-white flex cursor-pointer items-center gap-2 rounded-full border-[1px] border-gray-500 pl-2 pr-2'
-                  >
-                    <span>{qualification}</span>
-                    {!disableEdit && (
-                      <button
-                        className='bg-white rounded-full p-1 active:outline-gray-500 active:outline-[1px] cursor-pointer transition-all duration-300'
-                        onClick={() => {
-                          setPersonSummary((p) => ({
-                            ...p,
-                            qualifications: p?.qualifications?.filter(
-                              (q) => q !== qualification
-                            ),
-                          }));
-                        }}
-                      >
-                        <XIcon className='w-4 h-4' />
-                      </button>
-                    )}
-                  </span>
-                ))}
-              </div>
-              {error.qualifications && (
-                <span className='text-red-500'>{error.qualifications}</span>
-              )}
+              <Label className='text-lg'>Location</Label>
+              <Input
+                disabled={disableEdit}
+                className='bg-white'
+                value={projectSummary.location!}
+                onChange={(e) => {
+                  setProjectSummary((p) => ({
+                    ...p,
+                    location: e.target.value,
+                  }));
+                }}
+              />
             </div>
-
             <div className='space-y-2'>
-              <div className='flex items-center gap-2'>
-                <Label className='flex-1 text-lg'>Past Projects</Label>
-                {!disableEdit && (
-                  <PersonProjectDialog
-                    onSave={(project) => {
-                      setPersonSummary((p) => ({
-                        ...p,
-                        projects: [...p?.projects, project],
-                      }));
-                    }}
-                    trigger={
-                      <Button className=' hover:bg-gray-300 cursor-pointer text-blue-500 outline-0 border-0 bg-transparent shadow-none '>
-                        <PlusIcon className='w-8 h-8 ' />
-                        <span className='text-lg font-semibold'>Add</span>
-                      </Button>
-                    }
-                  />
-                )}
-              </div>
-
-              <div className='rounded-lg shadow-[0px_1px_12px_0px_#1F29370D] p-4 space-y-4 bg-white'>
-                {personSummary?.projects?.map((project) => (
-                  <div key={project.name} className='flex items-start gap-4'>
-                    <img
-                      src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyzpztEZ2ykCnjQGcdYsKIMaj4Skvv_w9PPQ&s'
-                      alt={project.name}
-                      className='w-11 h-11 rounded-md object-cover'
-                    />
-                    <div className='flex-1'>
-                      <div className='flex items-center gap-1'>
-                        <p className='font-semibold text-sm text-gray-900'>
-                          {project.name}
-                        </p>
-                      </div>
-                      <p className='text-sm' style={{ color: '#6B7280' }}>
-                        {project?.designations[0] || 'No designation'}
-                      </p>
-                    </div>
-                    {!disableEdit && (
-                      <Button
-                        variant='ghost'
-                        className='p-0 cursor-pointer'
-                        onClick={() => {
-                          setPersonSummary({
-                            ...personSummary,
-                            projects: personSummary?.projects?.filter(
-                              (p) => p.name !== project.name
-                            ),
-                          });
-                        }}
-                      >
-                        <Trash2 className='w-4 h-4 text-red-400' />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <Label className='text-lg'>Project Size</Label>
+              <Input
+                disabled={disableEdit}
+                className='bg-white'
+                value={projectSummary.projectSize!}
+                onChange={(e) => {
+                  setProjectSummary((p) => ({
+                    ...p,
+                    projectSize: e.target.value,
+                  }));
+                }}
+              />
+            </div>{' '}
+            <div className='space-y-2'>
+              <Label className='text-lg'>Project Value</Label>
+              <Input
+                disabled={disableEdit}
+                className='bg-white'
+                value={projectSummary.value!}
+                onChange={(e) => {
+                  setProjectSummary((p) => ({
+                    ...p,
+                    value: e.target.value,
+                  }));
+                }}
+              />
             </div>
           </div>
         </div>
@@ -432,12 +308,14 @@ export const MediaDisplayer = ({
       setDeletingMediaFile('');
     }
   };
+
   const ref = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (ref.current && files.length === 0) {
       ref.current.click();
     }
   }, [files]);
+
   return (
     <div className='space-y-2 '>
       <div className='flex items-center'>
