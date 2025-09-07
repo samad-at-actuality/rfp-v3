@@ -124,3 +124,7 @@
 .log-1 {
   border: 1px solid red;
 }
+
+button {
+  cursor: pointer !important;
+}

@@ -10,6 +10,6 @@ import { setLastVisitedOrgAction } from '@/actions/last-visited-org-actions';
 export const LastOrgVisitSaver = ({ orgId }: { orgId: string }) => {
   useEffect(() => {
     setLastVisitedOrgAction({ orgId });
-  }, []);
+  }, [orgId]);
   return <></>;
 };

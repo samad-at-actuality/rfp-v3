@@ -10,6 +10,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useUserInfoCtx } from '@/ctx/user-context';
+import Image from 'next/image';
+import { Button } from './ui/button';
+import { useAskAI } from '@/ctx/ask-ai-ctx';
 
 export const Sidebar = ({ showAdminButton }: { showAdminButton?: boolean }) => {
   const [currentPath, setCurrentPath] = React.useState('');
@@ -23,7 +26,7 @@ export const Sidebar = ({ showAdminButton }: { showAdminButton?: boolean }) => {
     ?.split('/')[0];
 
   const { userInfo } = useUserInfoCtx();
-
+  const { chatMessagesExist, setOpen } = useAskAI();
   if (showAdminButton) {
     return (
       <aside className='z-10 w-full flex-col border-r bg-background flex'>
@@ -56,8 +59,8 @@ export const Sidebar = ({ showAdminButton }: { showAdminButton?: boolean }) => {
     );
   }
   return (
-    <aside className='z-10 w-full flex-col border-r bg-background flex'>
-      <nav className='flex-1 flex flex-col items-center gap-4 px-2 sm:py-4'>
+    <aside className='z-10 w-full flex-col border-r bg-background flex h-full'>
+      <nav className='flex-1 flex flex-col items-center gap-4 px-2'>
         <LinkComponent
           onClick={() => {
             setCurrentPath(`/app/orgs/${projectSlug}`);
@@ -114,7 +117,17 @@ export const Sidebar = ({ showAdminButton }: { showAdminButton?: boolean }) => {
           <Users className='h-5 w-5' />
         </LinkComponent>
       </nav>
-      <div className='grid place-items-center pb-4'>
+      <div className='grid place-items-center pb-4 justify-self-end'>
+        {chatMessagesExist && (
+          <Button variant='ghost' size='icon' onClick={() => setOpen(true)}>
+            <Image
+              src='/assets/wand-icon.svg'
+              alt='logo'
+              width={24}
+              height={24}
+            />
+          </Button>
+        )}
         {/* Wand action button can be added here when needed */}
       </div>
     </aside>
