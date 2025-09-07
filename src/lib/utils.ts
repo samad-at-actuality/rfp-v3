@@ -88,6 +88,13 @@ export const isDocumentUrl = (url: string): boolean => {
 const keyStr =
   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
+export const copyToClipBoard = (content: string, cb?: () => void) => {
+  if (typeof window !== 'undefined' && window.navigator.clipboard) {
+    navigator.clipboard.writeText(content).then(() => {
+      cb?.();
+    });
+  }
+};
 const triplet = (e1: number, e2: number, e3: number) =>
   keyStr.charAt(e1 >> 2) +
   keyStr.charAt(((e1 & 3) << 4) | (e2 >> 4)) +

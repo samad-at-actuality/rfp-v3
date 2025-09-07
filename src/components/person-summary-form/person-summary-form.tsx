@@ -441,6 +441,7 @@ export const MediaDisplayer = ({
         </Label>
         {showUpload && (
           <FileUploaderDialog
+            trigger={<Button>Upload Files</Button>}
             orgId={orgId}
             folderId={folderId}
             type={TFolderInfoSummayType.PEOPLE}

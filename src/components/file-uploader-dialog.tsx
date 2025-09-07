@@ -18,16 +18,28 @@ import { TFolderInfoSummayType } from '@/types/TFolderInfo';
 import { uploadeMediaFiles } from '@/lib/apis/foldersApi';
 import { TFolderFile } from '@/types/TFolderInfo';
 import { toast } from 'sonner';
+import { apiFetch } from '@/lib/fetchClient';
+
+export type UPLOADED_FILES_PAYLOAD = {
+  name: string;
+  fileKey: string;
+  type: TFolderInfoSummayType;
+  contentType: string;
+  folderId: string;
+};
+
 export function FileUploaderDialog({
   orgId,
   folderId,
   type,
   onUpload,
+  trigger,
 }: {
   orgId: string;
   folderId: string;
   type: TFolderInfoSummayType;
   onUpload: (_: TFolderFile[]) => void;
+  trigger: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
@@ -64,14 +76,9 @@ export function FileUploaderDialog({
         orgId,
         files.map((file) => ({ name: file.name, contentType: file.type }))
       );
+
       if (signature.data) {
-        const payloads: {
-          name: string;
-          fileKey: string;
-          type: TFolderInfoSummayType;
-          contentType: string;
-          folderId: string;
-        }[] = [];
+        const payloads: UPLOADED_FILES_PAYLOAD[] = [];
         const fileProcessed: string[] = [];
         for (const file of signature.data.files) {
           const crtFile = files.find((f) => file.fileKey.endsWith(f.name));
@@ -99,11 +106,13 @@ export function FileUploaderDialog({
             console.log('File not found', await res.text());
           }
         }
+
         const res = await uploadeMediaFiles(orgId, payloads);
-        console.log('res from uploadeMediaFiles: ', res);
+
         if (res.data) {
           onUpload(res.data);
         }
+
         const pendingFiles = files.filter(
           (f) => !fileProcessed.find((ff) => ff.endsWith(f.name))
         );
@@ -124,9 +133,7 @@ export function FileUploaderDialog({
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>Upload Files</Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
 
       <DialogContent
         className='max-w-2xl max-h-[80vh] flex flex-col'

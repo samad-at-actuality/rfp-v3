@@ -16,3 +16,13 @@ export const createRfp = ({ orgId, name }: { orgId: string; name: string }) => {
     }
   );
 };
+
+export const getRfpById = ({
+  orgId,
+  rfpId,
+}: {
+  orgId: string;
+  rfpId: string;
+}) => {
+  return apiFetch<TRFP>(`/api/${orgId}/rfps/${rfpId}`);
+};
