@@ -2,7 +2,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -22,7 +21,7 @@ export function CreateFolderDialog({
   trigger: React.ReactNode;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
-  onSave: ({ name }: { name: string }) => Promise<void>;
+  onSave: (_: { name: string }) => Promise<void>;
   isLoading: boolean;
 }) {
   const [name, setName] = useState('');

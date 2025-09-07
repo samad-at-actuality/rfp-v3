@@ -7,33 +7,64 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 export async function apiFetch<T>(
   path: string,
   options?: RequestInit & { token?: string },
-  payload?: any
+  payload?: any,
+  _label?: string
 ) {
   const token = options?.token || (await getAuth0AccessToken());
   const path_ = path.startsWith('http') ? path : `${BASE_URL}${path}`;
-  console.info(`Bearer ${token}`);
+
+  const contentTypeHeader =
+    options?.headers &&
+    typeof options.headers === 'object' &&
+    !(options.headers instanceof Headers) &&
+    !Array.isArray(options.headers)
+      ? (options.headers as Record<string, string>)['Content-Type']
+      : undefined;
+
+  const headers = {
+    ...(payload
+      ? { 'Content-Type': contentTypeHeader || 'application/json' }
+      : {}),
+    Authorization: `Bearer ${token}`,
+    ...(options?.headers || {}),
+  };
+
   const res = await fetch(path_, {
-    headers: {
-      ...(payload ? { 'Content-Type': 'application/json' } : {}),
-      Authorization: `Bearer ${token}`,
-      ...options?.headers,
-    },
+    headers,
     body: payload ? JSON.stringify(payload) : undefined,
     ...options,
   });
-  let response: T | any;
-
-  try {
-    // Try to parse error response as JSON
-    response = await res.json();
-  } catch {
-    // If not JSON, get text instead
-    response = await res.text();
-  }
 
   if (!res.ok) {
-    return { error: response, status: res.status };
+    try {
+      const error = await res.json();
+      return { error, status: res.status, headers: res.headers };
+    } catch {
+      const error = await res.text();
+      return { error, status: res.status, headers: res.headers };
+    }
   }
 
-  return { data: response as T, status: res.status };
+  try {
+    const contentType = res.headers.get('content-type') || '';
+    let data;
+
+    if (contentType.includes('application/json')) {
+      data = await res.json();
+    } else if (
+      contentType.startsWith('image/') ||
+      contentType === 'application/octet-stream' ||
+      contentType.includes('application/pdf')
+    ) {
+      data = await res.blob();
+    } else {
+      // Default to text for other content types
+      data = await res.text();
+    }
+
+    return { data: data as T, status: res.status, headers: res.headers };
+  } catch (error) {
+    console.error('Error parsing response:', error);
+    throw error;
+  }
 }

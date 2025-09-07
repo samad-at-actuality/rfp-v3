@@ -20,7 +20,6 @@ export const SecondaryFolders = ({
   primaryFolderSlug: string;
   primaryFolderType: TPrimaryFolderEnum;
 }) => {
-  console.log('folders_:', folders_);
   const {
     currentOrg: { id: orgId, role: currentOrgRole },
   } = useOrgCtx();

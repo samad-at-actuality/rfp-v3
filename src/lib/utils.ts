@@ -44,3 +44,57 @@ export function getRelativeTime(createdAt: string) {
     return `${diffInYears} year${diffInYears > 1 ? 's' : ''} ago`;
   }
 }
+
+// Check if URL points to an image based on extension
+export const isImageUrl = (url: string): boolean => {
+  if (!url) {
+    return false;
+  }
+  const imageExtensions = [
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.gif',
+    '.webp',
+    '.svg',
+    '.bmp',
+    '.tiff',
+  ];
+  const lowerUrl = url.toLowerCase();
+  return imageExtensions.some((ext) => lowerUrl.endsWith(ext));
+};
+
+// Check if URL points to a document based on extension
+export const isDocumentUrl = (url: string): boolean => {
+  if (!url) {
+    return false;
+  }
+  const docExtensions = [
+    '.pdf',
+    '.doc',
+    '.docx',
+    '.xls',
+    '.xlsx',
+    '.ppt',
+    '.pptx',
+    '.txt',
+    '.rtf',
+  ];
+  const lowerUrl = url.toLowerCase();
+  return docExtensions.some((ext) => lowerUrl.endsWith(ext));
+};
+
+// Pixel GIF code adapted from https://stackoverflow.com/a/33919020/266535
+const keyStr =
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+
+const triplet = (e1: number, e2: number, e3: number) =>
+  keyStr.charAt(e1 >> 2) +
+  keyStr.charAt(((e1 & 3) << 4) | (e2 >> 4)) +
+  keyStr.charAt(((e2 & 15) << 2) | (e3 >> 6)) +
+  keyStr.charAt(e3 & 63);
+
+export const rgbDataURL = (r: number, g: number, b: number) =>
+  `data:image/gif;base64,R0lGODlhAQABAPAA${
+    triplet(0, r, g) + triplet(b, 255, 255)
+  }/yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==`;

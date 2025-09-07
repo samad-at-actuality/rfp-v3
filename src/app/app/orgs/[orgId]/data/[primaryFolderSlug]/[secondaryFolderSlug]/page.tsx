@@ -1,9 +1,10 @@
 import { getFilesInFolder, getFolderById } from '@/lib/apis/foldersApi';
 import { PrimaryFolders } from '@/lib/PrimaryFolders';
 import { notFound } from 'next/navigation';
-import { SummaryForm } from './SummaryForm';
+import { PersonSummaryForm } from '@/components/person-summary-form/person-summary-form';
+import { TFolderInfoSummayType } from '@/types/TFolderInfo';
 
-export default async function TertiaryFolderPage({
+export default async function FolderInfoPage({
   params,
 }: {
   params: Promise<{
@@ -13,36 +14,27 @@ export default async function TertiaryFolderPage({
   }>;
 }) {
   const { secondaryFolderSlug, primaryFolderSlug, orgId } = await params;
+
   const primaryFolder = PrimaryFolders.find(
     (folder) => folder.slug === primaryFolderSlug
   );
+
   if (!primaryFolder) {
     return notFound();
   }
-  if (primaryFolder.type === 'PEOPLE' || primaryFolder.type === 'PROJECTS') {
-    const folderInfo = await getFolderById({
-      orgId,
-      folderId: secondaryFolderSlug,
-    });
 
-    const files = await getFilesInFolder({
-      orgId,
-      folderId: secondaryFolderSlug,
-    });
+  const folderInfo = await getFolderById({
+    orgId,
+    folderId: secondaryFolderSlug,
+  });
+
+  if (folderInfo.error || !folderInfo.data) {
     return (
-      <>
-        <SummaryForm
-          folderInfo={folderInfo.data!}
-          orgId={orgId}
-          primaryFolderName={primaryFolder.name}
-          primaryFolderSlug={primaryFolderSlug}
-          files={files.data || []}
-        />
-        <pre className='w-full'>
-          {JSON.stringify({ folderInfo, files }, null, 2)}
-        </pre>
-        ;
-      </>
+      <div className='p-6'>
+        <h1 className='text-2xl font-bold text-red-500'>
+          Something went wrong
+        </h1>
+      </div>
     );
   }
 
@@ -51,5 +43,21 @@ export default async function TertiaryFolderPage({
     folderId: secondaryFolderSlug,
   });
 
-  return <pre className='w-full'>{JSON.stringify(files, null, 2)}</pre>;
+  if (folderInfo.data.type === TFolderInfoSummayType.PEOPLE) {
+    return (
+      <PersonSummaryForm
+        folderInfo={folderInfo.data!}
+        orgId={orgId}
+        primaryFolderName={primaryFolder.name}
+        primaryFolderSlug={primaryFolderSlug}
+        files={files.data || []}
+      />
+    );
+  }
+
+  return (
+    <div className='p-6'>
+      <h1 className='text-2xl font-bold text-red-500'>Data Not Found</h1>
+    </div>
+  );
 }
