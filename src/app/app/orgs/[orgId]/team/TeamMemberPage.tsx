@@ -108,11 +108,10 @@ export const TeamMemberPage = ({
           },
         ]);
       } else {
-        console.error(res.error);
         toast.error('Failed to invite the member!');
       }
-    } catch (error) {
-      console.error('error: ', error);
+    } catch {
+      toast.error('Failed to invite the member!');
     } finally {
       setIsSubmittingNewMember(false);
     }
@@ -151,11 +150,10 @@ export const TeamMemberPage = ({
         );
         toast.success('Role updated successfully!');
       } else {
-        console.error(res.error);
         toast.error('Failed to update the role!');
       }
-    } catch (error) {
-      console.error('error: ', error);
+    } catch {
+      toast.error('Failed to update the role!');
     } finally {
       setIsChangingAccess('');
     }
@@ -180,11 +178,10 @@ export const TeamMemberPage = ({
         toast.success('Member revoked successfully!');
         setMembers((prev) => prev.filter((member) => member.id !== userId));
       } else {
-        console.error(res.error);
         toast.error('Failed to revoke the member!');
       }
-    } catch (error) {
-      console.error('error: ', error);
+    } catch {
+      toast.error('Failed to revoke the member!');
     } finally {
       setIsRevokingAccess('');
     }

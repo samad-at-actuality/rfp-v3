@@ -36,8 +36,7 @@ export const RFPListing = ({
       } else {
         toast.error('Failed to create RFP');
       }
-    } catch (error) {
-      console.error('error: ', error);
+    } catch {
       toast.error('Failed to create RFP');
     } finally {
       setIsLoading(false);

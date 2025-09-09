@@ -2,13 +2,16 @@ import { Button } from './ui/button';
 import { useState } from 'react';
 import { deleteFile } from '@/lib/apis/assetsApi';
 import { Loader, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export const FileDeleter = ({
   fileId,
   orgId,
+  onDeleteCB,
 }: {
   fileId: string;
   orgId: string;
+  onDeleteCB: () => void;
 }) => {
   const [deletingMediaFile, setDeletingMediaFile] = useState(false);
   return (
@@ -19,17 +22,14 @@ export const FileDeleter = ({
         e.stopPropagation();
         setDeletingMediaFile(true);
         deleteFile({ orgId, fileId })
-          .then((res: any) => {
-            const url = window.URL.createObjectURL(new Blob([res]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', 'file');
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
+          .then((res) => {
+            if (res.error) {
+              throw new Error(res.error);
+            }
+            onDeleteCB();
           })
-          .catch((e) => {
-            console.log(e);
+          .catch(() => {
+            toast.error('Failed to delete file');
           })
           .finally(() => {
             setDeletingMediaFile(false);

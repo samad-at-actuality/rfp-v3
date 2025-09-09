@@ -63,9 +63,8 @@ export async function middleware(request: NextRequest) {
     }
 
     return await auth0.middleware(request);
-  } catch (error) {
+  } catch {
     const { origin } = new URL(request.url);
-    console.error(error);
     return NextResponse.redirect(`${origin}/not-found`);
   }
 }

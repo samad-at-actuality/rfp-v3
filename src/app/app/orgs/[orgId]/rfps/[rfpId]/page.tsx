@@ -12,8 +12,5 @@ export default async function SingleRfpPage({
   if (!rfp.data) {
     return notFound();
   }
-
-  // const files = await getFilesInFolder({ orgId, folderId: rfp.data.id });
-  // console.log('files: ', files);
   return <RfpPage rfp={rfp.data} orgId={orgId} />;
 }

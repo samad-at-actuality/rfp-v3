@@ -23,16 +23,17 @@ import {
   TFolderInfo,
   TFolderInfoSummayType,
 } from '@/types/TFolderInfo';
-import { Loader2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { deleteMediaFile, uploadeMediaFiles } from '@/lib/apis/foldersApi';
+import { uploadeMediaFiles } from '@/lib/apis/foldersApi';
 import { apiFetch } from '@/lib/fetchClient';
 import { toast } from 'sonner';
 import { LoadingButton } from './loading-button';
 import { ImageBase64 } from './image-base64';
 import { useOrgCtx } from '@/ctx/org-ctx';
 import { TOrgRole } from '@/types/TUserRole';
+import { FileDeleter } from './file-deleter';
+import { FileDownloader } from './file-downloader';
 
 export const ProjectSummaryForm = ({
   folderInfo: folderInfo_,
@@ -104,9 +105,8 @@ export const ProjectSummaryForm = ({
       } else {
         toast.error('Failed to update summary');
       }
-      console.log('response from api', response);
-    } catch (error) {
-      console.log(error);
+    } catch {
+      toast.error('Failed to update summary');
     } finally {
       setIsSavingSummary(false);
     }
@@ -125,9 +125,8 @@ export const ProjectSummaryForm = ({
       } else {
         toast.error('Failed to update summary');
       }
-      console.log('response from api', response);
-    } catch (error) {
-      console.log(error);
+    } catch {
+      toast.error('Failed to summarize the folder!');
     } finally {
       setIsReSummarizing(false);
     }
@@ -324,22 +323,6 @@ export const MediaDisplayer = ({
   showDelete: boolean;
 }) => {
   const [files, setFiles] = useState(files_);
-  const [deletingMediaFile, setDeletingMediaFile] = useState<string>('');
-
-  const handleDeleteMediaFile = async (fileId: string) => {
-    setDeletingMediaFile(fileId);
-    try {
-      const response = await deleteMediaFile({ orgId, fileId });
-      console.log(response);
-      if (response.status === 200) {
-        setFiles((p) => p.filter((f) => f.id !== fileId));
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setDeletingMediaFile('');
-    }
-  };
 
   const ref = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -418,25 +401,19 @@ export const MediaDisplayer = ({
                 </TooltipTrigger>
                 <TooltipContent side='bottom'>{media.name}</TooltipContent>
               </Tooltip>
-
+              <FileDownloader
+                fileId={media.id}
+                orgId={orgId}
+                filaName={media.name}
+              />
               {showDelete && (
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    console.log('from button');
-                    handleDeleteMediaFile(media.id);
+                <FileDeleter
+                  fileId={media.id}
+                  orgId={orgId}
+                  onDeleteCB={() => {
+                    setFiles((p) => p.filter((f) => f.id !== media.id));
                   }}
-                  className='text-red-500 hover:text-red-700'
-                >
-                  {deletingMediaFile === media.id ? (
-                    <Loader2 className='w-4 h-4 animate-spin' />
-                  ) : (
-                    <Trash2 className='w-4 h-4' />
-                  )}
-                </Button>
+                />
               )}
             </div>
           ))}

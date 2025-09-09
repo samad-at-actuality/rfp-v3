@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TOrg } from '@/types/TOrg';
 import { createOrg } from '@/lib/apis/organisationsApi';
+import { toast } from 'sonner';
 
 export default function AdminPage({ orgs: orgs_ }: { orgs: TOrg[] }) {
   const [orgs, setOrgs] = useState(orgs_);
@@ -39,8 +40,8 @@ export default function AdminPage({ orgs: orgs_ }: { orgs: TOrg[] }) {
           adminEmail: '',
         });
       }
-    } catch (error) {
-      console.log(error);
+    } catch {
+      toast.error('Failed to create organization');
     } finally {
       setIsLoading(false);
     }

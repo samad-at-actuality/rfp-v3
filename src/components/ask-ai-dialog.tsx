@@ -52,6 +52,7 @@ import Image from 'next/image';
 import { ConfirmDialog } from './confirm-dialog';
 import { getRelativeTime } from '@/lib/utils';
 import { MarkdownDisplayer } from './markdown-displayer';
+import { toast } from 'sonner';
 
 const ASK_AI_CHAT_SESSION_LOCAL_STORAGE_KEY = 'ask_ai_chat_session';
 const ASK_AI_CHAT_HISTORY_LOCAL_STORAGE_KEY = 'ask_ai_chat_history';
@@ -108,8 +109,7 @@ export const AskAIDialog = ({
     try {
       const saved = localStorage.getItem(ASK_AI_CHAT_HISTORY_LOCAL_STORAGE_KEY);
       return saved ? JSON.parse(saved) : [];
-    } catch (error) {
-      console.error('Failed to parse saved filter sequence:', error);
+    } catch {
       return [];
     }
   });
@@ -143,7 +143,6 @@ export const AskAIDialog = ({
           mode: TChatSessionMode.QUICK_RESPONSE,
           enableWeb: false,
         });
-        console.log('res: ', res);
         if (res.data) {
           setSession(res.data);
           localStorage.setItem(
@@ -152,8 +151,9 @@ export const AskAIDialog = ({
           );
         }
       }
-    } catch (error) {
-      console.log('error: ', error);
+    } catch {
+      toast.error('Failed to create chat session');
+      setOpen(false);
     } finally {
       setIsLoadingSession(false);
     }
@@ -195,7 +195,6 @@ export const AskAIDialog = ({
     if (!session) {
       return;
     }
-    console.log(selectedFolderIds, selectedKhTypes);
     setIsUpdatingSession(true);
     try {
       const res = await updateChatSessionApi(orgId, session.id, {
@@ -214,8 +213,8 @@ export const AskAIDialog = ({
           JSON.stringify(res.data)
         );
       }
-    } catch (error) {
-      console.log('error: ', error);
+    } catch {
+      toast.error('Failed to update chat session');
     } finally {
       setIsUpdatingSession(false);
     }
@@ -271,11 +270,10 @@ export const AskAIDialog = ({
         ]);
         setChatMessage((p) => ({ ...p, content: '' }));
       } else {
-        console.error('Failed to send chat message');
         setChatMessage((p) => ({ ...p, content: contentTemp }));
       }
-    } catch (error) {
-      console.error('Error:', error);
+    } catch {
+      toast.error('Failed to send chat message');
       setChatMessage((p) => ({ ...p, content: contentTemp }));
     } finally {
       setChatMessageClone(null);

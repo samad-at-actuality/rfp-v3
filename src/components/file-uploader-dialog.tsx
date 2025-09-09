@@ -103,7 +103,7 @@ export function FileUploaderDialog({
             };
             payloads.push(payload);
           } else {
-            console.log('File not found', await res.text());
+            fileNotProcessed.push(file.fileKey);
           }
         }
 
@@ -126,8 +126,7 @@ export function FileUploaderDialog({
           toast.error('Some files failed to upload');
         }
       }
-    } catch (error) {
-      console.log(error);
+    } catch {
       toast.error('Failed to upload files');
     } finally {
       setIsLoading(false);

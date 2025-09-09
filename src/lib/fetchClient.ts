@@ -64,7 +64,6 @@ export async function apiFetch<T>(
 
     return { data: data as T, status: res.status, headers: res.headers };
   } catch (error) {
-    console.error('Error parsing response:', error);
     throw error;
   }
 }

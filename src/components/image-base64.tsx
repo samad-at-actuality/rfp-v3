@@ -3,7 +3,6 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { getPreviewUrl } from '../lib/apis/assetsApi';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { Skeleton } from '@/components/ui/skeleton';
 
 export const ImageBase64 = ({
   width,
@@ -30,9 +29,7 @@ export const ImageBase64 = ({
           const fileURL = URL.createObjectURL(response.data!);
           setSrc(fileURL);
         }
-      } catch (error) {
-        console.log('error: ', error);
-      }
+      } catch {}
     };
     fetchSrc();
   }, [fileId, orgId]);

@@ -39,8 +39,7 @@ export const SecondaryFolders = ({
       } else {
         toast.error('Failed to create folder');
       }
-    } catch (error) {
-      console.error('error: ', error);
+    } catch {
       toast.error('Failed to create folder');
     } finally {
       setIsLoading(false);

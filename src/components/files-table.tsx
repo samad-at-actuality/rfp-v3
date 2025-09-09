@@ -21,7 +21,6 @@ import {
 
 import Link from 'next/link';
 
-import Image from 'next/image';
 import { Button } from './ui/button';
 import { useEffect, useRef, useState } from 'react';
 import { uploadeMediaFiles } from '@/lib/apis/foldersApi';
@@ -37,7 +36,7 @@ export const FilesTable = ({
   orgId,
   primaryFolderName,
   primaryFolderSlug,
-  files,
+  files: files_,
 }: {
   folderInfo: TFolderInfo;
   orgId: string;
@@ -45,6 +44,7 @@ export const FilesTable = ({
   primaryFolderSlug: string;
   files: TFolderFile[];
 }) => {
+  const [files, setFiles] = useState(files_);
   const {
     currentOrg: { role: crtOrgAccess },
   } = useOrgCtx();
@@ -202,8 +202,24 @@ export const FilesTable = ({
                         </span>
                       </TableCell>
                       <TableCell className='py-3 px-4 text-right space-x-2'>
-                        <FileDownloader fileId={doc.id} orgId={orgId} />
-                        <FileDeleter fileId={doc.id} orgId={orgId} />
+                        {!disableEdit && (
+                          <>
+                            <FileDownloader
+                              fileId={doc.id}
+                              orgId={orgId}
+                              filaName={doc.name}
+                            />
+                            <FileDeleter
+                              fileId={doc.id}
+                              orgId={orgId}
+                              onDeleteCB={() => {
+                                setFiles((p) =>
+                                  p.filter((pp) => pp.id !== doc.id)
+                                );
+                              }}
+                            />
+                          </>
+                        )}
                       </TableCell>
                     </TableRow>
                   );

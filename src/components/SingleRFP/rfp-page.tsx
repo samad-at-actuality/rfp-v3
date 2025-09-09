@@ -37,8 +37,7 @@ export default function RfpPage({
   orgId: string;
 }) {
   const router = useRouter();
-  const [rfp, setRfp] = useState(rfp_);
-  console.log(rfp);
+  const [rfp, _] = useState(rfp_);
   const uploadButtonRfp = useRef<HTMLButtonElement>(null);
   const [proposalFiles, setProposalFiles] = useState<string[]>(
     rfp?.latestVersion?.inputFileKeys || []
@@ -54,8 +53,7 @@ export default function RfpPage({
         toast.success(`Summary ${summary ? 're-' : ''}generated successfully`);
         setSummary(response.data.latestVersion.summary);
       }
-    } catch (error) {
-      console.error('error: ', error);
+    } catch {
       toast.error(`Failed to ${summary ? 're-' : ''}generate summary`);
     } finally {
       setIsLoadingSummary(false);
@@ -91,7 +89,7 @@ export default function RfpPage({
         return [];
       }
       return payloads;
-    } catch (error) {
+    } catch {
       return payloads;
     }
   };
