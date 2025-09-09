@@ -23,3 +23,24 @@ export const getUploadSignature = async (
     { files: payload }
   );
 };
+export const downloadFile = ({
+  orgId,
+  fileId,
+}: {
+  orgId: string;
+  fileId: string;
+}) => {
+  return apiFetch(`/api/${orgId}/knowledge-hub/files/${fileId}/download`);
+};
+
+export const deleteFile = ({
+  orgId,
+  fileId,
+}: {
+  orgId: string;
+  fileId: string;
+}) => {
+  return apiFetch(`/api/${orgId}/knowledge-hub/files/${fileId}/download`, {
+    method: 'DELETE',
+  });
+};

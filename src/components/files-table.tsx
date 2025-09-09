@@ -29,6 +29,8 @@ import { useOrgCtx } from '@/ctx/org-ctx';
 import { TOrgRole } from '@/types/TUserRole';
 import { FileUploaderDialog } from './file-uploader-dialog';
 import { Upload } from 'lucide-react';
+import { FileDeleter } from './file-deleter';
+import { FileDownloader } from './file-downloader';
 
 export const FilesTable = ({
   folderInfo: folderInfo_,
@@ -200,24 +202,8 @@ export const FilesTable = ({
                         </span>
                       </TableCell>
                       <TableCell className='py-3 px-4 text-right space-x-2'>
-                        <button className='text-gray-600'>
-                          <Image
-                            src='/assets/edit-icon.png'
-                            alt='Edit'
-                            width={18}
-                            height={18}
-                            className='cursor-pointer'
-                          />
-                        </button>
-                        <button className='text-gray-600'>
-                          <Image
-                            src='/assets/eye-icon.png'
-                            alt='View'
-                            width={18}
-                            height={18}
-                            className='cursor-pointer'
-                          />
-                        </button>
+                        <FileDownloader fileId={doc.id} orgId={orgId} />
+                        <FileDeleter fileId={doc.id} orgId={orgId} />
                       </TableCell>
                     </TableRow>
                   );

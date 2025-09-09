@@ -34,6 +34,8 @@ import { LoadingButton } from '../loading-button';
 import { ImageBase64 } from '../image-base64';
 import { useOrgCtx } from '@/ctx/org-ctx';
 import { TOrgRole } from '@/types/TUserRole';
+import { FileDownloader } from '../file-downloader';
+import { FileDeleter } from '../file-deleter';
 
 export const PersonSummaryForm = ({
   folderInfo: folderInfo_,
@@ -542,26 +544,8 @@ export const MediaDisplayer = ({
                 </TooltipTrigger>
                 <TooltipContent side='bottom'>{media.name}</TooltipContent>
               </Tooltip>
-
-              {showDelete && (
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    console.log('from button');
-                    handleDeleteMediaFile(media.id);
-                  }}
-                  className='text-red-500 hover:text-red-700'
-                >
-                  {deletingMediaFile === media.id ? (
-                    <Loader2 className='w-4 h-4 animate-spin' />
-                  ) : (
-                    <Trash2 className='w-4 h-4' />
-                  )}
-                </Button>
-              )}
+              <FileDownloader fileId={media.id} orgId={orgId} />
+              {showDelete && <FileDeleter fileId={media.id} orgId={orgId} />}
             </div>
           ))}
       </div>
