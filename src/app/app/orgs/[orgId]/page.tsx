@@ -1,3 +1,5 @@
+import { DashBoard } from '@/components/dashboard';
+
 export default async function OrgPage() {
-  return <div>Org Page</div>;
+  return <DashBoard />;
 }
