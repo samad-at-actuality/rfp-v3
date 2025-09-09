@@ -28,12 +28,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from './ui/button';
 import { useEffect, useRef, useState } from 'react';
-import { deleteMediaFile, uploadeMediaFiles } from '@/lib/apis/foldersApi';
-import { apiFetch } from '@/lib/fetchClient';
-import { toast } from 'sonner';
+import { uploadeMediaFiles } from '@/lib/apis/foldersApi';
 import { useOrgCtx } from '@/ctx/org-ctx';
 import { TOrgRole } from '@/types/TUserRole';
 import { FileUploaderDialog } from './file-uploader-dialog';
+import { Upload } from 'lucide-react';
 
 export const FilesTable = ({
   folderInfo: folderInfo_,
@@ -244,22 +243,13 @@ export const FilesTable = ({
                     }}
                     ref={ref}
                   >
-                    <span>
-                      {' '}
-                      <Image
-                        src='/assets/upload-icon.png'
-                        alt='View'
-                        width={18}
-                        height={18}
-                        className='cursor-pointer'
-                      />{' '}
-                    </span>
+                    <Upload className='w-4 h-4' />
                     Upload
                   </Button>
                 }
                 orgId={orgId}
                 folderId={folderInfo_?.id || ''}
-                type={TFolderInfoSummayType.PEOPLE}
+                type={folderInfo_.type}
                 onUpload={async (payloads) => {
                   try {
                     const res = await uploadeMediaFiles(orgId, payloads);
