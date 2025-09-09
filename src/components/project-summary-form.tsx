@@ -86,6 +86,7 @@ export const ProjectSummaryForm = ({
     clientDescription: '',
     otherInfo: '',
   });
+  const [isReSummarizing, setIsReSummarizing] = useState<boolean>(false);
 
   const [isSavingSummary, setIsSavingSummary] = useState<boolean>(false);
   const handleUpdateSummary = async () => {
@@ -110,7 +111,27 @@ export const ProjectSummaryForm = ({
       setIsSavingSummary(false);
     }
   };
-
+  const handleReSummarize = async () => {
+    try {
+      setIsReSummarizing(true);
+      const response = await apiFetch(
+        `/api/${orgId}/knowledge-hub/folders/${folderInfo_.id}/summarize`,
+        {
+          method: 'POST',
+        }
+      );
+      if (response.data) {
+        toast.success('Summary updated successfully');
+      } else {
+        toast.error('Failed to update summary');
+      }
+      console.log('response from api', response);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsReSummarizing(false);
+    }
+  };
   return (
     <div className='p-6 flex flex-col min-h-screen'>
       <div className='space-y-6 flex-1'>
@@ -145,6 +166,13 @@ export const ProjectSummaryForm = ({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
+        <div className='flex justify-end'>
+          <LoadingButton
+            label='Summarize'
+            isLoading={isReSummarizing || isSavingSummary}
+            onClick={handleReSummarize}
+          />
+        </div>
         <div className='flex gap-8'>
           <div className='flex-[0.7]    space-y-6 '>
             <div className='space-y-2'>
@@ -268,7 +296,7 @@ export const ProjectSummaryForm = ({
           <div className='flex justify-end'>
             <LoadingButton
               onClick={handleUpdateSummary}
-              isLoading={isSavingSummary}
+              isLoading={isSavingSummary || isReSummarizing}
               label='Save'
             />
           </div>

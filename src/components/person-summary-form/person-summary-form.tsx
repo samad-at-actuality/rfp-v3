@@ -87,6 +87,7 @@ export const PersonSummaryForm = ({
   });
   const [qualificaitionTemp, setQualificaitionTemp] = useState<string>('');
   const [isSavingSummary, setIsSavingSummary] = useState<boolean>(false);
+  const [isReSummarizing, setIsReSummarizing] = useState<boolean>(false);
   const handleUpdateSummary = async () => {
     try {
       setIsSavingSummary(true);
@@ -107,6 +108,27 @@ export const PersonSummaryForm = ({
       console.log(error);
     } finally {
       setIsSavingSummary(false);
+    }
+  };
+  const handleReSummarize = async () => {
+    try {
+      setIsReSummarizing(true);
+      const response = await apiFetch(
+        `/api/${orgId}/knowledge-hub/folders/${folderInfo_.id}/summarize`,
+        {
+          method: 'POST',
+        }
+      );
+      if (response.data) {
+        toast.success('Summary updated successfully');
+      } else {
+        toast.error('Failed to update summary');
+      }
+      console.log('response from api', response);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsReSummarizing(false);
     }
   };
 
@@ -144,8 +166,15 @@ export const PersonSummaryForm = ({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
+        <div className='flex justify-end'>
+          <LoadingButton
+            label='Summarize'
+            isLoading={isReSummarizing || isSavingSummary}
+            onClick={handleReSummarize}
+          />
+        </div>
         <div className='flex gap-8'>
-          <div className='flex-[0.7]    space-y-6 '>
+          <div className='flex-[0.7] space-y-6 '>
             <div className='space-y-2'>
               <Label className='text-lg' htmlFor='name'>
                 Full Name
@@ -392,7 +421,7 @@ export const PersonSummaryForm = ({
           <div className='flex justify-end'>
             <LoadingButton
               onClick={handleUpdateSummary}
-              isLoading={isSavingSummary}
+              isLoading={isReSummarizing || isSavingSummary}
               label='Save'
             />
           </div>
