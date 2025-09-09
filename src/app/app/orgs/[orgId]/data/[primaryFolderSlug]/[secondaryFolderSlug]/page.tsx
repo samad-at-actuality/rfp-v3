@@ -68,8 +68,20 @@ export default async function FolderInfoPage({
     );
   }
 
-  if (folderInfo.data.type === TFolderInfoSummayType.COMPANY_INFO) {
-    return <FilesTable files={files.data || []} />;
+  if (
+    folderInfo.data.type === TFolderInfoSummayType.COMPANY_INFO ||
+    folderInfo.data.type === TFolderInfoSummayType.PAST_RFPS ||
+    folderInfo.data.type === TFolderInfoSummayType.OTHER
+  ) {
+    return (
+      <FilesTable
+        folderInfo={folderInfo.data!}
+        orgId={orgId}
+        primaryFolderName={primaryFolder.name}
+        primaryFolderSlug={primaryFolderSlug}
+        files={files.data || []}
+      />
+    );
   }
 
   return (

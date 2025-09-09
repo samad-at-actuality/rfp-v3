@@ -29,6 +29,7 @@ export enum TFolderInfoSummayType {
   COMPANY_INFO = 'COMPANY_INFO',
   PAST_RFPS = 'PAST_RFPS',
   DYMANIC_FOLDER = 'DYMANIC_FOLDER',
+  OTHER = 'OTHER',
 }
 
 export type TFolderInfo = {
