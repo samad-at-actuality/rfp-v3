@@ -1,5 +1,4 @@
 import RfpPage from '@/components/SingleRFP/rfp-page';
-import { getFilesInFolder } from '@/lib/apis/foldersApi';
 import { getRfpById } from '@/lib/apis/rfpApi';
 import { notFound } from 'next/navigation';
 
@@ -16,5 +15,5 @@ export default async function SingleRfpPage({
 
   // const files = await getFilesInFolder({ orgId, folderId: rfp.data.id });
   // console.log('files: ', files);
-  return <RfpPage rfp={rfp.data} />;
+  return <RfpPage rfp={rfp.data} orgId={orgId} />;
 }

@@ -26,3 +26,33 @@ export const getRfpById = ({
 }) => {
   return apiFetch<TRFP>(`/api/${orgId}/rfps/${rfpId}`);
 };
+
+export const updateRfp = ({
+  orgId,
+  rfpId,
+  payload,
+}: {
+  orgId: string;
+  rfpId: string;
+  payload: any;
+}) => {
+  return apiFetch<TRFP>(
+    `/api/${orgId}/rfps/${rfpId}`,
+    {
+      method: 'PUT',
+    },
+    payload
+  );
+};
+
+export const generateSummary = ({
+  orgId,
+  rfpId,
+}: {
+  orgId: string;
+  rfpId: string;
+}) => {
+  return apiFetch<TRFP>(`/api/${orgId}/rfps${rfpId}/summary`, {
+    method: 'POST',
+  });
+};

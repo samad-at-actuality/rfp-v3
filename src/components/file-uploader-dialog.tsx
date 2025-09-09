@@ -9,16 +9,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+
 import { Card, CardContent } from '@/components/ui/card';
 import { Trash2, Upload } from 'lucide-react';
 import { LoadingButton } from './loading-button';
 import { getUploadSignature } from '@/lib/apis/assetsApi';
 import { TFolderInfoSummayType } from '@/types/TFolderInfo';
-import { uploadeMediaFiles } from '@/lib/apis/foldersApi';
-import { TFolderFile } from '@/types/TFolderInfo';
+
 import { toast } from 'sonner';
-import { apiFetch } from '@/lib/fetchClient';
 
 export type S3_UPLOADED_FILES_PAYLOAD = {
   name: string;
@@ -81,11 +79,11 @@ export function FileUploaderDialog({
 
       if (signature.data) {
         const payloads: S3_UPLOADED_FILES_PAYLOAD[] = [];
-        const fileProcessed: string[] = [];
+        const fileNotProcessed: string[] = [];
         for (const file of signature.data.files) {
           const crtFile = files.find((f) => file.fileKey.endsWith(f.name));
           if (!crtFile) {
-            fileProcessed.push(file.fileKey);
+            fileNotProcessed.push(file.fileKey);
             continue;
           }
           const res = await fetch(file.uploadUrl, {
@@ -111,10 +109,9 @@ export function FileUploaderDialog({
 
         const notUploaded = await onUpload(payloads);
 
-        let pendingFiles = files.filter(
-          (f) => !fileProcessed.find((ff) => ff.endsWith(f.name))
+        let pendingFiles = files.filter((f) =>
+          fileNotProcessed.find((ff) => ff.endsWith(f.name))
         );
-
         const notUploadedFiles = files.filter((f) =>
           notUploaded.find((ff) => ff.name === f.name)
         );

@@ -1,3 +1,4 @@
+import { TOtherInfo } from '@/types/TFolderInfo';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -194,3 +195,29 @@ You don't need to cross an ocean to have an adventure. A well-planned weekend es
 ***
 
 I hope this guide was helpful! Feel free to refer back to it whenever you need a little inspiration for a break.`;
+
+export const extToMime = (ext: string) => {
+  const mappings: { [key: string]: string } = {
+    png: 'image/png',
+    jpg: 'image/jpeg',
+    gif: 'image/gif',
+    pdf: 'application/pdf',
+    txt: 'text/plain',
+    json: 'application/json',
+    zip: 'application/zip',
+    mp4: 'video/mp4',
+  };
+  return mappings[ext] ?? 'application/octet-stream'; // Default to binary
+};
+export const otherInfoToMDTable = (data: TOtherInfo[]) => {
+  // table header
+  let md = `| Key | Value |\n|-----|-------|\n`;
+
+  data.forEach((item) => {
+    // replace newlines in value with <br> for Markdown formatting
+    const value = item.value.replace(/\n/g, '<br>');
+    md += `| ${item.key} | ${value} |\n`;
+  });
+
+  return md;
+};

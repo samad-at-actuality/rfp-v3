@@ -8,7 +8,7 @@ export async function apiFetch<T>(
   path: string,
   options?: RequestInit & { token?: string },
   payload?: any,
-  _label?: string
+  _?: string
 ) {
   const token = options?.token || (await getAuth0AccessToken());
   const path_ = path.startsWith('http') ? path : `${BASE_URL}${path}`;

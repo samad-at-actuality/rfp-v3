@@ -164,7 +164,7 @@ export type TRFP = {
         },
       ];
     };
-    template: string | null;
+    template: string;
     status: string;
     version: number;
     createdBy: string;

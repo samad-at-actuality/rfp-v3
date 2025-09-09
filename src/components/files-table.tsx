@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  TFolderFile,
-  TFolderInfo,
-  TFolderInfoSummayType,
-} from '@/types/TFolderInfo';
+import { TFolderFile, TFolderInfo } from '@/types/TFolderInfo';
 
 import {
   Breadcrumb,
@@ -51,7 +47,6 @@ export const FilesTable = ({
     currentOrg: { role: crtOrgAccess },
   } = useOrgCtx();
   const disableEdit = crtOrgAccess !== TOrgRole.ADMIN;
-  const [showAddModal, setShowAddModal] = useState(false);
 
   const [existingFiles, setExistingFiles] = useState<TFolderFile[]>(files);
 

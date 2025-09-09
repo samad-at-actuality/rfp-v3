@@ -23,7 +23,7 @@ import {
   TFolderInfo,
   TFolderInfoSummayType,
 } from '@/types/TFolderInfo';
-import { Loader2, PlusIcon, Trash2, XIcon } from 'lucide-react';
+import { Loader2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { deleteMediaFile, uploadeMediaFiles } from '@/lib/apis/foldersApi';

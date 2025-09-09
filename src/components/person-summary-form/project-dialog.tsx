@@ -22,13 +22,13 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table';
-import { toast } from 'sonner';
+
 export const PersonProjectDialog = ({
   trigger,
   onSave,
 }: {
   trigger: React.ReactNode;
-  onSave: (project: {
+  onSave: (_: {
     name: string;
     designations: string[];
     description: string;

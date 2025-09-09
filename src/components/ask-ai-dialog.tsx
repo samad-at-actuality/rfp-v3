@@ -645,7 +645,7 @@ export function KnowledgeHubDropDownMenu({
   knowledgeHubStructure: KnowledgeHubStructure;
   selectedFolderIds: string[];
   khTypes: TPrimaryFolderEnum[];
-  onSave: (folderIds: string[], khTypes: TPrimaryFolderEnum[]) => Promise<void>;
+  onSave: (_: string[], __: TPrimaryFolderEnum[]) => Promise<void>;
   isSaving: boolean;
 }) {
   const [open, setOpen] = useState(false);

@@ -17,7 +17,7 @@ export const ConfirmDialog = ({
   handleConfirmClose,
 }: {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: (_: boolean) => void;
   isLoading?: boolean;
   handleConfirmClose: () => void;
 }) => {

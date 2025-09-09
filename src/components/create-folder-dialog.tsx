@@ -22,7 +22,7 @@ export function CreateFolderDialog({
 }: {
   trigger: React.ReactNode;
   isOpen: boolean;
-  setIsOpen: (value: boolean) => void;
+  setIsOpen: (_: boolean) => void;
   onSave: (_: { name: string }) => Promise<void>;
   isLoading: boolean;
   formLabel?: string;
