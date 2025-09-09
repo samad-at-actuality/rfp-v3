@@ -74,9 +74,8 @@ export default function RfpPage({ rfp: rfp_ }: { rfp: TRFP }) {
                   orgId={rfp.orgId}
                   folderId={rfp.id}
                   type={TFolderInfoSummayType.RFP_SUMMARY}
-                  onUpload={(files) => {
-                    console.log('files:', files);
-                    //   setFiles((p) => [...p, ...files]);
+                  onUpload={async (payloads) => {
+                    return [];
                   }}
                 />
               </div>

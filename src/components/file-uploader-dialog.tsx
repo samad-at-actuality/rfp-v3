@@ -20,7 +20,7 @@ import { TFolderFile } from '@/types/TFolderInfo';
 import { toast } from 'sonner';
 import { apiFetch } from '@/lib/fetchClient';
 
-export type UPLOADED_FILES_PAYLOAD = {
+export type S3_UPLOADED_FILES_PAYLOAD = {
   name: string;
   fileKey: string;
   type: TFolderInfoSummayType;
@@ -38,7 +38,9 @@ export function FileUploaderDialog({
   orgId: string;
   folderId: string;
   type: TFolderInfoSummayType;
-  onUpload: (_: TFolderFile[]) => void;
+  onUpload: (
+    _: S3_UPLOADED_FILES_PAYLOAD[]
+  ) => Promise<S3_UPLOADED_FILES_PAYLOAD[]>;
   trigger: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -78,7 +80,7 @@ export function FileUploaderDialog({
       );
 
       if (signature.data) {
-        const payloads: UPLOADED_FILES_PAYLOAD[] = [];
+        const payloads: S3_UPLOADED_FILES_PAYLOAD[] = [];
         const fileProcessed: string[] = [];
         for (const file of signature.data.files) {
           const crtFile = files.find((f) => file.fileKey.endsWith(f.name));
@@ -107,15 +109,18 @@ export function FileUploaderDialog({
           }
         }
 
-        const res = await uploadeMediaFiles(orgId, payloads);
+        const notUploaded = await onUpload(payloads);
 
-        if (res.data) {
-          onUpload(res.data);
-        }
-
-        const pendingFiles = files.filter(
+        let pendingFiles = files.filter(
           (f) => !fileProcessed.find((ff) => ff.endsWith(f.name))
         );
+
+        const notUploadedFiles = files.filter((f) =>
+          notUploaded.find((ff) => ff.name === f.name)
+        );
+
+        pendingFiles = [...pendingFiles, ...notUploadedFiles];
+
         setFiles(pendingFiles);
         if (pendingFiles.length === 0) {
           toast.success('Files uploaded successfully');

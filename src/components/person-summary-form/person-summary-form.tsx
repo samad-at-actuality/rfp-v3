@@ -27,7 +27,7 @@ import { Loader2, PlusIcon, Trash2, XIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { PersonProjectDialog } from './project-dialog';
-import { deleteMediaFile } from '@/lib/apis/foldersApi';
+import { deleteMediaFile, uploadeMediaFiles } from '@/lib/apis/foldersApi';
 import { apiFetch } from '@/lib/fetchClient';
 import { toast } from 'sonner';
 import { LoadingButton } from '../loading-button';
@@ -450,8 +450,15 @@ export const MediaDisplayer = ({
             orgId={orgId}
             folderId={folderId}
             type={TFolderInfoSummayType.PEOPLE}
-            onUpload={(files) => {
-              setFiles((p) => [...p, ...files]);
+            onUpload={async (payloads) => {
+              try {
+                const res = await uploadeMediaFiles(orgId, payloads);
+
+                setFiles((p) => [...p, ...(res.data || [])]);
+                return [];
+              } catch {
+                return payloads;
+              }
             }}
           />
         )}

@@ -28,7 +28,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from './ui/button';
 import { useEffect, useRef, useState } from 'react';
-import { deleteMediaFile } from '@/lib/apis/foldersApi';
+import { deleteMediaFile, uploadeMediaFiles } from '@/lib/apis/foldersApi';
 import { apiFetch } from '@/lib/fetchClient';
 import { toast } from 'sonner';
 import { useOrgCtx } from '@/ctx/org-ctx';
@@ -59,7 +59,7 @@ export const FilesTable = ({
   const formatFileSize = (bytes: any) => {
     if (bytes === 0) {
       return '0 Bytes';
-    };
+    }
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
     const value = bytes / Math.pow(1024, i);
@@ -260,8 +260,15 @@ export const FilesTable = ({
                 orgId={orgId}
                 folderId={folderInfo_?.id || ''}
                 type={TFolderInfoSummayType.PEOPLE}
-                onUpload={(files) => {
-                  setExistingFiles((p) => [...p, ...files]);
+                onUpload={async (payloads) => {
+                  try {
+                    const res = await uploadeMediaFiles(orgId, payloads);
+
+                    setExistingFiles((p) => [...p, ...(res?.data || [])]);
+                    return [];
+                  } catch {
+                    return payloads;
+                  }
                 }}
               />
             )}
