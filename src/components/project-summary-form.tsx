@@ -166,13 +166,17 @@ export const ProjectSummaryForm = ({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <div className='flex justify-end'>
-          <LoadingButton
-            label='Summarize'
-            isLoading={isReSummarizing || isSavingSummary}
-            onClick={handleReSummarize}
-          />
-        </div>
+
+        {crtOrgAccess === TOrgRole.ADMIN && (
+          <div className='flex justify-end'>
+            <LoadingButton
+              label='Summarize'
+              isLoading={isReSummarizing || isSavingSummary}
+              onClick={handleReSummarize}
+            />
+          </div>
+        )}
+
         <div className='flex gap-8'>
           <div className='flex-[0.7]    space-y-6 '>
             <div className='space-y-2'>
