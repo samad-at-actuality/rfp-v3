@@ -11,13 +11,21 @@ export type TChatSession = {
   fileIds: string[];
   folderIds: string[];
   khTypes: TPrimaryFolderEnum[];
-  purpose: string;
+  purpose: AskAIPurpose;
   mode: TChatSessionMode;
   enableWeb: boolean;
   message?: {
     content: string;
   };
 };
+export enum AskAIPurpose {
+  RFP_SUMMARY_1 = 'RFP_SUMMARY_1',
+  RFP_SUMMARY_2 = 'RFP_SUMMARY_2',
+  RFP_SUMMARY_3 = 'RFP_SUMMARY_3',
+  RFP_RESPONSE = 'RFP_RESPONSE',
+  FOLDER_SUMMARY = 'FOLDER_SUMMARY',
+  ASK_AI = 'ASK_AI',
+}
 
 export type TChatSessionResponse = {
   id: string;

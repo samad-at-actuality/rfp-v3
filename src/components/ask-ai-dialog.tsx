@@ -30,6 +30,7 @@ import {
 import React, { useState, useRef, useEffect } from 'react';
 
 import {
+  AskAIPurpose,
   TChatHistory,
   TChatMessage,
   TChatSessionMode,
@@ -138,7 +139,7 @@ export const AskAIDialog = ({
           fileIds: [],
           folderIds: [],
           khTypes: [],
-          purpose: 'RFP_SUMMARY_1',
+          purpose: AskAIPurpose.ASK_AI,
           mode: TChatSessionMode.QUICK_RESPONSE,
           enableWeb: false,
         });
@@ -201,7 +202,7 @@ export const AskAIDialog = ({
         fileIds: [],
         folderIds: selectedFolderIds,
         khTypes: selectedKhTypes,
-        purpose: 'RFP_SUMMARY_1',
+        purpose: AskAIPurpose.ASK_AI,
         mode: chatMessage.mode,
         enableWeb: chatMessage.enableWeb,
       });
