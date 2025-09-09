@@ -23,7 +23,7 @@ import {
   TFolderInfo,
   TFolderInfoSummayType,
 } from '@/types/TFolderInfo';
-import { Loader2, PlusIcon, Trash2, XIcon } from 'lucide-react';
+import { Loader2, PlusIcon, Trash2, Upload, XIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { PersonProjectDialog } from './project-dialog';
@@ -475,7 +475,12 @@ export const MediaDisplayer = ({
         </Label>
         {showUpload && (
           <FileUploaderDialog
-            trigger={<Button ref={ref}>Upload Files</Button>}
+            trigger={
+              <Button ref={ref} className='bg-white' variant='outline'>
+                {' '}
+                <Upload /> Upload Files
+              </Button>
+            }
             orgId={orgId}
             folderId={folderId}
             type={TFolderInfoSummayType.PEOPLE}
