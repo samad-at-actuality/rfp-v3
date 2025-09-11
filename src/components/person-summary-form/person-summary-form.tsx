@@ -23,11 +23,14 @@ import {
   TFolderInfo,
   TFolderInfoSummayType,
 } from '@/types/TFolderInfo';
-import { PlusIcon, Trash2, Upload, XIcon } from 'lucide-react';
+import { PlusIcon, Trash2, Upload } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { PersonProjectDialog } from './project-dialog';
-import { uploadeMediaFiles } from '@/lib/apis/foldersApi';
+import {
+  reSummarizePeopleForm,
+  uploadeMediaFiles,
+} from '@/lib/apis/foldersApi';
 import { apiFetch } from '@/lib/fetchClient';
 import { toast } from 'sonner';
 import { LoadingButton } from '../loading-button';
@@ -36,6 +39,15 @@ import { useOrgCtx } from '@/ctx/org-ctx';
 import { TOrgRole } from '@/types/TUserRole';
 import { FileDownloader } from '../file-downloader';
 import { FileDeleter } from '../file-deleter';
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'; // make sure shadcn table is installed
 
 export const PersonSummaryForm = ({
   folderInfo: folderInfo_,
@@ -53,7 +65,6 @@ export const PersonSummaryForm = ({
   const {
     currentOrg: { role: crtOrgAccess },
   } = useOrgCtx();
-  const disableEdit = crtOrgAccess !== TOrgRole.ADMIN;
   const [personSummary, setPersonSummary] = useState<
     NonNullable<TFolderInfo['summary']>['person']
   >({
@@ -67,7 +78,7 @@ export const PersonSummaryForm = ({
 
     // fields need processing
     profilePics: folderInfo_?.summary?.person?.profilePics || [],
-    otherInfo: [],
+    otherInfo: folderInfo_?.summary?.person?.otherInfo || [],
     address: folderInfo_?.summary?.person?.address || '',
     city: folderInfo_?.summary?.person?.city || '',
     state: folderInfo_?.summary?.person?.state || '',
@@ -86,19 +97,27 @@ export const PersonSummaryForm = ({
     exp_years: '',
     qualifications: '',
     projects: '',
+    skills: '',
   });
   const [qualificaitionTemp, setQualificaitionTemp] = useState<string>('');
+  const [skillsTemp, setSkillsTemp] = useState<string>('');
   const [isSavingSummary, setIsSavingSummary] = useState<boolean>(false);
   const [isReSummarizing, setIsReSummarizing] = useState<boolean>(false);
+
   const handleUpdateSummary = async () => {
     try {
       setIsSavingSummary(true);
+      const payload = {
+        type: folderInfo_.type,
+        person: { ...personSummary },
+        createdAt: folderInfo_.createdAt, // send explicitly at root
+      };
       const response = await apiFetch(
         `/api/${orgId}/knowledge-hub/folders/${folderInfo_.id}/summary`,
         {
           method: 'PUT',
         },
-        { type: folderInfo_.type, person: personSummary }
+        payload
       );
       if (response.data) {
         toast.success('Summary updated successfully');
@@ -111,16 +130,18 @@ export const PersonSummaryForm = ({
       setIsSavingSummary(false);
     }
   };
+
   const handleReSummarize = async () => {
     try {
       setIsReSummarizing(true);
-      const response = await apiFetch(
-        `/api/${orgId}/knowledge-hub/folders/${folderInfo_.id}/summarize`,
-        {
-          method: 'POST',
-        }
-      );
+
+      const response = await reSummarizePeopleForm({
+        orgId,
+        folderId: folderInfo_.id,
+      });
+
       if (response.data) {
+        setPersonSummary(response.data.person);
         toast.success('Summary updated successfully');
       } else {
         toast.error('Failed to update summary');
@@ -132,6 +153,7 @@ export const PersonSummaryForm = ({
     }
   };
 
+  const disableEdit = crtOrgAccess !== TOrgRole.ADMIN;
   return (
     <div className='p-6 flex flex-col min-h-screen'>
       <div className='space-y-6 flex-1'>
@@ -169,9 +191,10 @@ export const PersonSummaryForm = ({
         {crtOrgAccess === TOrgRole.ADMIN && (
           <div className='flex justify-end'>
             <LoadingButton
-              label='Summarize'
-              isLoading={isReSummarizing || isSavingSummary}
+              label='Update'
+              isLoading={isReSummarizing}
               onClick={handleReSummarize}
+              isDisabled={isSavingSummary || isReSummarizing}
             />
           </div>
         )}
@@ -282,13 +305,67 @@ export const PersonSummaryForm = ({
                 <span className='text-red-500'>{error.exp_years}</span>
               )}
             </div>
-            <MediaDisplayer
-              showUpload={!disableEdit}
-              showDelete={!disableEdit}
-              files={files}
-              folderId={folderInfo_.id}
-              orgId={orgId}
-            />
+            <div className='space-y-2'>
+              <Label className='text-lg'>Skills</Label>
+              {!disableEdit && (
+                <div className='  relative'>
+                  <Input
+                    disabled={disableEdit}
+                    className='bg-white'
+                    value={skillsTemp}
+                    onChange={(e) => {
+                      setSkillsTemp(e.target.value);
+                    }}
+                  />
+
+                  <div className='absolute right-[1px] top-0 scale-[0.8]'>
+                    <Button
+                      disabled={!skillsTemp}
+                      className='bg-white hover:bg-gray-300 cursor-pointer text-blue-500'
+                      onClick={() => {
+                        setPersonSummary((p) => ({
+                          ...p,
+                          skills: [...p?.skills, skillsTemp],
+                        }));
+                        setSkillsTemp('');
+                      }}
+                    >
+                      <PlusIcon className='w-8 h-8 ' />
+                      <span className='text-lg font-semibold'>Add</span>
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              <div className='flex flex-wrap gap-2 mt-2'>
+                {personSummary?.skills?.map((skill) => (
+                  <div
+                    key={skill}
+                    className='flex items-center text-sm px-3 py-1 rounded-full border border-gray-300 bg-gray-100 text-gray-500 font-medium'
+                  >
+                    {skill}
+                    {!disableEdit && (
+                      <button
+                        type='button'
+                        onClick={() => {
+                          setPersonSummary((p) => ({
+                            ...p,
+                            skills: p?.skills?.filter((q) => q !== skill),
+                          }));
+                        }}
+                        className='ml-2 text-gray-500 hover:text-gray-700 cursor-pointer'
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {error.skills && (
+                <span className='text-red-500'>{error.skills}</span>
+              )}
+            </div>
           </div>
           <div className='flex-[0.3]  space-y-6 '>
             <div className='space-y-2'>
@@ -326,16 +403,16 @@ export const PersonSummaryForm = ({
                 </div>
               )}
 
-              <div className='flex flex-wrap gap-2'>
+              <div className='flex flex-wrap gap-2 mt-2'>
                 {personSummary?.qualifications?.map((qualification) => (
-                  <span
+                  <div
                     key={qualification}
-                    className='bg-white flex cursor-pointer items-center gap-2 rounded-full border-[1px] border-gray-500 pl-2 pr-2'
+                    className='flex items-center text-sm px-3 py-1 rounded-full border border-gray-300 bg-gray-100 text-gray-500 font-medium'
                   >
-                    <span>{qualification}</span>
+                    {qualification}
                     {!disableEdit && (
                       <button
-                        className='bg-white rounded-full p-1 active:outline-gray-500 active:outline-[1px] cursor-pointer transition-all duration-300'
+                        type='button'
                         onClick={() => {
                           setPersonSummary((p) => ({
                             ...p,
@@ -344,13 +421,15 @@ export const PersonSummaryForm = ({
                             ),
                           }));
                         }}
+                        className='ml-2 text-gray-500 hover:text-gray-700 cursor-pointer'
                       >
-                        <XIcon className='w-4 h-4' />
+                        ✕
                       </button>
                     )}
-                  </span>
+                  </div>
                 ))}
               </div>
+
               {error.qualifications && (
                 <span className='text-red-500'>{error.qualifications}</span>
               )}
@@ -417,14 +496,24 @@ export const PersonSummaryForm = ({
             </div>
           </div>
         </div>
+        <div className='space-y-2'>
+          <MediaDisplayer
+            showUpload={!disableEdit}
+            showDelete={!disableEdit}
+            files={files}
+            folderId={folderInfo_.id}
+            orgId={orgId}
+          />
+        </div>
       </div>
       {!disableEdit && (
         <div className='sticky bottom-0 py-4 mt-6 bg-[#F9FAFB]'>
           <div className='flex justify-end'>
             <LoadingButton
               onClick={handleUpdateSummary}
-              isLoading={isReSummarizing || isSavingSummary}
+              isLoading={isSavingSummary}
               label='Save'
+              isDisabled={isReSummarizing || isSavingSummary}
             />
           </div>
         </div>
@@ -454,9 +543,39 @@ export const MediaDisplayer = ({
       ref.current.click();
     }
   }, [files]);
+
+  const convertBytesToMB = (size: number): string => {
+    if (!size || size <= 0) {
+      return '0 MB';
+    }
+    return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+  };
+
+  const formatDateTime = (
+    isoString: string
+  ): { date: string; time: string } => {
+    const dateObj = new Date(isoString);
+
+    // Format date (DD-MM-YYYY)
+    const date = dateObj.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+
+    // Format time (HH:mm AM/PM)
+    const time = dateObj.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+
+    return { date, time };
+  };
+  console.log('files form media-disaplyer: ', files);
   return (
     <div className='space-y-2 '>
-      <div className='flex items-center'>
+      <div className='flex items-center mb-4'>
         <Label className='text-lg flex-1' htmlFor='media'>
           Media
         </Label>
@@ -464,7 +583,6 @@ export const MediaDisplayer = ({
           <FileUploaderDialog
             trigger={
               <Button ref={ref} className='bg-white' variant='outline'>
-                {' '}
                 <Upload /> Upload Files
               </Button>
             }
@@ -475,7 +593,9 @@ export const MediaDisplayer = ({
               try {
                 const res = await uploadeMediaFiles(orgId, payloads);
 
-                setFiles((p) => [...p, ...(res.data || [])]);
+                if (res.data) {
+                  setFiles((p) => [...p, ...(res.data || [])]);
+                }
                 return [];
               } catch {
                 return payloads;
@@ -510,41 +630,86 @@ export const MediaDisplayer = ({
             </div>
           ))}
       </div>
-      <Label className='text-lg flex-1' htmlFor='media'>
+      <Label className='text-lg flex-1 mt-4' htmlFor='media'>
         Documents
       </Label>
-      <div className='space-y-2'>
-        {files
-          ?.filter((media) => !isImageUrl(media.name))
-          .map((media) => (
-            <div
-              key={media.id}
-              className='flex items-center justify-between border p-2 rounded-lg'
-            >
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className='flex-1 truncate text-sm  overflow-hidden text-overflow-ellipsis text-ellipsis whitespace-nowrap'>
-                    {media.name}
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side='bottom'>{media.name}</TooltipContent>
-              </Tooltip>
-              <FileDownloader
-                fileId={media.id}
-                orgId={orgId}
-                filaName={media.name}
-              />
-              {showDelete && (
-                <FileDeleter
-                  fileId={media.id}
-                  orgId={orgId}
-                  onDeleteCB={() => {
-                    setFiles((p) => p.filter((f) => f.id !== media.id));
-                  }}
-                />
-              )}
-            </div>
-          ))}
+
+      <div className='overflow-x-auto rounded-xl'>
+        <Table>
+          <TableHeader>
+            <TableRow className='text-gray-500 border-b'>
+              <TableHead className='py-3 px-4'>
+                <input type='checkbox' />
+              </TableHead>
+              <TableHead className='py-3 px-4 font-normal text-lg text-[#6B7280]'>
+                File name
+              </TableHead>
+              <TableHead className='py-3 px-4 font-normal text-lg text-[#6B7280]'>
+                Uploaded by
+              </TableHead>
+              <TableHead className='py-3 px-4 font-normal text-lg text-[#6B7280]'>
+                Size
+              </TableHead>
+              <TableHead className='py-3 px-4 font-normal text-lg text-[#6B7280]'>
+                Date
+              </TableHead>
+              <TableHead className='py-3 px-4 text-right font-normal text-lg text-[#6B7280]'>
+                Actions
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {files
+              ?.filter((media) => !isImageUrl(media.name))
+              .map((doc) => {
+                const { date, time } = formatDateTime(doc.createdAt);
+
+                return (
+                  <TableRow key={doc.id} className='border-b last:border-0'>
+                    <TableCell className='py-3 px-4'>
+                      <input type='checkbox' />
+                    </TableCell>
+
+                    <TableCell className='py-3 px-4 text-black-800 text-lg'>
+                      {doc.name}
+                    </TableCell>
+
+                    <TableCell className='py-3 px-4 text-lg text-[#6B7280]'>
+                      ABC
+                    </TableCell>
+
+                    <TableCell className='py-3 px-4 text-lg text-[#6B7280]'>
+                      {convertBytesToMB(doc.size)}
+                    </TableCell>
+
+                    <TableCell className='py-3 px-4 whitespace-nowrap text-lg text-[#6B7280]'>
+                      {date}{' '}
+                      <span className='text-xs text-gray-400'>{time}</span>
+                    </TableCell>
+
+                    <TableCell className='py-3 px-4 text-right space-x-2'>
+                      <FileDownloader
+                        fileId={doc.id}
+                        orgId={orgId}
+                        filaName={doc.name}
+                      />
+
+                      {showDelete && (
+                        <FileDeleter
+                          fileId={doc.id}
+                          orgId={orgId}
+                          onDeleteCB={() => {
+                            setFiles((p) => p.filter((f) => f.id !== doc.id));
+                          }}
+                        />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

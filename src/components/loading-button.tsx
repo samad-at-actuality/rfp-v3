@@ -9,6 +9,8 @@ export const LoadingButton = ({
   variant = 'default',
   size = 'default',
   onClick,
+  isDisabled,
+  type = 'button',
 }: {
   label: string;
   isLoading: boolean;
@@ -23,14 +25,17 @@ export const LoadingButton = ({
     | 'link';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   onClick?: (_: any) => void;
+  isDisabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
 }) => {
   return (
     <Button
       size={size}
       variant={variant}
-      disabled={isLoading}
+      disabled={typeof isDisabled === 'boolean' ? isDisabled : isLoading}
       className={`${className}`}
       onClick={onClick}
+      type={type}
     >
       {isLoading ? (
         loaderIcon ? (

@@ -10,6 +10,7 @@ import { PrimaryFolders } from '@/lib/PrimaryFolders';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { SecondaryFolders } from './SecondaryFolders';
+export const dynamic = 'force-dynamic';
 
 export default async function DataPage({
   params,

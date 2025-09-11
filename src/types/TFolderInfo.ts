@@ -40,6 +40,7 @@ export type TFolderInfo = {
   createdAt: string;
   updatedAt: string;
   createdBy: string;
+  otherInfo: TOtherInfo[];
   summary: null | {
     type: TFolderInfoSummayType;
     createdAt: string;
@@ -49,6 +50,7 @@ export type TFolderInfo = {
     companyInfo: TFolderInfoSummary_CompanyInfo | null;
     rfpSummary: TFolderInfoSummary_RfpSummary | null;
     dynamicFolder: TFolderInfoSummary_DynamicFolder | null;
+    otherInfo: TOtherInfo[];
   };
 };
 

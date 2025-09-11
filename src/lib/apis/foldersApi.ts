@@ -124,3 +124,65 @@ export const deleteMediaFile = ({
     method: 'DELETE',
   });
 };
+
+export const deleteFolder = ({
+  orgId,
+  folderId,
+}: {
+  orgId: string;
+  folderId: string;
+}) => {
+  return apiFetch<TFolderInfo>(
+    `/api/${orgId}/knowledge-hub/folders/${folderId}`,
+    {
+      method: 'DELETE',
+    }
+  );
+};
+
+export const reSummarizePeopleForm = async ({
+  orgId,
+  folderId,
+}: {
+  orgId: string;
+  folderId: string;
+}) => {
+  return apiFetch<{ person: NonNullable<TFolderInfo['summary']>['person'] }>(
+    `/api/${orgId}/knowledge-hub/folders/${folderId}/summarize`,
+    {
+      method: 'POST',
+    }
+  );
+};
+
+export const reSummarizeProjectForm = async ({
+  orgId,
+  folderId,
+}: {
+  orgId: string;
+  folderId: string;
+}) => {
+  return apiFetch<{ projects: NonNullable<TFolderInfo['summary']>['project'] }>(
+    `/api/${orgId}/knowledge-hub/folders/${folderId}/summarize`,
+    {
+      method: 'POST',
+    }
+  );
+};
+
+export const getPrimaryFolderChildrenCount = async ({
+  orgId,
+}: {
+  orgId: string;
+}) => {
+  return apiFetch<
+    [
+      {
+        type: TPrimaryFolderEnum;
+        count: number;
+      },
+    ]
+  >(`/api/${orgId}/knowledge-hub/folders/count`, {
+    method: 'GET',
+  });
+};

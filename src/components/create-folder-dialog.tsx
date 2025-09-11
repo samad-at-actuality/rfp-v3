@@ -11,6 +11,7 @@ import { Button } from './ui/button';
 import { LoadingButton } from './loading-button';
 import { Input } from './ui/input';
 import { useState } from 'react';
+
 export function CreateFolderDialog({
   trigger,
   isOpen,
@@ -30,6 +31,18 @@ export function CreateFolderDialog({
 }) {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (name.trim() === '') {
+      setError('Folder name is required');
+      return;
+    }
+    await onSave({ name });
+    setName('');
+    setError('');
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -42,34 +55,27 @@ export function CreateFolderDialog({
         <DialogHeader>
           <DialogTitle>{formLabel}</DialogTitle>
         </DialogHeader>
-        <div className='space-y-2'>
-          <Input
-            placeholder={inputPlaceholder}
-            value={name}
-            name='name'
-            id='name'
-            onChange={(e) => setName(e.target.value)}
-          />
-          {error && <p className='text-red-500'>{error}</p>}
-        </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant='outline'>Cancel</Button>
-          </DialogClose>
-          <LoadingButton
-            label='Save'
-            isLoading={isLoading}
-            onClick={async () => {
-              if (name.trim() === '') {
-                setError('Folder name is required');
-                return;
-              }
-              await onSave({ name });
-              setName('');
-              setError('');
-            }}
-          />
-        </DialogFooter>
+
+        <form onSubmit={handleSubmit} className='flex flex-col gap-6'>
+          <div className='space-y-2'>
+            <Input
+              placeholder={inputPlaceholder}
+              value={name}
+              name='name'
+              id='name'
+              onChange={(e) => setName(e.target.value)}
+            />
+            {error && <p className='text-red-500'>{error}</p>}
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant='outline' type='button'>
+                Cancel
+              </Button>
+            </DialogClose>
+            <LoadingButton label='Save' isLoading={isLoading} type='submit' />
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

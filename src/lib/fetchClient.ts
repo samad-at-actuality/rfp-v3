@@ -52,16 +52,13 @@ export async function apiFetch<T>(
     if (contentType.includes('application/json')) {
       data = await res.json();
     } else if (
-      contentType.startsWith('image/') ||
-      contentType === 'application/octet-stream' ||
-      contentType.includes('application/pdf')
+      contentType.startsWith('text/') // only real text types
     ) {
-      data = await res.blob();
-    } else {
-      // Default to text for other content types
       data = await res.text();
+    } else {
+      // everything else (pdf, docx, xls, images, zip, etc.) → blob
+      data = await res.blob();
     }
-
     return { data: data as T, status: res.status, headers: res.headers };
   } catch (error) {
     throw error;

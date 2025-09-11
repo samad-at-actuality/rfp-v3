@@ -35,6 +35,18 @@ import { TOrgRole } from '@/types/TUserRole';
 import { FileDeleter } from './file-deleter';
 import { FileDownloader } from './file-downloader';
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'; // make sure shadcn table is installed
+import { IoMdDownload } from 'react-icons/io';
+import { FaEye } from 'react-icons/fa';
+import { TiDelete } from 'react-icons/ti';
+
 export const ProjectSummaryForm = ({
   folderInfo: folderInfo_,
   orgId,
@@ -98,7 +110,11 @@ export const ProjectSummaryForm = ({
         {
           method: 'PUT',
         },
-        { type: folderInfo_.type, project: projectSummary }
+        {
+          type: folderInfo_.type,
+          project: projectSummary,
+          createdAt: folderInfo_.createdAt,
+        }
       );
       if (response.data) {
         toast.success('Summary updated successfully');
@@ -132,7 +148,10 @@ export const ProjectSummaryForm = ({
     }
   };
   return (
-    <div className='p-6 flex flex-col min-h-screen'>
+    <div
+      className='p-6 flex flex-col min-h-screen'
+      style={{ fontFamily: "'Inter', sans-serif" }}
+    >
       <div className='space-y-6 flex-1'>
         <Breadcrumb>
           <BreadcrumbList className='text-[rgb(3.939% 3.939% 3.939%)]'>
@@ -169,9 +188,10 @@ export const ProjectSummaryForm = ({
         {crtOrgAccess === TOrgRole.ADMIN && (
           <div className='flex justify-end'>
             <LoadingButton
-              label='Summarize'
-              isLoading={isReSummarizing || isSavingSummary}
+              label='Update'
+              isLoading={isReSummarizing}
               onClick={handleReSummarize}
+              isDisabled={isReSummarizing || isSavingSummary}
             />
           </div>
         )}
@@ -239,14 +259,6 @@ export const ProjectSummaryForm = ({
                 <span className='text-red-500'>{error.about}</span>
               )}
             </div>
-
-            <MediaDisplayer
-              showUpload={!disableEdit}
-              showDelete={!disableEdit}
-              files={files}
-              folderId={folderInfo_.id}
-              orgId={orgId}
-            />
           </div>
           <div className='flex-[0.3]  space-y-6 '>
             <div className='space-y-2'>
@@ -293,14 +305,24 @@ export const ProjectSummaryForm = ({
             </div>
           </div>
         </div>
+        <div className='space-y-2'>
+          <MediaDisplayer
+            showUpload={!disableEdit}
+            showDelete={!disableEdit}
+            files={files}
+            folderId={folderInfo_.id}
+            orgId={orgId}
+          />
+        </div>
       </div>
       {!disableEdit && (
         <div className='sticky bottom-0 py-4 mt-6 bg-[#F9FAFB]'>
           <div className='flex justify-end'>
             <LoadingButton
               onClick={handleUpdateSummary}
-              isLoading={isSavingSummary || isReSummarizing}
+              isLoading={isSavingSummary}
               label='Save'
+              isDisabled={isSavingSummary || isReSummarizing}
             />
           </div>
         </div>
@@ -330,6 +352,35 @@ export const MediaDisplayer = ({
       ref.current.click();
     }
   }, [files]);
+
+  const convertBytesToMB = (size: number): string => {
+    if (!size || size <= 0) {
+      return '0 MB';
+    }
+    return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+  };
+
+  const formatDateTime = (
+    isoString: string
+  ): { date: string; time: string } => {
+    const dateObj = new Date(isoString);
+
+    // Format date (DD-MM-YYYY)
+    const date = dateObj.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+
+    // Format time (HH:mm AM/PM)
+    const time = dateObj.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+
+    return { date, time };
+  };
 
   return (
     <div className='space-y-2 '>
@@ -385,38 +436,83 @@ export const MediaDisplayer = ({
       <Label className='text-lg flex-1' htmlFor='media'>
         Documents
       </Label>
-      <div className='space-y-2'>
-        {files
-          ?.filter((media) => !isImageUrl(media.name))
-          .map((media) => (
-            <div
-              key={media.id}
-              className='flex items-center justify-between border p-2 rounded-lg'
-            >
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className='flex-1 truncate text-sm  overflow-hidden text-overflow-ellipsis text-ellipsis whitespace-nowrap'>
-                    {media.name}
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side='bottom'>{media.name}</TooltipContent>
-              </Tooltip>
-              <FileDownloader
-                fileId={media.id}
-                orgId={orgId}
-                filaName={media.name}
-              />
-              {showDelete && (
-                <FileDeleter
-                  fileId={media.id}
-                  orgId={orgId}
-                  onDeleteCB={() => {
-                    setFiles((p) => p.filter((f) => f.id !== media.id));
-                  }}
-                />
-              )}
-            </div>
-          ))}
+
+      <div className='overflow-x-auto rounded-xl'>
+        <Table>
+          <TableHeader>
+            <TableRow className='text-gray-500 border-b'>
+              <TableHead className='py-3 px-4'>
+                <input type='checkbox' />
+              </TableHead>
+              <TableHead className='py-3 px-4 font-normal text-lg text-[#6B7280]'>
+                File name
+              </TableHead>
+              <TableHead className='py-3 px-4 font-normal text-lg text-[#6B7280]'>
+                Uploaded by
+              </TableHead>
+              <TableHead className='py-3 px-4 font-normal text-lg text-[#6B7280]'>
+                Size
+              </TableHead>
+              <TableHead className='py-3 px-4 font-normal text-lg text-[#6B7280]'>
+                Date
+              </TableHead>
+              <TableHead className='py-3 px-4 text-right font-normal text-lg text-[#6B7280]'>
+                Actions
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {files
+              ?.filter((media) => !isImageUrl(media.name))
+              .map((doc) => {
+                const { date, time } = formatDateTime(doc.createdAt);
+
+                return (
+                  <TableRow key={doc.id} className='border-b last:border-0'>
+                    <TableCell className='py-3 px-4'>
+                      <input type='checkbox' />
+                    </TableCell>
+
+                    <TableCell className='py-3 px-4 text-black-800 text-lg'>
+                      {doc.name}
+                    </TableCell>
+
+                    <TableCell className='py-3 px-4 text-lg text-[#6B7280]'>
+                      ABC
+                    </TableCell>
+
+                    <TableCell className='py-3 px-4 text-lg text-[#6B7280]'>
+                      {convertBytesToMB(doc.size)}
+                    </TableCell>
+
+                    <TableCell className='py-3 px-4 whitespace-nowrap text-lg text-[#6B7280]'>
+                      {date}{' '}
+                      <span className='text-xs text-gray-400'>{time}</span>
+                    </TableCell>
+
+                    <TableCell className='py-3 px-4 text-right space-x-2'>
+                      <FileDownloader
+                        fileId={doc.id}
+                        orgId={orgId}
+                        filaName={doc.name}
+                      />
+
+                      {showDelete && (
+                        <FileDeleter
+                          fileId={doc.id}
+                          orgId={orgId}
+                          onDeleteCB={() => {
+                            setFiles((p) => p.filter((f) => f.id !== doc.id));
+                          }}
+                        />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );
