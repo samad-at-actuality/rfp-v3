@@ -40,6 +40,7 @@ export type TFolderInfo = {
   createdAt: string;
   updatedAt: string;
   createdBy: string;
+  otherInfo: TOtherInfo[];
   summary: null | {
     type: TFolderInfoSummayType;
     createdAt: string;
@@ -70,6 +71,7 @@ type TFolderInfoSummary_Person = {
   qualifications: string[];
   exp_years: string;
   otherInfo: TOtherInfo[];
+  createdAt: string;
 };
 
 type TFolderInfoSummary_RfpSummary = {

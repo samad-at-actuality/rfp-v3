@@ -56,3 +56,15 @@ export const generateSummary = ({
     method: 'POST',
   });
 };
+
+export const deleteRfp = ({
+  orgId,
+  rfpId,
+}: {
+  orgId: string;
+  rfpId: string;
+}) => {
+  return apiFetch<TRFP>(`/api/${orgId}/rfps/${rfpId}`, {
+    method: 'DELETE',
+  });
+};

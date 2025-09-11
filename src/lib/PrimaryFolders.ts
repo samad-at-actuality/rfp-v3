@@ -11,29 +11,34 @@ export const PrimaryFolders = [
     type: TPrimaryFolderEnum.PEOPLE,
     slug: 'people',
     icon: Users, // 👥 Represents people/team
+    id: 'PEOPLE',
   },
   {
     name: 'Projects',
     type: TPrimaryFolderEnum.PROJECTS,
     slug: 'projects',
     icon: Briefcase, // 💼 Represents projects/work
+    id: 'PROJECTS',
   },
   {
     name: 'Company Profile',
     type: TPrimaryFolderEnum.COMPANY_INFO,
     slug: 'company-info',
-    icon: Building2, // 🏢 Represents company/organization
+    icon: Building2,
+    id: 'COMPANY_INFO', // 🏢 Represents company/organization
   },
   {
     name: 'Past RFPs',
     type: TPrimaryFolderEnum.PAST_RFPS,
     slug: 'past-rfps',
-    icon: FileText, // 📄 Represents documents/RFPs
+    icon: FileText,
+    id: 'PAST_RFPS', // 📄 Represents documents/RFPs
   },
   {
     name: 'Other',
     type: TPrimaryFolderEnum.OTHER,
     slug: 'other',
     icon: FolderOpen, // 📁 Generic folder for miscellaneous
+    id: 'OTHER',
   },
 ];

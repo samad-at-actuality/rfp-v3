@@ -8,8 +8,30 @@ import { CreateFolderDialog } from '@/components/create-folder-dialog';
 import Link from 'next/link';
 import { useOrgCtx } from '@/ctx/org-ctx';
 import { useState } from 'react';
-import { createFolder } from '@/lib/apis/foldersApi';
+import { createFolder, deleteFolder } from '@/lib/apis/foldersApi';
 import { toast } from 'sonner';
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { FiEdit2, FiTrash2 } from 'react-icons/fi';
+
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+
+import { Button } from '@/components/ui/button';
+import { Trash2 } from 'lucide-react';
+
+import { TOrgRole } from '@/types/TUserRole';
 
 export const SecondaryFolders = ({
   folders: folders_,
@@ -23,9 +45,20 @@ export const SecondaryFolders = ({
   const {
     currentOrg: { id: orgId, role: currentOrgRole },
   } = useOrgCtx();
+
+  // const disableEdit = currentOrgRole !== TOrgRole.ADMIN;
+
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [folders, setFolders] = useState(folders_);
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [newName, setNewName] = useState('');
+  const [originalName, setOriginalName] = useState('');
+
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [selectedFolder, setSelectedFolder] = useState<any | null>(null);
 
   const handleCreateFolder = async ({ name }: { name: string }) => {
     try {
@@ -45,8 +78,60 @@ export const SecondaryFolders = ({
       setIsLoading(false);
     }
   };
+
+  const handleRenameClick = (rfp: any) => {
+    setEditingId(rfp.id);
+    setNewName(rfp.name); // pre-fill with current name
+  };
+
+  const handleRenameCancel = () => {
+    setEditingId(null);
+    setNewName('');
+  };
+
+  const handleRenameSave = (id: string) => {
+    // Update locally
+    setFolders((prev) =>
+      prev.map((folder) =>
+        folder.id === id ? { ...folder, name: newName } : folder
+      )
+    );
+
+    // Reset editing
+    setEditingId(null);
+    setNewName('');
+  };
+
+  const handleDelete = async () => {
+    if (!selectedFolder) {
+      return;
+    }
+    setLoading(true);
+
+    try {
+      const response = await deleteFolder({
+        orgId,
+        folderId: selectedFolder.id,
+      });
+      console.log('Deleted folder:', response);
+
+      // ✅ Remove folder from local state
+      setFolders((prev) => prev.filter((f) => f.id !== selectedFolder.id));
+      toast.success('Folder deleted successfully');
+
+      setOpen(false);
+    } catch (err) {
+      console.error('Error deleting folder', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className='grid grid-cols-5 gap-8'>
+    <div
+      className='grid grid-cols-4 gap-8'
+      style={{ fontFamily: 'Inter, sans-serif' }}
+    >
       {currentOrgRole === 'ADMIN' && (
         <CreateFolderDialog
           trigger={
@@ -62,31 +147,141 @@ export const SecondaryFolders = ({
           isLoading={isLoading}
         />
       )}
-      {folders.map((rfp) => (
-        <Link
-          href={`/app/orgs/${orgId}/data/${primaryFolderSlug}/${rfp.id}`}
+      {folders.map((rfp: any) => (
+        <div
           key={rfp.id}
-          className='flex rounded-lg h-[100px] shadow-[0px_1px_12px_0px_#1F29370D] hover:shadow-xl cursor-pointer transition-shadow duration-300 bg-white p-4 '
+          className='flex rounded-lg h-[100px] shadow-[0px_1px_12px_0px_#1F29370D] hover:shadow-xl cursor-pointer transition-shadow duration-300 bg-white p-4'
         >
-          <div className='flex-1 flex flex-col justify-center gap-2'>
-            <div className='flex items-center gap-2'>
-              <FolderOpenIcon className='w-6 h-6 text-gray-500 font-semibold' />
-              <span className='text-[#1F2937] font-semibold text-[16px]'>
-                {rfp.name}
-              </span>
+          {/* If this folder is being renamed */}
+          {editingId === rfp.id ? (
+            <div className='flex-1 flex flex-col justify-center gap-2'>
+              <div className='flex items-center gap-2'>
+                <FolderOpenIcon className='w-6 h-6 text-gray-500 font-semibold' />
+                <input
+                  type='text'
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className='border font-medium text-black px-3 py-1 rounded w-full'
+                />
+              </div>
+
+              <div className='flex items-center gap-3 mt-2 justify-end'>
+                <button
+                  onClick={handleRenameCancel}
+                  className='text-sm font-semibold text-black hover:underline'
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleRenameSave(rfp.id)}
+                  className='text-sm px-3 py-1 bg-[#0f172a] text-white rounded hover:bg-[#1e293b]'
+                >
+                  Rename
+                </button>
+              </div>
+              {/* <p className="text-xs text-gray-500">
+                {getRelativeTime(rfp.updatedAt)}
+              </p> */}
             </div>
-            <span className='text-gray-500 text-sm'>
-              {rfp.createdAt !== rfp.updatedAt ? 'Edited' : 'Created'}{' '}
-              {getRelativeTime(
-                rfp.createdAt === rfp.updatedAt ? rfp.createdAt : rfp.updatedAt
-              )}
-            </span>
-          </div>
-          <div>
-            <MoreHorizontal className='w-6 h-6 text-gray-500' />
-          </div>
-        </Link>
+          ) : (
+            <>
+              <Link
+                href={`/app/orgs/${orgId}/data/${primaryFolderSlug}/${rfp.id}`}
+                className='flex-1 flex flex-col justify-center gap-2'
+              >
+                <div>
+                  <div className='flex items-center gap-2'>
+                    <FolderOpenIcon className='w-6 h-6 text-gray-500 font-semibold' />
+                    <span className='text-[#1F2937] font-semibold text-[16px]'>
+                      {rfp.name}
+                    </span>
+                  </div>
+                  <span className='text-gray-500 text-sm'>
+                    {rfp.createdAt !== rfp.updatedAt ? 'Edited' : 'Created'}{' '}
+                    {getRelativeTime(
+                      rfp.createdAt === rfp.updatedAt
+                        ? rfp.createdAt
+                        : rfp.updatedAt
+                    )}
+                  </span>
+                </div>
+              </Link>
+
+              {/* Dropdown with Rename + Delete */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className='flex items-start cursor-pointer'>
+                    <MoreHorizontal className='w-6 h-6 text-gray-500' />
+                  </div>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent
+                  style={{
+                    position: 'absolute',
+                    top: '-45px',
+                    left: '-20px',
+                  }}
+                >
+                  <DropdownMenuItem
+                    className='flex items-center gap-2 cursor-pointer'
+                    onClick={() => handleRenameClick(rfp)}
+                  >
+                    <FiEdit2 className='w-4 h-4' />
+                    Rename
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    className='flex items-center gap-2 text-red-600 cursor-pointer'
+                    onClick={() => {
+                      setSelectedFolder(rfp);
+                      setOpen(true);
+                    }}
+                  >
+                    <FiTrash2 className='w-4 h-4' />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          )}
+        </div>
       ))}
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className='bg-white rounded-lg py-5 px-7 shadow-lg text-black sm:max-w-[500px]'>
+          <DialogHeader>
+            <DialogTitle className='text-lg font-bold'>
+              Deleting {selectedFolder?.name}! Are you absolutely sure?
+            </DialogTitle>
+            <DialogDescription className='text-sm text-gray-600'>
+              This action cannot be undone. This will permanently delete your
+              folder and all its content.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className='mt-6 flex justify-end gap-2'>
+            <Button
+              variant='outline'
+              onClick={() => setOpen(false)}
+              disabled={loading}
+              className='bg-white text-gray-700 hover:bg-gray-100'
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDelete}
+              disabled={loading}
+              className='bg-[#0f172a] text-white hover:bg-[#1e293b]'
+            >
+              {loading ? (
+                <span className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block'></span>
+              ) : (
+                'Delete'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

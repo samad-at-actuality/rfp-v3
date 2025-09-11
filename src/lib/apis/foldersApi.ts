@@ -124,3 +124,18 @@ export const deleteMediaFile = ({
     method: 'DELETE',
   });
 };
+
+export const deleteFolder = ({
+  orgId,
+  folderId,
+}: {
+  orgId: string;
+  folderId: string;
+}) => {
+  return apiFetch<TFolderInfo>(
+    `/api/${orgId}/knowledge-hub/folders/${folderId}`,
+    {
+      method: 'DELETE',
+    }
+  );
+};
