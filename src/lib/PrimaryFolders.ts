@@ -22,13 +22,13 @@ export const PrimaryFolders = [
     name: 'Company Profile',
     type: TPrimaryFolderEnum.COMPANY_INFO,
     slug: 'company-info',
-    icon: Building2, // 🏢 Represents company/organization
+    icon: Building2,
   },
   {
     name: 'Past RFPs',
     type: TPrimaryFolderEnum.PAST_RFPS,
     slug: 'past-rfps',
-    icon: FileText, // 📄 Represents documents/RFPs
+    icon: FileText,
   },
   {
     name: 'Other',

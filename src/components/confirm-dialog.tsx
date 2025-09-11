@@ -15,20 +15,26 @@ export const ConfirmDialog = ({
   onOpenChange,
   isLoading,
   handleConfirmClose,
+  title,
+  description,
+  btnLabel,
 }: {
   open: boolean;
   onOpenChange: (_: boolean) => void;
   isLoading?: boolean;
   handleConfirmClose: () => void;
+  title?: string;
+  description?: string;
+  btnLabel?: string;
 }) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Close Chat?</AlertDialogTitle>
+          <AlertDialogTitle>{title || 'Close Chat?'}</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to close the chat? Your conversation history
-            will be cleared.
+            {description ||
+              'Are you sure you want to close the chat? Your conversation history will be cleared.'}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -42,7 +48,7 @@ export const ConfirmDialog = ({
           <AlertDialogAction asChild>
             <LoadingButton
               onClick={handleConfirmClose}
-              label='Proceed'
+              label={btnLabel || 'Proceed'}
               isLoading={!!isLoading}
             />
           </AlertDialogAction>
