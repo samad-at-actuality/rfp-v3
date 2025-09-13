@@ -58,9 +58,11 @@ export function UserProfileDropDown() {
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className='cursor-pointer'>
-            <Link href='/auth/logout'>Logout</Link>
-          </DropdownMenuItem>
+          <Link href='/auth/logout'>
+            <DropdownMenuItem className='cursor-pointer text-red-400 font-semibold'>
+              Logout
+            </DropdownMenuItem>
+          </Link>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

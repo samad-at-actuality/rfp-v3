@@ -257,6 +257,7 @@ export const TeamMemberPage = ({
                     isLoading={isSubmittingNewMember}
                     className='sm'
                     onClick={handleSubmit}
+                    type='submit'
                   />
                 </div>
               </form>

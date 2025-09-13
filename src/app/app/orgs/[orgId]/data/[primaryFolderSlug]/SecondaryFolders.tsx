@@ -194,40 +194,42 @@ export const SecondaryFolders = ({
               </Link>
 
               {/* Dropdown with Rename + Delete */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <div className='flex items-start cursor-pointer'>
-                    <MoreHorizontal className='w-6 h-6 text-gray-500' />
-                  </div>
-                </DropdownMenuTrigger>
+              {currentOrgRole === 'ADMIN' && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div className='flex items-start cursor-pointer'>
+                      <MoreHorizontal className='w-6 h-6 text-gray-500' />
+                    </div>
+                  </DropdownMenuTrigger>
 
-                <DropdownMenuContent
-                  style={{
-                    position: 'absolute',
-                    top: '-45px',
-                    left: '-20px',
-                  }}
-                >
-                  <DropdownMenuItem
-                    className='flex items-center gap-2 cursor-pointer'
-                    onClick={() => handleRenameClick(rfp)}
-                  >
-                    <FiEdit2 className='w-4 h-4' />
-                    Rename
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem
-                    className='flex items-center gap-2 text-red-600 cursor-pointer'
-                    onClick={() => {
-                      setSelectedFolder(rfp);
-                      setOpen(true);
+                  <DropdownMenuContent
+                    style={{
+                      position: 'absolute',
+                      top: '-45px',
+                      left: '-20px',
                     }}
                   >
-                    <FiTrash2 className='w-4 h-4 text-red-600' />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    <DropdownMenuItem
+                      className='flex items-center gap-2 cursor-pointer'
+                      onClick={() => handleRenameClick(rfp)}
+                    >
+                      <FiEdit2 className='w-4 h-4' />
+                      Rename
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                      className='flex items-center gap-2 text-red-600 cursor-pointer'
+                      onClick={() => {
+                        setSelectedFolder(rfp);
+                        setOpen(true);
+                      }}
+                    >
+                      <FiTrash2 className='w-4 h-4 text-red-600' />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </>
           )}
         </div>

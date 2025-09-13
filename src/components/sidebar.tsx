@@ -59,7 +59,7 @@ export const Sidebar = ({ showAdminButton }: { showAdminButton?: boolean }) => {
     );
   }
   return (
-    <aside className='z-10 w-full flex-col border-r bg-background flex h-full'>
+    <aside className='z-10 w-full flex-col border-r bg-background flex h-full pt-4'>
       <nav className='flex-1 flex flex-col items-center gap-4 px-2'>
         <LinkComponent
           onClick={() => {

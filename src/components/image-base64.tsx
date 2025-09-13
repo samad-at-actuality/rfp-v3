@@ -14,7 +14,7 @@ export const ImageBase64 = ({
   orgId,
   style = {},
   onDelete,
-  showActions = false,
+  showDelete = false,
 }: {
   width: number;
   height: number;
@@ -23,7 +23,7 @@ export const ImageBase64 = ({
   orgId: string;
   style?: React.CSSProperties;
   onDelete?: () => Promise<void>;
-  showActions?: boolean;
+  showDelete?: boolean;
 }) => {
   const [src, setSrc] = useState('');
 
@@ -62,16 +62,17 @@ export const ImageBase64 = ({
             height,
           }}
         >
-          {showActions && (
-            <div className='absolute opacity-0 group-hover:opacity-100  flex items-center gap-4 bg-white rounded-md w-full'>
-              <FileDownloader fileId={fileId} orgId={orgId} filaName={alt} />
+          <div className='absolute opacity-0 group-hover:opacity-100  flex items-center gap-4 bg-white rounded-md w-fit'>
+            <FileDownloader fileId={fileId} orgId={orgId} filaName={alt} />
+            {showDelete && (
               <FileDeleter
                 fileId={fileId}
                 orgId={orgId}
                 onDeleteCB={async () => onDelete?.()}
               />
-            </div>
-          )}
+            )}
+          </div>
+
           <Image
             src={src}
             width={width}

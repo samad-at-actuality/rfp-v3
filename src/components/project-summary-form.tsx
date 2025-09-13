@@ -439,7 +439,7 @@ export const MediaDisplayer = ({
                 alt={media.name}
                 fileId={media.id}
                 orgId={orgId}
-                showActions={true}
+                showDelete={showDelete}
                 onDelete={async () => {
                   setFiles((p) => p.filter((f) => f.id !== media.id));
                 }}

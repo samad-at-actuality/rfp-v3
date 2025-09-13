@@ -206,7 +206,7 @@ export const PersonSummaryForm = ({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        {crtOrgAccess === TOrgRole.ADMIN && (
+        {crtOrgAccess !== TOrgRole.VIEWER && (
           <div className='flex justify-end'>
             <LoadingButton
               label='Update'
@@ -388,10 +388,13 @@ export const PersonSummaryForm = ({
           <div className='flex-[0.3]  space-y-6 '>
             <div className='space-y-2'>
               <Label className='text-lg'>Qualifications</Label>
-              {!disableEdit && (
+              {crtOrgAccess !== TOrgRole.VIEWER && (
                 <div className='  relative'>
                   <Input
-                    disabled={disableEdit}
+                    disabled={
+                      crtOrgAccess !== TOrgRole.ADMIN &&
+                      crtOrgAccess !== TOrgRole.EDITOR
+                    }
                     className='bg-white'
                     value={qualificaitionTemp}
                     onChange={(e) => {
@@ -428,7 +431,7 @@ export const PersonSummaryForm = ({
                     className='flex items-center text-sm px-3 py-1 rounded-full border border-gray-300 bg-gray-100 text-gray-500 font-medium'
                   >
                     {qualification}
-                    {!disableEdit && (
+                    {crtOrgAccess !== TOrgRole.VIEWER && (
                       <button
                         type='button'
                         onClick={() => {
@@ -456,7 +459,7 @@ export const PersonSummaryForm = ({
             <div className='space-y-2'>
               <div className='flex items-center gap-2'>
                 <Label className='flex-1 text-lg'>Past Projects</Label>
-                {!disableEdit && (
+                {crtOrgAccess !== TOrgRole.VIEWER && (
                   <PersonProjectDialog
                     onSave={(project) => {
                       setPersonSummary((p) => ({
@@ -492,7 +495,7 @@ export const PersonSummaryForm = ({
                         {project?.designations[0] || 'No designation'}
                       </p>
                     </div>
-                    {!disableEdit && (
+                    {crtOrgAccess !== TOrgRole.VIEWER && (
                       <Button
                         variant='ghost'
                         className='p-0 cursor-pointer'
@@ -516,15 +519,16 @@ export const PersonSummaryForm = ({
         </div>
         <div className='space-y-2'>
           <MediaDisplayer
-            showUpload={!disableEdit}
+            showUpload={crtOrgAccess !== TOrgRole.VIEWER}
             showDelete={!disableEdit}
             files={files}
             folderId={folderInfo_.id}
             orgId={orgId}
+            handleReSummarize={handleReSummarize}
           />
         </div>
       </div>
-      {!disableEdit && (
+      {crtOrgAccess !== TOrgRole.VIEWER && (
         <div className='sticky bottom-0 py-4 mt-6 bg-[#F9FAFB]'>
           <div className='flex justify-end'>
             <LoadingButton
@@ -546,12 +550,14 @@ export const MediaDisplayer = ({
   folderId,
   showUpload,
   showDelete,
+  handleReSummarize,
 }: {
   files: TFolderFile[];
   orgId: string;
   folderId: string;
   showUpload: boolean;
   showDelete: boolean;
+  handleReSummarize: () => Promise<void>;
 }) => {
   const [files, setFiles] = useState(files_);
 
@@ -607,18 +613,22 @@ export const MediaDisplayer = ({
             orgId={orgId}
             folderId={folderId}
             type={TFolderInfoSummayType.PEOPLE}
-            onUpload={async (payloads) => {
+            onUpload={async (payloads, isPostProcessing) => {
               try {
                 const res = await uploadeMediaFiles(orgId, payloads);
 
                 if (res.data) {
                   setFiles((p) => [...p, ...(res.data || [])]);
                 }
+                if (isPostProcessing) {
+                  await handleReSummarize();
+                }
                 return [];
               } catch {
                 return payloads;
               }
             }}
+            showPostProcessing={true}
           />
         )}
       </div>
@@ -636,7 +646,7 @@ export const MediaDisplayer = ({
                 alt={media.name}
                 fileId={media.id}
                 orgId={orgId}
-                showActions={true}
+                showDelete={showDelete}
                 onDelete={async () => {
                   setFiles((p) => p.filter((m) => m.id !== media.id));
                 }}

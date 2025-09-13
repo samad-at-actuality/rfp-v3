@@ -17,6 +17,8 @@ import { getUploadSignature } from '@/lib/apis/assetsApi';
 import { TFolderInfoSummayType } from '@/types/TFolderInfo';
 
 import { toast } from 'sonner';
+import { Checkbox } from './ui/checkbox';
+import { Label } from './ui/label';
 
 export type S3_UPLOADED_FILES_PAYLOAD = {
   name: string;
@@ -32,19 +34,23 @@ export function FileUploaderDialog({
   type,
   onUpload,
   trigger,
+  showPostProcessing,
 }: {
   orgId: string;
   folderId: string;
   type: TFolderInfoSummayType;
   onUpload: (
-    _: S3_UPLOADED_FILES_PAYLOAD[]
+    _: S3_UPLOADED_FILES_PAYLOAD[],
+    _isPostProcessing?: boolean
   ) => Promise<S3_UPLOADED_FILES_PAYLOAD[]>;
   trigger: React.ReactNode;
+  showPostProcessing?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPostProcessing, setIsPostProcessing] = useState(false);
 
   const handleFiles = (newFiles: FileList | null) => {
     if (newFiles) {
@@ -107,7 +113,7 @@ export function FileUploaderDialog({
           }
         }
 
-        const notUploaded = await onUpload(payloads);
+        const notUploaded = await onUpload(payloads, isPostProcessing);
 
         let pendingFiles = files.filter((f) =>
           fileNotProcessed.find((ff) => ff.endsWith(f.name))
@@ -148,7 +154,7 @@ export function FileUploaderDialog({
 
         {/* Drop Zone */}
         <div
-          className={`flex flex-col items-center justify-center border-2 border-dashed rounded-2xl cursor-pointer transition p-8 ${
+          className={`flex  flex-col items-center justify-center border-2 border-dashed rounded-2xl cursor-pointer transition p-8 ${
             dragOver ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
           }`}
           onDragOver={(e) => {
@@ -176,11 +182,22 @@ export function FileUploaderDialog({
             Browse Files
           </label>
         </div>
-
+        {showPostProcessing && (
+          <div className='flex items-center gap-4 pl-1'>
+            <Checkbox
+              id='auto-fill'
+              checked={isPostProcessing}
+              onCheckedChange={(checked: boolean) =>
+                setIsPostProcessing(checked)
+              }
+            />
+            <Label htmlFor='auto-fill'>Auto-fill fields from uploads</Label>
+          </div>
+        )}
         {/* Scrollable Preview */}
-        <div className='flex-1 overflow-y-auto'>
+        <div className='flex-1 overflow-y-auto '>
           {files.length > 0 && (
-            <Card className='mt-4 py-0'>
+            <Card className='mt-0 py-0 '>
               <CardContent className='p-4 space-y-4'>
                 {/* Images Grid */}
                 <div className='grid grid-cols-3 gap-3'>
@@ -195,12 +212,14 @@ export function FileUploaderDialog({
                             height={150}
                             className='object-cover rounded-lg w-full h-32'
                           />
-                          <button
-                            onClick={() => removeFile(index)}
-                            className='absolute top-1 right-1 bg-white rounded-full p-1 shadow hover:bg-red-100'
-                          >
-                            <Trash2 className='w-4 h-4 text-red-500' />
-                          </button>
+                          {!isLoading && (
+                            <button
+                              onClick={() => removeFile(index)}
+                              className='absolute top-1 right-1 bg-white rounded-full p-1 shadow hover:bg-red-100'
+                            >
+                              <Trash2 className='w-4 h-4 text-red-500' />
+                            </button>
+                          )}
                         </div>
                       )
                   )}
@@ -218,12 +237,14 @@ export function FileUploaderDialog({
                           <span className='text-sm truncate max-w-[200px]'>
                             {file.name}
                           </span>
-                          <button
-                            onClick={() => removeFile(index)}
-                            className='text-red-500 hover:text-red-700'
-                          >
-                            <Trash2 className='w-4 h-4' />
-                          </button>
+                          {!isLoading && (
+                            <button
+                              onClick={() => removeFile(index)}
+                              className='text-red-500 hover:text-red-700'
+                            >
+                              <Trash2 className='w-4 h-4' />
+                            </button>
+                          )}
                         </div>
                       )
                   )}
