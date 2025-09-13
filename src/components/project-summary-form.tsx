@@ -439,6 +439,10 @@ export const MediaDisplayer = ({
                 alt={media.name}
                 fileId={media.id}
                 orgId={orgId}
+                showActions={true}
+                onDelete={async () => {
+                  setFiles((p) => p.filter((f) => f.id !== media.id));
+                }}
               />
               <Tooltip>
                 <TooltipTrigger asChild>
