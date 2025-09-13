@@ -30,7 +30,7 @@ export default async function DataPage({
     type: primaryFolder.type,
   });
   return (
-    <div className='p-6 space-y-6 h-[400vh]'>
+    <div className='p-6 space-y-6'>
       <Breadcrumb>
         <BreadcrumbList className='text-[rgb(3.939% 3.939% 3.939%)]'>
           <BreadcrumbItem>

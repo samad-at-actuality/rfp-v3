@@ -3,6 +3,8 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { getPreviewUrl } from '../lib/apis/assetsApi';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { FileDownloader } from './file-downloader';
+import { FileDeleter } from './file-deleter';
 
 export const ImageBase64 = ({
   width,
@@ -11,6 +13,8 @@ export const ImageBase64 = ({
   fileId,
   orgId,
   style = {},
+  onDelete,
+  showActions = false,
 }: {
   width: number;
   height: number;
@@ -18,6 +22,8 @@ export const ImageBase64 = ({
   fileId: string;
   orgId: string;
   style?: React.CSSProperties;
+  onDelete?: () => Promise<void>;
+  showActions?: boolean;
 }) => {
   const [src, setSrc] = useState('');
 
@@ -49,14 +55,38 @@ export const ImageBase64 = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Image
-          src={src}
-          width={width}
-          height={height}
-          alt={alt}
-          style={{ cursor: 'pointer', ...style }}
-          className='rounded-md object-cover'
-        />
+        <div
+          className='relative group rounded-md overflow-hidden'
+          style={{
+            width,
+            height,
+          }}
+        >
+          {showActions && (
+            <div className='absolute opacity-0 group-hover:opacity-100  flex items-center gap-4 bg-white rounded-md w-full'>
+              <FileDownloader fileId={fileId} orgId={orgId} filaName={alt} />
+              <FileDeleter
+                fileId={fileId}
+                orgId={orgId}
+                onDeleteCB={async () => onDelete?.()}
+              />
+            </div>
+          )}
+          <Image
+            src={src}
+            width={width}
+            height={height}
+            alt={alt}
+            style={{
+              cursor: 'pointer',
+              ...style,
+              height: 'auto',
+              width: 'auto',
+              objectFit: 'cover',
+            }}
+            className='rounded-md object-cover'
+          />
+        </div>
       </DialogTrigger>
       <DialogContent className='max-w-4xl flex items-center justify-center border-0 shadow-none bg-white p-4'>
         <Image

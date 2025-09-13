@@ -162,7 +162,7 @@ export const reSummarizeProjectForm = async ({
   orgId: string;
   folderId: string;
 }) => {
-  return apiFetch<{ projects: NonNullable<TFolderInfo['summary']>['project'] }>(
+  return apiFetch<{ project: NonNullable<TFolderInfo['summary']>['project'] }>(
     `/api/${orgId}/knowledge-hub/folders/${folderId}/summarize`,
     {
       method: 'POST',

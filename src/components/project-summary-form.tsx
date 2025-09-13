@@ -25,7 +25,10 @@ import {
 } from '@/types/TFolderInfo';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { uploadeMediaFiles } from '@/lib/apis/foldersApi';
+import {
+  reSummarizeProjectForm,
+  uploadeMediaFiles,
+} from '@/lib/apis/foldersApi';
 import { apiFetch } from '@/lib/fetchClient';
 import { toast } from 'sonner';
 import { LoadingButton } from './loading-button';
@@ -43,9 +46,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'; // make sure shadcn table is installed
-import { IoMdDownload } from 'react-icons/io';
-import { FaEye } from 'react-icons/fa';
-import { TiDelete } from 'react-icons/ti';
+import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning';
+import { flushSync } from 'react-dom';
 
 export const ProjectSummaryForm = ({
   folderInfo: folderInfo_,
@@ -63,6 +65,9 @@ export const ProjectSummaryForm = ({
   const {
     currentOrg: { role: crtOrgAccess },
   } = useOrgCtx();
+  const [isDirty, setIsDirty] = useState(false);
+  useUnsavedChangesWarning(isDirty);
+
   const disableEdit = crtOrgAccess !== TOrgRole.ADMIN;
   const [projectSummary, setProjectSummary] = useState<
     NonNullable<NonNullable<TFolderInfo['summary']>['project']>
@@ -84,6 +89,14 @@ export const ProjectSummaryForm = ({
     images: folderInfo_?.summary?.project?.images || [],
     projectSize: folderInfo_?.summary?.project?.projectSize || '',
   });
+  const [isMount, setIsMount] = useState(false);
+  useEffect(() => {
+    if (!isMount) {
+      setIsMount(true);
+    } else {
+      setIsDirty(true);
+    }
+  }, [projectSummary]);
 
   const [error, _setError] = useState({
     name: '',
@@ -117,6 +130,8 @@ export const ProjectSummaryForm = ({
         }
       );
       if (response.data) {
+        setIsDirty(false);
+
         toast.success('Summary updated successfully');
       } else {
         toast.error('Failed to update summary');
@@ -130,13 +145,19 @@ export const ProjectSummaryForm = ({
   const handleReSummarize = async () => {
     try {
       setIsReSummarizing(true);
-      const response = await apiFetch(
-        `/api/${orgId}/knowledge-hub/folders/${folderInfo_.id}/summarize`,
-        {
-          method: 'POST',
-        }
-      );
+      const response = await reSummarizeProjectForm({
+        orgId,
+        folderId: folderInfo_.id,
+      });
       if (response.data) {
+        flushSync(() => {
+          // @ts-ignore
+          setProjectSummary(response.data.project);
+        });
+        flushSync(() => {
+          setIsDirty(false);
+        });
+
         toast.success('Summary updated successfully');
       } else {
         toast.error('Failed to update summary');
@@ -148,10 +169,7 @@ export const ProjectSummaryForm = ({
     }
   };
   return (
-    <div
-      className='p-6 flex flex-col min-h-screen'
-      style={{ fontFamily: "'Inter', sans-serif" }}
-    >
+    <div className='p-6 flex flex-col min-h-screen'>
       <div className='space-y-6 flex-1'>
         <Breadcrumb>
           <BreadcrumbList className='text-[rgb(3.939% 3.939% 3.939%)]'>

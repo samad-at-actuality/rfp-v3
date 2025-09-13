@@ -82,7 +82,6 @@ export const RFPListing = ({
     setRfpLoading(true);
     try {
       const response = await deleteRfp({ orgId, rfpId: selectedRfp.id });
-      console.log('Deleted RFP:', response);
 
       setRfps((prev) => prev.filter((r) => r.id !== selectedRfp.id));
       toast.success('RFP deleted successfully');
@@ -111,8 +110,6 @@ export const RFPListing = ({
       );
 
       if (response) {
-        console.log('RFP Renamed Successfully', response);
-
         // ✅ Update local state
         setRfps((prev) =>
           prev.map((item) =>

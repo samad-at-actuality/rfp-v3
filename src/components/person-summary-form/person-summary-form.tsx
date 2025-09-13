@@ -48,7 +48,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'; // make sure shadcn table is installed
-
+import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning';
+import { flushSync } from 'react-dom';
 export const PersonSummaryForm = ({
   folderInfo: folderInfo_,
   orgId,
@@ -65,6 +66,9 @@ export const PersonSummaryForm = ({
   const {
     currentOrg: { role: crtOrgAccess },
   } = useOrgCtx();
+  const [isDirty, setIsDirty] = useState(false);
+  useUnsavedChangesWarning(isDirty);
+
   const [personSummary, setPersonSummary] = useState<
     NonNullable<TFolderInfo['summary']>['person']
   >({
@@ -103,6 +107,14 @@ export const PersonSummaryForm = ({
   const [skillsTemp, setSkillsTemp] = useState<string>('');
   const [isSavingSummary, setIsSavingSummary] = useState<boolean>(false);
   const [isReSummarizing, setIsReSummarizing] = useState<boolean>(false);
+  const [isMount, setIsMount] = useState(false);
+  useEffect(() => {
+    if (!isMount) {
+      setIsMount(true);
+    } else {
+      setIsDirty(true);
+    }
+  }, [personSummary]);
 
   const handleUpdateSummary = async () => {
     try {
@@ -120,6 +132,7 @@ export const PersonSummaryForm = ({
         payload
       );
       if (response.data) {
+        setIsDirty(false);
         toast.success('Summary updated successfully');
       } else {
         toast.error('Failed to update summary');
@@ -141,7 +154,12 @@ export const PersonSummaryForm = ({
       });
 
       if (response.data) {
-        setPersonSummary(response.data.person);
+        flushSync(() => {
+          setPersonSummary(response.data.person);
+        });
+        flushSync(() => {
+          setIsDirty(false);
+        });
         toast.success('Summary updated successfully');
       } else {
         toast.error('Failed to update summary');
@@ -572,7 +590,7 @@ export const MediaDisplayer = ({
 
     return { date, time };
   };
-  console.log('files form media-disaplyer: ', files);
+
   return (
     <div className='space-y-2 '>
       <div className='flex items-center mb-4'>
@@ -618,6 +636,10 @@ export const MediaDisplayer = ({
                 alt={media.name}
                 fileId={media.id}
                 orgId={orgId}
+                showActions={true}
+                onDelete={async () => {
+                  setFiles((p) => p.filter((m) => m.id !== media.id));
+                }}
               />
               <Tooltip>
                 <TooltipTrigger asChild>
