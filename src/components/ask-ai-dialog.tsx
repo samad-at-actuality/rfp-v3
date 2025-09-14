@@ -134,6 +134,11 @@ export const AskAIDialog = ({
       if (chatSession) {
         const session: TChatSessionResponse = JSON.parse(chatSession);
         setSession(session);
+        setChatMessage((p) => ({
+          ...p,
+          mode: session.mode,
+          enableWeb: session.enableWeb,
+        }));
       } else {
         const res = await createChatSession(orgId, {
           fileIds: [],
@@ -190,7 +195,9 @@ export const AskAIDialog = ({
 
   const updateChatSession = async (
     selectedFolderIds: string[],
-    selectedKhTypes: TPrimaryFolderEnum[]
+    selectedKhTypes: TPrimaryFolderEnum[],
+    mode: TChatSessionMode,
+    enableWeb: boolean
   ) => {
     if (!session) {
       return;
@@ -202,8 +209,8 @@ export const AskAIDialog = ({
         folderIds: selectedFolderIds,
         khTypes: selectedKhTypes,
         purpose: AskAIPurpose.ASK_AI,
-        mode: chatMessage.mode,
-        enableWeb: chatMessage.enableWeb,
+        mode,
+        enableWeb,
       });
 
       if (res.data) {
@@ -394,7 +401,13 @@ export const AskAIDialog = ({
               <div className='flex items-center gap-0'>
                 <KnowledgeHubDropDownMenu
                   isSaving={isUpdatingSession}
-                  onSave={updateChatSession}
+                  onSave={async (...args) => {
+                    await updateChatSession(
+                      ...args,
+                      chatMessage.mode,
+                      chatMessage.enableWeb
+                    );
+                  }}
                   selectedFolderIds={session?.folderIds || []}
                   knowledgeHubStructure={knowledgeHubStructure}
                   khTypes={session?.khTypes || []}
@@ -516,7 +529,12 @@ export const AskAIDialog = ({
                   placeholder='Ask a question'
                   rows={1}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey && !isSubmitting) {
+                    if (
+                      e.key === 'Enter' &&
+                      !e.shiftKey &&
+                      !isSubmitting &&
+                      !isUpdatingSession
+                    ) {
                       e.preventDefault(); // prevent new line
                       handleSubmit();
                     }
@@ -525,7 +543,7 @@ export const AskAIDialog = ({
                 <Button
                   variant='ghost'
                   size='icon'
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isUpdatingSession}
                   onClick={() => {
                     handleSubmit();
                   }}
@@ -543,17 +561,32 @@ export const AskAIDialog = ({
               </div>
               <div className='flex items-center justify-normal'>
                 <div className='flex-1'>
-                  <div className='rounded-full bg-gray-200 w-fit shadow-md p-1'>
+                  <div
+                    className='rounded-full bg-gray-200 w-fit shadow-md p-1'
+                    key={chatMessage.mode || open}
+                  >
                     <Tooltip>
                       <TooltipTrigger>
-                        {' '}
                         <Button
-                          onClick={() =>
+                          onClick={async () => {
+                            if (
+                              chatMessage.mode ===
+                              TChatSessionMode.CREATIVE_THINKING
+                            ) {
+                              return;
+                            }
                             setChatMessage((p) => ({
                               ...p,
                               mode: TChatSessionMode.CREATIVE_THINKING,
-                            }))
-                          }
+                            }));
+
+                            await updateChatSession(
+                              session?.folderIds || [],
+                              session?.khTypes || [],
+                              TChatSessionMode.CREATIVE_THINKING,
+                              chatMessage.enableWeb
+                            );
+                          }}
                           className={`rounded-full cursor-pointer ${chatMessage.mode === TChatSessionMode.CREATIVE_THINKING ? 'bg-white' : ''}`}
                           size='icon'
                           variant='ghost'
@@ -568,12 +601,25 @@ export const AskAIDialog = ({
                     <Tooltip>
                       <TooltipTrigger>
                         <Button
-                          onClick={() =>
+                          onClick={async () => {
+                            if (
+                              chatMessage.mode === TChatSessionMode.STATISTICS
+                            ) {
+                              return;
+                            }
+
                             setChatMessage((p) => ({
                               ...p,
                               mode: TChatSessionMode.STATISTICS,
-                            }))
-                          }
+                            }));
+
+                            await updateChatSession(
+                              session?.folderIds || [],
+                              session?.khTypes || [],
+                              TChatSessionMode.STATISTICS,
+                              chatMessage.enableWeb
+                            );
+                          }}
                           className={`rounded-full cursor-pointer ${chatMessage.mode === TChatSessionMode.STATISTICS ? 'bg-white' : ''}`}
                           size='icon'
                           variant='ghost'
@@ -589,12 +635,26 @@ export const AskAIDialog = ({
                       <TooltipTrigger>
                         {' '}
                         <Button
-                          onClick={() =>
+                          onClick={async () => {
+                            if (
+                              chatMessage.mode ===
+                              TChatSessionMode.BRAINSTORMING
+                            ) {
+                              return;
+                            }
+
                             setChatMessage((p) => ({
                               ...p,
                               mode: TChatSessionMode.BRAINSTORMING,
-                            }))
-                          }
+                            }));
+
+                            await updateChatSession(
+                              session?.folderIds || [],
+                              session?.khTypes || [],
+                              TChatSessionMode.BRAINSTORMING,
+                              chatMessage.enableWeb
+                            );
+                          }}
                           className={`rounded-full cursor-pointer ${chatMessage.mode === TChatSessionMode.BRAINSTORMING ? 'bg-white' : ''}`}
                           size='icon'
                           variant='ghost'
@@ -609,12 +669,24 @@ export const AskAIDialog = ({
                   </div>
                 </div>
                 <Button
+                  key={chatMessage.enableWeb.toString() || open.toString()}
                   className={`text-blue-400 hover:text-blue-400 cursor-pointer ${chatMessage.enableWeb ? '  text-blue-900 hover:text-blue-900' : ''}`}
                   variant='ghost'
                   size='sm'
-                  onClick={() =>
-                    setChatMessage((p) => ({ ...p, enableWeb: !p.enableWeb }))
-                  }
+                  onClick={async () => {
+                    const prevEnableWeb = chatMessage.enableWeb;
+                    setChatMessage((p) => ({
+                      ...p,
+                      enableWeb: !prevEnableWeb,
+                    }));
+
+                    await updateChatSession(
+                      session?.folderIds || [],
+                      session?.khTypes || [],
+                      chatMessage.mode,
+                      !prevEnableWeb
+                    );
+                  }}
                 >
                   <Globe /> Enable web search
                 </Button>
