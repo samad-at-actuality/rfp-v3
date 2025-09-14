@@ -131,95 +131,95 @@ button {
 
 @layer components {
   .tiptap,
-  .__markdow_displayer_actuality {
-    @apply font-sans text-gray-900 text-[14px] leading-relaxed;
+  .___actuality__rich_text_editor_displayer {
+    @apply font-sans text-gray-900 text-[14px];
   }
 
   .tiptap strong,
-  .__markdow_displayer_actuality strong {
+  .___actuality__rich_text_editor_displayer strong {
     @apply font-extrabold;
   }
 
   /* Horizontal rule */
   .tiptap hr,
-  .__markdow_displayer_actuality hr {
+  .___actuality__rich_text_editor_displayer hr {
     @apply my-4 bg-black h-[1px] border-0;
   }
   .tiptap hr:nth-last-of-type(-n + 3),
-  .__markdow_displayer_actuality hr:nth-last-of-type(-n + 3) {
+  .___actuality__rich_text_editor_displayer hr:nth-last-of-type(-n + 3) {
     @apply bg-transparent opacity-0;
     height: 1px;
   }
 
   /* Lists */
   .tiptap ul,
-  .__markdow_displayer_actuality ul {
+  .___actuality__rich_text_editor_displayer ul {
     @apply list-disc ml-8 mb-4;
   }
   .tiptap ol,
-  .__markdow_displayer_actuality ol {
+  .___actuality__rich_text_editor_displayer ol {
     @apply list-decimal ml-8 mb-4;
   }
   .tiptap p,
   .tiptap li,
-  .__markdow_displayer_actuality p,
-  .__markdow_displayer_actuality li {
+  .___actuality__rich_text_editor_displayer p,
+  .___actuality__rich_text_editor_displayer li {
     @apply text-[14px] mb-2;
   }
 
   /* Headings */
   .tiptap h1,
-  .__markdow_displayer_actuality h1 {
+  .___actuality__rich_text_editor_displayer h1 {
     @apply text-[22px] font-extrabold mb-5 mt-6;
   }
   .tiptap h2,
-  .__markdow_displayer_actuality h2 {
+  .___actuality__rich_text_editor_displayer h2 {
     @apply text-[18px] font-bold mb-4 mt-5;
   }
   .tiptap h3,
-  .__markdow_displayer_actuality h3 {
+  .___actuality__rich_text_editor_displayer h3 {
     @apply text-[16px] font-semibold mb-3 mt-4;
   }
   .tiptap h4,
-  .__markdow_displayer_actuality h4 {
+  .___actuality__rich_text_editor_displayer h4 {
     @apply text-[14px] font-semibold mb-2 mt-3;
   }
   .tiptap h5,
-  .__markdow_displayer_actuality h5 {
+  .___actuality__rich_text_editor_displayer h5 {
     @apply text-[14px] font-semibold mb-2 mt-2;
   }
   .tiptap h6,
-  .__markdow_displayer_actuality h6 {
+  .___actuality__rich_text_editor_displayer h6 {
     @apply text-[12px] font-semibold mb-2 mt-2;
   }
 
   /* Blockquote */
   .tiptap blockquote,
-  .__markdow_displayer_actuality blockquote {
+  .___actuality__rich_text_editor_displayer blockquote {
     @apply border-l-4 border-blue-500 bg-blue-50 text-blue-900 italic rounded-md px-4 py-3 my-4;
   }
   .tiptap blockquote strong,
-  .__markdow_displayer_actuality blockquote strong {
+  .___actuality__rich_text_editor_displayer blockquote strong {
     @apply not-italic font-semibold text-gray-900;
   }
 
   /* Tables */
   .tiptap table,
-  .__markdow_displayer_actuality table {
+  .___actuality__rich_text_editor_displayer table {
     @apply text-[14px] border-collapse w-full my-4;
   }
   .tiptap th,
   .tiptap td,
-  .__markdow_displayer_actuality th,
-  .__markdow_displayer_actuality td {
+  .___actuality__rich_text_editor_displayer th,
+  .___actuality__rich_text_editor_displayer td {
     @apply border border-gray-200 p-2 text-left;
   }
   .tiptap th,
-  .__markdow_displayer_actuality th {
+  .___actuality__rich_text_editor_displayer th {
     @apply bg-gray-50 font-semibold;
   }
   .tiptap tr:nth-child(even) td,
-  .__markdow_displayer_actuality tr:nth-child(even) td {
+  .___actuality__rich_text_editor_displayer tr:nth-child(even) td {
     @apply bg-gray-100;
   }
 }

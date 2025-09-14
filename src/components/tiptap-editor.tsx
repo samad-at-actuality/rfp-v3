@@ -110,7 +110,7 @@ const TiptapEditor = ({
     immediatelyRender: false,
     editorProps: {
       attributes: {
-        class: 'min-h-[200px] overflow-y-auto p-4',
+        class: 'min-h-[200px] h-[300px] overflow-y-auto p-4',
       },
     },
   });
@@ -130,6 +130,7 @@ const TiptapEditor = ({
 };
 
 export default TiptapEditor;
+
 const Menubar = ({ editor }: { editor: Editor }) => {
   const editorState = useEditorState({
     editor,
@@ -317,7 +318,7 @@ const Menubar = ({ editor }: { editor: Editor }) => {
     // },
   ];
   return (
-    <div className='flex items-center gap-2 border-b bg-white p-2 py-4 overflow-hidden rounded-t-lg'>
+    <div className='flex items-center gap-2 border-b bg-white p-2 py-2 overflow-hidden rounded-t-lg'>
       {options.map((group, groupIndex) => (
         <div
           key={`group-${groupIndex}`}

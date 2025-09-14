@@ -26,7 +26,9 @@ import { toast } from 'sonner';
 import { generateSummary, updateRfp } from '@/lib/apis/rfpApi';
 import { LoadingButton } from '../loading-button';
 import { useRouter } from 'next/navigation';
-import { description } from '../dashboard';
+
+import { useOrgCtx } from '@/ctx/org-ctx';
+import { TOrgRole } from '@/types/TUserRole';
 
 const TOP_BAR_HEIGHT = 52;
 
@@ -43,6 +45,11 @@ export default function RfpPage({
   const [proposalFiles, setProposalFiles] = useState<string[]>(
     rfp?.latestVersion?.inputFileKeys || []
   );
+  const {
+    currentOrg: { role: crtOrgAccess },
+  } = useOrgCtx();
+  const isAdmin = crtOrgAccess === TOrgRole.ADMIN;
+  const isViewer = crtOrgAccess === TOrgRole.VIEWER;
 
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [summary, setSummary] = useState<TRFP['latestVersion']['summary']>(
@@ -66,7 +73,7 @@ export default function RfpPage({
   };
 
   useEffect(() => {
-    if (proposalFiles.length === 0) {
+    if (proposalFiles.length === 0 && !isViewer) {
       uploadButtonRfp.current?.click();
     }
   }, []);
@@ -173,7 +180,7 @@ export default function RfpPage({
                   height: `${TOP_BAR_HEIGHT}px`,
                 }}
               >
-                {proposalFiles.length > 0 && (
+                {!isViewer && proposalFiles.length > 0 && (
                   <LoadingButton
                     label={summary ? 'Regenerate Summary' : 'Generate Summary'}
                     isLoading={isLoadingSummary}
@@ -182,30 +189,32 @@ export default function RfpPage({
                   />
                 )}
 
-                <FileUploaderDialog
-                  trigger={
-                    <Button
-                      ref={uploadButtonRfp}
-                      size='sm'
-                      variant='default'
-                      className={`gap-1 mr-2 bg-white text-black hover:bg-gray-200 border-[1px] border-gray-100`}
-                    >
-                      <Plus className='w-4 h-4' />
-                      <FileIcon className='w-4 h-4' />
-                    </Button>
-                  }
-                  orgId={rfp.orgId}
-                  folderId={rfp.id}
-                  type={TFolderInfoSummayType.RFP_SUMMARY}
-                  onUpload={handleProposalUpload}
-                />
+                {!isViewer && (
+                  <FileUploaderDialog
+                    trigger={
+                      <Button
+                        ref={uploadButtonRfp}
+                        size='sm'
+                        variant='default'
+                        className={`gap-1 mr-2 bg-white text-black hover:bg-gray-200 border-[1px] border-gray-100`}
+                      >
+                        <Plus className='w-4 h-4' />
+                        <FileIcon className='w-4 h-4' />
+                      </Button>
+                    }
+                    orgId={rfp.orgId}
+                    folderId={rfp.id}
+                    type={TFolderInfoSummayType.RFP_SUMMARY}
+                    onUpload={handleProposalUpload}
+                  />
+                )}
               </div>
               <Separator />
               <div className='flex-1 h-full overflow-y-auto scrollbar-thin p-4'>
                 <div className='flex flex-col gap-2'>
                   {summary?.overview && (
                     <RfpSummary
-                      isDisableEdit={true}
+                      isDisableEdit={true || isViewer}
                       label='Overview'
                       markdown={summary.overview}
                       onMarkdownChange={async (markdown) => {
@@ -216,7 +225,7 @@ export default function RfpPage({
                   )}
                   {summary?.keyDates && (
                     <RfpSummary
-                      isDisableEdit={true}
+                      isDisableEdit={true || isViewer}
                       label='Key Dates'
                       markdown={
                         summary.keyDates.otherDates?.find(
@@ -249,7 +258,7 @@ ${summary.keyDates.otherDates?.map((it) => `- ${it.date}: ${it.description}`).jo
                   {summary?.submissionRequirements &&
                     summary?.submissionRequirements?.length > 0 && (
                       <RfpSummary
-                        isDisableEdit={true}
+                        isDisableEdit={true || isViewer}
                         label='Submission Requirements'
                         markdown={summary.submissionRequirements
                           .map((it) => `- ${it}`)
@@ -264,7 +273,7 @@ ${summary.keyDates.otherDates?.map((it) => `- ${it.date}: ${it.description}`).jo
                     )}
                   {summary?.evaluationCriteria && (
                     <RfpSummary
-                      isDisableEdit={true}
+                      isDisableEdit={true || isViewer}
                       label='Evaluation Criteria'
                       onMarkdownChange={async (markdown) => {
                         await handleSummayChange(
@@ -278,7 +287,7 @@ ${summary.keyDates.otherDates?.map((it) => `- ${it.date}: ${it.description}`).jo
                   )}
                   {summary?.scopeOfWork && (
                     <RfpSummary
-                      isDisableEdit={true}
+                      isDisableEdit={true || isViewer}
                       label='Scope of Work'
                       onMarkdownChange={async (markdown) => {
                         await handleSummayChange('scopeOfWork', markdown);
@@ -290,7 +299,7 @@ ${summary.keyDates.otherDates?.map((it) => `- ${it.date}: ${it.description}`).jo
                   {summary?.discrepancies &&
                     summary?.discrepancies?.length > 0 && (
                       <RfpSummary
-                        isDisableEdit={true}
+                        isDisableEdit={true || isViewer}
                         label='Discrepancies'
                         markdown={summary.discrepancies
                           .map((it) => `- ${it.description} (${it.type})`)
@@ -303,7 +312,7 @@ ${summary.keyDates.otherDates?.map((it) => `- ${it.date}: ${it.description}`).jo
                     )}
                   {summary?.questions && summary?.questions.length > 0 && (
                     <RfpSummary
-                      isDisableEdit={true}
+                      isDisableEdit={true || isViewer}
                       label='Questions'
                       markdown={summary.questions
                         .map((it) => `- ${it}`)
@@ -316,7 +325,7 @@ ${summary.keyDates.otherDates?.map((it) => `- ${it.date}: ${it.description}`).jo
                   )}
                   {summary?.otherInfo && summary?.otherInfo.length > 0 && (
                     <RfpSummary
-                      isDisableEdit={true}
+                      isDisableEdit={true || isViewer}
                       label='Other Info'
                       onMarkdownChange={async (markdown) => {
                         await handleSummayChange('otherInfo', [markdown]);

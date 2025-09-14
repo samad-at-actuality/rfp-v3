@@ -2,7 +2,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 export const MarkdownDisplayer = ({ markdown }: { markdown: string }) => {
   return (
-    <div className='__markdow_displayer_actuality'>
+    <div className='___actuality__rich_text_editor_displayer'>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{

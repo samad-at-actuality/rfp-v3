@@ -22,6 +22,7 @@ import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { apiFetch } from '@/lib/fetchClient';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { useRouter } from 'next/navigation';
+import { TOrgRole } from '@/types/TUserRole';
 
 export const RFPListing = ({
   rfps: rfps_,
@@ -30,10 +31,18 @@ export const RFPListing = ({
   rfps: TRFP[];
   orgId: string;
 }) => {
-  const [rfps, setRfps] = useState(rfps_);
+  const [rfps, setRfps] = useState(
+    rfps_.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
+  );
+
   const {
     currentOrg: { role: currentOrgRole },
   } = useOrgCtx();
+  const isAdmin = currentOrgRole === TOrgRole.ADMIN;
+  const isViewer = currentOrgRole === TOrgRole.VIEWER;
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -52,7 +61,7 @@ export const RFPListing = ({
 
       if (res.data) {
         toast.success('RFP created successfully');
-        setRfps((prev) => [...prev, res.data]);
+        setRfps((prev) => [res.data, ...prev]);
         setIsOpen(false);
         router.push(`/app/orgs/${orgId}/rfps/${res.data.id}`);
       } else {
@@ -134,7 +143,7 @@ export const RFPListing = ({
 
   return (
     <div className='grid grid-cols-4 gap-8'>
-      {currentOrgRole === 'ADMIN' && (
+      {!isViewer && (
         <CreateFolderDialog
           formLabel='Create RFP'
           inputPlaceholder='RFP Name'
@@ -151,7 +160,7 @@ export const RFPListing = ({
           isLoading={isLoading}
         />
       )}
-      {rfps.length === 0 && currentOrgRole !== 'ADMIN' && (
+      {rfps.length === 0 && !isViewer && (
         <p className='text-gray-500 text-sm text-center'>No RFPs found</p>
       )}
       {rfps.map((rfp) => (
@@ -214,34 +223,42 @@ export const RFPListing = ({
               </Link>
 
               {/* Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <div className='flex items-start cursor-pointer'>
-                    <MoreHorizontal className='w-6 h-6 text-gray-500' />
-                  </div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  style={{ position: 'absolute', top: '-45px', left: '-20px' }}
-                >
-                  <DropdownMenuItem
-                    className='flex items-center gap-2 cursor-pointer'
-                    onClick={() => handleRfpRenameClick(rfp)}
-                  >
-                    <FiEdit2 className='w-4 h-4' />
-                    Rename
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className='flex items-center gap-2 text-red-600 cursor-pointer'
-                    onClick={() => {
-                      setSelectedRfp(rfp);
-                      setRfpOpen(true);
+              {!isViewer && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div className='flex items-start cursor-pointer'>
+                      <MoreHorizontal className='w-6 h-6 text-gray-500' />
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    style={{
+                      position: 'absolute',
+                      top: '-45px',
+                      left: '-20px',
                     }}
                   >
-                    <FiTrash2 className='w-4 h-4' />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    <DropdownMenuItem
+                      className='flex items-center gap-2 cursor-pointer'
+                      onClick={() => handleRfpRenameClick(rfp)}
+                    >
+                      <FiEdit2 className='w-4 h-4' />
+                      Rename
+                    </DropdownMenuItem>
+                    {isAdmin && (
+                      <DropdownMenuItem
+                        className='flex items-center gap-2 text-red-600 cursor-pointer'
+                        onClick={() => {
+                          setSelectedRfp(rfp);
+                          setRfpOpen(true);
+                        }}
+                      >
+                        <FiTrash2 className='w-4 h-4' />
+                        Delete
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </>
           )}
         </div>
@@ -249,8 +266,8 @@ export const RFPListing = ({
       <ConfirmDialog
         open={rfpOpen}
         onOpenChange={setRfpOpen}
-        title={`Deleting ${selectedRfp?.name}! Are you absolutely sure?`}
-        description='This action cannot be undone. This will permanently delete your RFP and all its content?'
+        title={`Deleting Folder?`}
+        description={`Are you sure you want to permanently delete “${selectedRfp?.name}” and all of its contents? This action cannot be undone.`}
         handleConfirmClose={handleRfpDelete}
         btnLabel='Delete'
         isLoading={rfpLoading}

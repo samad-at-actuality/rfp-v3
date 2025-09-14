@@ -62,7 +62,7 @@ export const ImageBase64 = ({
             height,
           }}
         >
-          <div className='absolute opacity-0 group-hover:opacity-100  flex items-center gap-4 bg-white rounded-md w-fit'>
+          <div className='absolute opacity-0 transition-all duration-300 group-hover:opacity-100  flex items-center gap-4 bg-white rounded-md w-fit'>
             <FileDownloader fileId={fileId} orgId={orgId} filaName={alt} />
             {showDelete && (
               <FileDeleter

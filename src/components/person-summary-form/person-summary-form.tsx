@@ -51,6 +51,10 @@ import {
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning';
 import { flushSync } from 'react-dom';
 import TiptapEditor from '../tiptap-editor';
+// import dynamic from 'next/dynamic';
+
+// const TiptapEditor = dynamic(() => import('../tiptap-editor'), { ssr: false });
+
 export const PersonSummaryForm = ({
   folderInfo: folderInfo_,
   orgId,
@@ -67,6 +71,8 @@ export const PersonSummaryForm = ({
   const {
     currentOrg: { role: crtOrgAccess },
   } = useOrgCtx();
+  const isAdmin = crtOrgAccess === TOrgRole.ADMIN;
+  const isViewer = crtOrgAccess === TOrgRole.VIEWER;
   const [isDirty, setIsDirty] = useState(false);
   useUnsavedChangesWarning(isDirty);
 
@@ -172,7 +178,6 @@ export const PersonSummaryForm = ({
     }
   };
 
-  const disableEdit = crtOrgAccess !== TOrgRole.ADMIN;
   return (
     <div className='p-6 flex flex-col min-h-screen'>
       <div className='space-y-6 flex-1'>
@@ -207,7 +212,7 @@ export const PersonSummaryForm = ({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        {crtOrgAccess !== TOrgRole.VIEWER && (
+        {!isViewer && (
           <div className='flex justify-end'>
             <LoadingButton
               label='Update'
@@ -224,7 +229,7 @@ export const PersonSummaryForm = ({
                 Full Name
               </Label>
               <Input
-                disabled={disableEdit}
+                disabled={isViewer}
                 id='name'
                 className='bg-white'
                 name='name'
@@ -243,26 +248,14 @@ export const PersonSummaryForm = ({
                 About
               </Label>
               <TiptapEditor
-                key={personSummary?.about}
+                key={isReSummarizing ? 're-summarizing' : 'editing'}
                 content={personSummary?.about}
-                editable={crtOrgAccess !== TOrgRole.VIEWER}
+                editable={!isViewer}
                 onUpdate={(html) =>
                   setPersonSummary((p) => ({ ...p, about: html }))
                 }
               />
-              {/* <Textarea
-                disabled={disableEdit}
-                id='description'
-                className='bg-white'
-                name='description'
-                value={personSummary?.about}
-                onChange={(e) =>
-                  setPersonSummary((p) => ({
-                    ...p,
-                    about: e.target.value,
-                  }))
-                }
-              /> */}
+
               {error.about && (
                 <span className='text-red-500'>{error.about}</span>
               )}
@@ -272,7 +265,7 @@ export const PersonSummaryForm = ({
                 Email
               </Label>
               <Input
-                disabled={disableEdit}
+                disabled={isViewer}
                 id='email'
                 className='bg-white'
                 name='email'
@@ -293,7 +286,7 @@ export const PersonSummaryForm = ({
                 Phone No.
               </Label>
               <Input
-                disabled={disableEdit}
+                disabled={isViewer}
                 id='phone'
                 className='bg-white'
                 name='phone'
@@ -314,7 +307,7 @@ export const PersonSummaryForm = ({
                 Experience
               </Label>
               <Input
-                disabled={disableEdit}
+                disabled={isViewer}
                 id='exp_years'
                 className='bg-white'
                 name='exp_years'
@@ -334,10 +327,10 @@ export const PersonSummaryForm = ({
             </div>
             <div className='space-y-2'>
               <Label className='text-lg'>Skills</Label>
-              {!disableEdit && (
+              {!isViewer && (
                 <div className='  relative'>
                   <Input
-                    disabled={disableEdit}
+                    disabled={isViewer}
                     className='bg-white'
                     value={skillsTemp}
                     onChange={(e) => {
@@ -371,7 +364,7 @@ export const PersonSummaryForm = ({
                     className='flex items-center text-sm px-3 py-1 rounded-full border border-gray-300 bg-gray-100 text-gray-500 font-medium'
                   >
                     {skill}
-                    {!disableEdit && (
+                    {!isViewer && (
                       <button
                         type='button'
                         onClick={() => {
@@ -397,13 +390,10 @@ export const PersonSummaryForm = ({
           <div className='flex-[0.3]  space-y-6 '>
             <div className='space-y-2'>
               <Label className='text-lg'>Qualifications</Label>
-              {crtOrgAccess !== TOrgRole.VIEWER && (
+              {!isViewer && (
                 <div className='  relative'>
                   <Input
-                    disabled={
-                      crtOrgAccess !== TOrgRole.ADMIN &&
-                      crtOrgAccess !== TOrgRole.EDITOR
-                    }
+                    disabled={isViewer}
                     className='bg-white'
                     value={qualificaitionTemp}
                     onChange={(e) => {
@@ -440,7 +430,7 @@ export const PersonSummaryForm = ({
                     className='flex items-center text-sm px-3 py-1 rounded-full border border-gray-300 bg-gray-100 text-gray-500 font-medium'
                   >
                     {qualification}
-                    {crtOrgAccess !== TOrgRole.VIEWER && (
+                    {!isViewer && (
                       <button
                         type='button'
                         onClick={() => {
@@ -468,7 +458,7 @@ export const PersonSummaryForm = ({
             <div className='space-y-2'>
               <div className='flex items-center gap-2'>
                 <Label className='flex-1 text-lg'>Past Projects</Label>
-                {crtOrgAccess !== TOrgRole.VIEWER && (
+                {!isViewer && (
                   <PersonProjectDialog
                     onSave={(project) => {
                       setPersonSummary((p) => ({
@@ -489,11 +479,11 @@ export const PersonSummaryForm = ({
               <div className='rounded-lg shadow-[0px_1px_12px_0px_#1F29370D] p-4 space-y-4 bg-white'>
                 {personSummary?.projects?.map((project) => (
                   <div key={project.name} className='flex items-start gap-4'>
-                    <img
+                    {/* <img
                       src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyzpztEZ2ykCnjQGcdYsKIMaj4Skvv_w9PPQ&s'
                       alt={project.name}
                       className='w-11 h-11 rounded-md object-cover'
-                    />
+                    /> */}
                     <div className='flex-1'>
                       <div className='flex items-center gap-1'>
                         <p className='font-semibold text-sm text-gray-900'>
@@ -504,7 +494,7 @@ export const PersonSummaryForm = ({
                         {project?.designations[0] || 'No designation'}
                       </p>
                     </div>
-                    {crtOrgAccess !== TOrgRole.VIEWER && (
+                    {!isViewer && (
                       <Button
                         variant='ghost'
                         className='p-0 cursor-pointer'
@@ -528,8 +518,9 @@ export const PersonSummaryForm = ({
         </div>
         <div className='space-y-2'>
           <MediaDisplayer
-            showUpload={crtOrgAccess !== TOrgRole.VIEWER}
-            showDelete={!disableEdit}
+            showAutoPopIfEmpty={!isViewer}
+            showUpload={!isViewer}
+            showDelete={isAdmin}
             files={files}
             folderId={folderInfo_.id}
             orgId={orgId}
@@ -537,7 +528,7 @@ export const PersonSummaryForm = ({
           />
         </div>
       </div>
-      {crtOrgAccess !== TOrgRole.VIEWER && (
+      {!isViewer && (
         <div className='sticky bottom-0 py-4 mt-6 bg-[#F9FAFB]'>
           <div className='flex justify-end'>
             <LoadingButton
@@ -560,6 +551,7 @@ export const MediaDisplayer = ({
   showUpload,
   showDelete,
   handleReSummarize,
+  showAutoPopIfEmpty,
 }: {
   files: TFolderFile[];
   orgId: string;
@@ -567,12 +559,13 @@ export const MediaDisplayer = ({
   showUpload: boolean;
   showDelete: boolean;
   handleReSummarize: () => Promise<void>;
+  showAutoPopIfEmpty: boolean;
 }) => {
   const [files, setFiles] = useState(files_);
 
   const ref = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    if (ref.current && files.length === 0) {
+    if (ref.current && files.length === 0 && showAutoPopIfEmpty) {
       ref.current.click();
     }
   }, [files]);

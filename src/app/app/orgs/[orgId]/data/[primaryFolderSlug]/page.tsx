@@ -29,6 +29,14 @@ export default async function DataPage({
     orgId,
     type: primaryFolder.type,
   });
+
+  // Sort folders by creation date (newest first)
+  const sortedFolders = folders.data
+    ? [...folders.data].sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+    : [];
   return (
     <div className='p-6 space-y-6'>
       <Breadcrumb>
@@ -53,7 +61,7 @@ export default async function DataPage({
       </Breadcrumb>
 
       <SecondaryFolders
-        folders={folders.data || []}
+        folders={sortedFolders}
         primaryFolderSlug={primaryFolderSlug}
         primaryFolderType={primaryFolder.type}
       />

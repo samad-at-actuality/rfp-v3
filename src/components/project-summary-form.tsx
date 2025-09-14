@@ -48,6 +48,8 @@ import {
 } from '@/components/ui/table'; // make sure shadcn table is installed
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning';
 import { flushSync } from 'react-dom';
+import { Upload } from 'lucide-react';
+import TiptapEditor from './tiptap-editor';
 
 export const ProjectSummaryForm = ({
   folderInfo: folderInfo_,
@@ -65,10 +67,12 @@ export const ProjectSummaryForm = ({
   const {
     currentOrg: { role: crtOrgAccess },
   } = useOrgCtx();
+  const isAdmin = crtOrgAccess === TOrgRole.ADMIN;
+  const isViewer = crtOrgAccess === TOrgRole.VIEWER;
+
   const [isDirty, setIsDirty] = useState(false);
   useUnsavedChangesWarning(isDirty);
 
-  const disableEdit = crtOrgAccess !== TOrgRole.ADMIN;
   const [projectSummary, setProjectSummary] = useState<
     NonNullable<NonNullable<TFolderInfo['summary']>['project']>
   >({
@@ -203,7 +207,7 @@ export const ProjectSummaryForm = ({
           </BreadcrumbList>
         </Breadcrumb>
 
-        {crtOrgAccess === TOrgRole.ADMIN && (
+        {!isViewer && (
           <div className='flex justify-end'>
             <LoadingButton
               label='Update'
@@ -221,7 +225,7 @@ export const ProjectSummaryForm = ({
                 Project Name
               </Label>
               <Input
-                disabled={disableEdit}
+                disabled={isViewer}
                 id='name'
                 className='bg-white'
                 name='name'
@@ -240,7 +244,7 @@ export const ProjectSummaryForm = ({
                 Designer
               </Label>
               <Input
-                disabled={disableEdit}
+                disabled={isViewer}
                 id='description'
                 className='bg-white'
                 name='description'
@@ -260,8 +264,16 @@ export const ProjectSummaryForm = ({
               <Label className='text-lg' htmlFor='email'>
                 About
               </Label>
-              <Textarea
-                disabled={disableEdit}
+              <TiptapEditor
+                key={isReSummarizing ? 're-summarizing' : 'editing'}
+                content={projectSummary.about!}
+                editable={!isViewer}
+                onUpdate={(html) =>
+                  setProjectSummary((p) => ({ ...p, about: html }))
+                }
+              />
+              {/* <Textarea
+                disabled={isViewer}
                 id='email'
                 className='bg-white'
                 name='email'
@@ -272,7 +284,7 @@ export const ProjectSummaryForm = ({
                     about: e.target.value,
                   }))
                 }
-              />
+              /> */}
               {error.about && (
                 <span className='text-red-500'>{error.about}</span>
               )}
@@ -282,7 +294,7 @@ export const ProjectSummaryForm = ({
             <div className='space-y-2'>
               <Label className='text-lg'>Location</Label>
               <Input
-                disabled={disableEdit}
+                disabled={isViewer}
                 className='bg-white'
                 value={projectSummary.location!}
                 onChange={(e) => {
@@ -296,7 +308,7 @@ export const ProjectSummaryForm = ({
             <div className='space-y-2'>
               <Label className='text-lg'>Project Size</Label>
               <Input
-                disabled={disableEdit}
+                disabled={isViewer}
                 className='bg-white'
                 value={projectSummary.projectSize!}
                 onChange={(e) => {
@@ -310,7 +322,7 @@ export const ProjectSummaryForm = ({
             <div className='space-y-2'>
               <Label className='text-lg'>Project Value</Label>
               <Input
-                disabled={disableEdit}
+                disabled={isViewer}
                 className='bg-white'
                 value={projectSummary.value!}
                 onChange={(e) => {
@@ -325,15 +337,17 @@ export const ProjectSummaryForm = ({
         </div>
         <div className='space-y-2'>
           <MediaDisplayer
-            showUpload={!disableEdit}
-            showDelete={!disableEdit}
+            showAutoPopIfEmpty={!isViewer}
+            showUpload={!isViewer}
+            showDelete={isAdmin}
             files={files}
             folderId={folderInfo_.id}
             orgId={orgId}
+            handleReSummarize={handleReSummarize}
           />
         </div>
       </div>
-      {!disableEdit && (
+      {!isViewer && (
         <div className='sticky bottom-0 py-4 mt-6 bg-[#F9FAFB]'>
           <div className='flex justify-end'>
             <LoadingButton
@@ -355,18 +369,22 @@ export const MediaDisplayer = ({
   folderId,
   showUpload,
   showDelete,
+  handleReSummarize,
+  showAutoPopIfEmpty,
 }: {
   files: TFolderFile[];
   orgId: string;
   folderId: string;
   showUpload: boolean;
   showDelete: boolean;
+  handleReSummarize: () => Promise<void>;
+  showAutoPopIfEmpty: boolean;
 }) => {
   const [files, setFiles] = useState(files_);
 
   const ref = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    if (ref.current && files.length === 0) {
+    if (ref.current && files.length === 0 && showAutoPopIfEmpty) {
       ref.current.click();
     }
   }, [files]);
@@ -408,20 +426,30 @@ export const MediaDisplayer = ({
         </Label>
         {showUpload && (
           <FileUploaderDialog
-            trigger={<Button ref={ref}>Upload Files</Button>}
+            trigger={
+              <Button ref={ref} className='bg-white' variant='outline'>
+                <Upload /> Upload Files
+              </Button>
+            }
             orgId={orgId}
             folderId={folderId}
-            type={TFolderInfoSummayType.PEOPLE}
-            onUpload={async (payloads) => {
+            type={TFolderInfoSummayType.PROJECTS}
+            onUpload={async (payloads, isPostProcessing) => {
               try {
                 const res = await uploadeMediaFiles(orgId, payloads);
 
-                setFiles((p) => [...p, ...(res.data || [])]);
+                if (res.data) {
+                  setFiles((p) => [...p, ...(res.data || [])]);
+                }
+                if (isPostProcessing) {
+                  await handleReSummarize();
+                }
                 return [];
               } catch {
                 return payloads;
               }
             }}
+            showPostProcessing={true}
           />
         )}
       </div>

@@ -21,6 +21,7 @@ import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { useRouter } from 'next/navigation';
+import { TOrgRole } from '@/types/TUserRole';
 
 export const SecondaryFolders = ({
   folders: folders_,
@@ -54,7 +55,7 @@ export const SecondaryFolders = ({
 
       if (res.data) {
         toast.success('Folder created successfully');
-        setFolders((prev) => [...prev, res.data]);
+        setFolders((prev) => [res.data, ...prev]);
         setIsOpen(false);
         router.push(
           `/app/orgs/${orgId}/data/${primaryFolderSlug}/${res.data.id}`
@@ -121,7 +122,7 @@ export const SecondaryFolders = ({
       className='grid grid-cols-4 gap-8'
       style={{ fontFamily: 'Inter, sans-serif' }}
     >
-      {currentOrgRole === 'ADMIN' && (
+      {currentOrgRole !== TOrgRole.VIEWER && (
         <CreateFolderDialog
           trigger={
             <div className='flex items-center justify-center border-[1px] border-dashed border-gray-600 gap-2 rounded-lg h-[100px] hover:shadow-xl cursor-pointer transition-shadow duration-300 bg-white p-4 '>
@@ -194,7 +195,7 @@ export const SecondaryFolders = ({
               </Link>
 
               {/* Dropdown with Rename + Delete */}
-              {currentOrgRole === 'ADMIN' && (
+              {currentOrgRole !== TOrgRole.VIEWER && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <div className='flex items-start cursor-pointer'>
@@ -217,16 +218,18 @@ export const SecondaryFolders = ({
                       Rename
                     </DropdownMenuItem>
 
-                    <DropdownMenuItem
-                      className='flex items-center gap-2 text-red-600 cursor-pointer'
-                      onClick={() => {
-                        setSelectedFolder(rfp);
-                        setOpen(true);
-                      }}
-                    >
-                      <FiTrash2 className='w-4 h-4 text-red-600' />
-                      Delete
-                    </DropdownMenuItem>
+                    {currentOrgRole === TOrgRole.ADMIN && (
+                      <DropdownMenuItem
+                        className='flex items-center gap-2 text-red-600 cursor-pointer'
+                        onClick={() => {
+                          setSelectedFolder(rfp);
+                          setOpen(true);
+                        }}
+                      >
+                        <FiTrash2 className='w-4 h-4 text-red-600' />
+                        Delete
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
@@ -239,8 +242,8 @@ export const SecondaryFolders = ({
         onOpenChange={setOpen}
         isLoading={loading}
         handleConfirmClose={handleDelete}
-        title={`Deleting ${selectedFolder?.name}! Are you absolutely sure?`}
-        description='This action cannot be undone. This will permanently delete your folder and all its content.'
+        title={`Deleting Folder?`}
+        description={`Are you sure you want to permanently delete “${selectedFolder?.name}” and all of its contents? This action cannot be undone.`}
         btnLabel='Delete'
       />
     </div>
