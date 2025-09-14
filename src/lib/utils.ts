@@ -195,7 +195,98 @@ You don't need to cross an ocean to have an adventure. A well-planned weekend es
 ***
 
 I hope this guide was helpful! Feel free to refer back to it whenever you need a little inspiration for a break.`;
-
+export const __sample_html = `<p>Of course! Here is a long, non-technical Markdown document perfect for testing the styling of a new editor, with no code or technical jargon.</p>
+<h1 id="a-guide-to-planning-the-perfect-weekend-getaway">A Guide to Planning the Perfect Weekend Getaway</h1>
+<p>This document tests various styles for a clean, readable editor. Let's imagine we're writing a fun travel article!</p>
+<h2 id="why-you-need-a-break">Why You Need a Break</h2>
+<p>In our busy lives, it's easy to get caught up in the daily grind. A short weekend trip isn't just a luxury; it's a chance to <strong>recharge your batteries</strong>, <strong>create lasting memories</strong>, and <strong>break the routine</strong> without using too much vacation time.</p>
+<p>This guide will help you plan a seamless and enjoyable escape.</p>
+<hr>
+<h2 id="choosing-your-destination">Choosing Your Destination</h2>
+<p>The first step is picking where to go. Your choice sets the tone for the entire weekend.</p>
+<h3 id="consider-your-interests">Consider Your Interests</h3>
+<ul>
+<li><strong>For the Nature Lover:</strong> Look for destinations with hiking trails, lakes, or scenic parks.</li>
+<li><strong>For the Foodie:</strong> Choose a town known for its local restaurants, farmers markets, or wineries.</li>
+<li><strong>For the History Buff:</strong> Explore a city with rich museums, historical tours, and architecture.</li>
+</ul>
+<h3 id="practical-factors">Practical Factors</h3>
+<ul>
+<li><strong>Drive Time:</strong> A destination within a 2-3 hour drive often feels like a true escape without the travel fatigue.</li>
+<li><strong>Budget:</strong> Be realistic about costs for accommodation, food, and activities.</li>
+<li><strong>Group Preferences:</strong> Are you traveling solo, as a couple, or with family? Make sure the destination has something for everyone.</li>
+</ul>
+<hr>
+<h2 id="creating-a-simple-itinerary">Creating a Simple Itinerary</h2>
+<p>A little planning prevents you from wasting precious time figuring out what to do next.</p>
+<h3 id="a-sample-schedule">A Sample Schedule</h3>
+<p><strong>Friday Evening</strong></p>
+<ul>
+<li>Leave work, hit the road!</li>
+<li>Check into your accommodation.</li>
+<li>Find a cozy local spot for a relaxed dinner. No cooking tonight!</li>
+</ul>
+<p><strong>Saturday</strong></p>
+<ul>
+<li><strong>Morning:</strong> Enjoy a leisurely breakfast. Then, head out for your main activity—perhaps a museum visit or a nature walk.</li>
+<li><strong>Afternoon:</strong> Grab lunch at a highly-recommended cafe. Explore the local shops or simply find a beautiful spot to people-watch.</li>
+<li><strong>Evening:</strong> Dress up a little for a nice dinner. Maybe see if there's any local live music happening.</li>
+</ul>
+<p><strong>Sunday</strong></p>
+<ul>
+<li><strong>Morning:</strong> One last delicious breakfast. Do one final thing you wanted to do—buy a souvenir, take a few more photos, or enjoy a final stroll.</li>
+<li><strong>Afternoon:</strong> Check out and begin your journey home, feeling refreshed.</li>
+</ul>
+<blockquote>
+<p><strong>Pro Tip:</strong> The goal is balance. Don't overschedule! Leave plenty of room for spontaneous discoveries and simple relaxation. The best moments are often the unplanned ones.</p>
+</blockquote>
+<hr>
+<h2 id="essential-packing-list">Essential Packing List</h2>
+<p>Packing light is key for a short trip. Here’s a simple checklist:</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Items</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Clothing</strong></td>
+<td>Comfortable shoes, outfits for day and night, a jacket</td>
+</tr>
+<tr>
+<td><strong>Toiletries</strong></td>
+<td>Toothbrush, toothpaste, any daily essentials</td>
+</tr>
+<tr>
+<td><strong>Important Items</strong></td>
+<td>Wallet, ID, phone, charger, any necessary medications</td>
+</tr>
+<tr>
+<td><strong>Extras</strong></td>
+<td>A good book, headphones, a reusable water bottle</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="making-the-most-of-your-trip">Making the Most of Your Trip</h2>
+<p>Finally, remember the point of it all: to enjoy yourself.</p>
+<ul>
+<li><strong>Be Present:</strong> Try to put your phone away during meals and activities. Really talk to your travel companions.</li>
+<li><strong>Try Something New:</strong> Order a dish you've never heard of. Talk to a local and ask for their recommendation.</li>
+<li><strong>Don't Stress the Small Stuff:</strong> Got a flat tire? Raining on your hike? Sometimes the mishaps make for the best stories later.</li>
+</ul>
+<p>A successful weekend getaway leaves you feeling happier and more connected than you were before you left.</p>
+<hr>
+<h3 id="final-thoughts">Final Thoughts</h3>
+<p>You don't need to cross an ocean to have an adventure. A well-planned weekend escape can feel just as exciting and rewarding as a longer vacation. So, what are you waiting for? Start dreaming and planning your next mini-adventure today!</p>
+<blockquote>
+<p>"We travel not to escape life, but for life not to escape us." – Anonymous</p>
+</blockquote>
+<hr>
+<p>I hope this guide was helpful! Feel free to refer back to it whenever you need a little inspiration for a break.</p>
+`;
 export const extToMime = (ext: string) => {
   const mappings: { [key: string]: string } = {
     png: 'image/png',

@@ -1,28 +1,82 @@
-import { Copy } from 'lucide-react';
+import { Copy, PencilIcon } from 'lucide-react';
 import { MarkdownDisplayer } from '../markdown-displayer';
 import { copyToClipBoard } from '@/lib/utils';
 import { toast } from 'sonner';
 
+import dynamic from 'next/dynamic';
+import { useState } from 'react';
+import { Button } from '../ui/button';
+import { LoadingButton } from '../loading-button';
+const TiptapEditor = dynamic(() => import('../tiptap-editor'), { ssr: false });
+
 export const RfpSummary = ({
   label,
-  markdown,
+  markdown: markdown_,
+  onMarkdownChange,
+  isLoading,
+  isDisableEdit,
 }: {
   label: string;
   markdown: string;
+  onMarkdownChange: (_: string) => Promise<void>;
+  isLoading: boolean;
+  isDisableEdit: boolean;
 }) => {
+  const [openEdit, setOpenEdit] = useState(false);
+  const [markdown, setMarkdown] = useState(markdown_);
+
   return (
-    <div className=' flex flex-col items-start gap-2 rounded-lg border p-4 text-left text-sm transition-all hover:bg-accent w-full z-20 shadow-md bg-white '>
+    <div className=' flex flex-col items-start gap-2 rounded-lg border p-4 text-left text-sm transition-all hover:bg-accent w-full  min-w-full z-20 shadow-md bg-white '>
       <p className='font-semibold text-lg'>{label}</p>
-      <MarkdownDisplayer markdown={markdown} />
-      <div className='w-full flex justify-end items-center'>
-        <Copy
-          className='w-4 h-4 cursor-pointer self-end'
-          onClick={() =>
-            copyToClipBoard(markdown, () => {
-              toast('Copied to clipboard!');
-            })
-          }
-        />
+      {/* <SimpleEditor /> */}
+      {openEdit ? (
+        <TiptapEditor content={markdown} onUpdate={setMarkdown} />
+      ) : (
+        <MarkdownDisplayer markdown={markdown} />
+      )}
+
+      <div className='w-full flex justify-end items-center gap-4'>
+        {openEdit ? (
+          <>
+            {!isLoading && (
+              <Button
+                variant='ghost'
+                onClick={() => {
+                  setMarkdown(markdown_);
+                  setOpenEdit((prev) => !prev);
+                }}
+              >
+                Cancel
+              </Button>
+            )}
+            <LoadingButton
+              isLoading={isLoading}
+              label='Save'
+              onClick={async () => {
+                await onMarkdownChange(markdown);
+                setOpenEdit((prev) => !prev);
+              }}
+            />
+          </>
+        ) : (
+          <>
+            {' '}
+            <Copy
+              className='size-4 cursor-pointer self-end'
+              onClick={() =>
+                copyToClipBoard(markdown, () => {
+                  toast('Copied to clipboard!');
+                })
+              }
+            />
+            {!isDisableEdit && (
+              <PencilIcon
+                className='size-4 cursor-pointer self-end'
+                onClick={() => setOpenEdit((prev) => !prev)}
+              />
+            )}
+          </>
+        )}
       </div>
     </div>
   );

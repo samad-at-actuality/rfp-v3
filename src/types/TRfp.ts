@@ -11,33 +11,33 @@ export type TRFP = {
     id: string;
     rfpId: string;
     summary: {
-      title: string;
-      keyDates: {
-        issueDate: string;
-        submissionDeadline: string | null;
-        qnaDeadline: string | null;
-        awardDate: string | null;
-        otherDates: [
+      title?: string;
+      keyDates?: {
+        issueDate?: string;
+        submissionDeadline?: string | null;
+        qnaDeadline?: string | null;
+        awardDate?: string | null;
+        otherDates?: [
           {
             date: string;
             description: string;
           },
         ];
       };
-      overview: string | null;
-      coverLetter: string | null;
-      executiveSummary: string | null;
-      discrepancies: [
+      overview?: string | null;
+      coverLetter?: string | null;
+      executiveSummary?: string | null;
+      discrepancies?: [
         {
           description: string;
           type: any;
         },
       ];
-      questions: [string];
-      scopeOfWork: string | null;
-      submissionRequirements: [string];
-      evaluationCriteria: string | null;
-      otherInfo: [
+      questions?: [string];
+      scopeOfWork?: string | null;
+      submissionRequirements?: [string];
+      evaluationCriteria?: string | null;
+      otherInfo?: [
         {
           key: string;
           value: string;

@@ -50,6 +50,7 @@ import {
 } from '@/components/ui/table'; // make sure shadcn table is installed
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning';
 import { flushSync } from 'react-dom';
+import TiptapEditor from '../tiptap-editor';
 export const PersonSummaryForm = ({
   folderInfo: folderInfo_,
   orgId,
@@ -241,7 +242,15 @@ export const PersonSummaryForm = ({
               <Label className='text-lg' htmlFor='description'>
                 About
               </Label>
-              <Textarea
+              <TiptapEditor
+                key={personSummary?.about}
+                content={personSummary?.about}
+                editable={crtOrgAccess !== TOrgRole.VIEWER}
+                onUpdate={(html) =>
+                  setPersonSummary((p) => ({ ...p, about: html }))
+                }
+              />
+              {/* <Textarea
                 disabled={disableEdit}
                 id='description'
                 className='bg-white'
@@ -253,7 +262,7 @@ export const PersonSummaryForm = ({
                     about: e.target.value,
                   }))
                 }
-              />
+              /> */}
               {error.about && (
                 <span className='text-red-500'>{error.about}</span>
               )}

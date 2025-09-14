@@ -26,6 +26,7 @@ import { toast } from 'sonner';
 import { generateSummary, updateRfp } from '@/lib/apis/rfpApi';
 import { LoadingButton } from '../loading-button';
 import { useRouter } from 'next/navigation';
+import { description } from '../dashboard';
 
 const TOP_BAR_HEIGHT = 52;
 
@@ -44,14 +45,18 @@ export default function RfpPage({
   );
 
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
-  const [summary, setSummary] = useState(rfp_?.latestVersion?.summary);
+  const [summary, setSummary] = useState<TRFP['latestVersion']['summary']>(
+    rfp_?.latestVersion?.summary || {}
+  );
+
   const handleGenerateSummary = async () => {
     setIsLoadingSummary(true);
     try {
       const response = await generateSummary({ orgId, rfpId: rfp_.id });
       if (response.data) {
+        const rfp = response.data;
         toast.success(`Summary ${summary ? 're-' : ''}generated successfully`);
-        setSummary(response.data.latestVersion.summary);
+        setSummary(rfp.latestVersion.summary);
       }
     } catch {
       toast.error(`Failed to ${summary ? 're-' : ''}generate summary`);
@@ -65,7 +70,6 @@ export default function RfpPage({
       uploadButtonRfp.current?.click();
     }
   }, []);
-
   const handleProposalUpload = async (
     payloads: S3_UPLOADED_FILES_PAYLOAD[]
   ) => {
@@ -91,6 +95,39 @@ export default function RfpPage({
       return payloads;
     } catch {
       return payloads;
+    }
+  };
+
+  const [isChangingSummary, setIsChangingSummary] = useState(false);
+  const handleSummayChange = async (key: string, value: string | string[]) => {
+    try {
+      setIsChangingSummary(true);
+      const newSummary = { ...summary };
+      // @ts-ignore
+      newSummary[key] = value;
+
+      const payload = {
+        status: rfp.status,
+        summary: newSummary,
+        inputFileKeys: rfp.latestVersion.inputFileKeys,
+        template: rfp.latestVersion.template,
+        responseContent: rfp.latestVersion.responseContent,
+      };
+      console.log('payload: ', payload);
+      const res = await updateRfp({
+        orgId,
+        rfpId: rfp.id,
+        payload,
+      });
+      if (res.data) {
+        setSummary(res.data.latestVersion.summary);
+        toast.success(`Summary ${key} updated successfully`);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(`Failed to update summary ${key}`);
+    } finally {
+      setIsChangingSummary(false);
     }
   };
 
@@ -120,7 +157,9 @@ export default function RfpPage({
               </h1>
             </div>
             <Separator />
-            {proposalFiles.length > 0 && <RfpDocuments files={proposalFiles} />}
+            {proposalFiles?.length > 0 && (
+              <RfpDocuments files={proposalFiles} />
+            )}
             <Separator />
           </div>
         </ResizablePanel>
@@ -136,7 +175,7 @@ export default function RfpPage({
               >
                 {proposalFiles.length > 0 && (
                   <LoadingButton
-                    label={summary ? 'Re-Generate Summary' : 'Generate Summary'}
+                    label={summary ? 'Regenerate Summary' : 'Generate Summary'}
                     isLoading={isLoadingSummary}
                     onClick={handleGenerateSummary}
                     className='bg-white text-gray-800  border-[1px] border-gray-100 hover:bg-gray-100'
@@ -164,51 +203,125 @@ export default function RfpPage({
               <Separator />
               <div className='flex-1 h-full overflow-y-auto scrollbar-thin p-4'>
                 <div className='flex flex-col gap-2'>
-                  {summary?.coverLetter && (
+                  {summary?.overview && (
                     <RfpSummary
-                      label='Cover Letter'
-                      markdown={summary.coverLetter}
+                      isDisableEdit={true}
+                      label='Overview'
+                      markdown={summary.overview}
+                      onMarkdownChange={async (markdown) => {
+                        await handleSummayChange('overview', markdown);
+                      }}
+                      isLoading={isChangingSummary}
                     />
                   )}
-                  {summary?.submissionRequirements && (
+                  {summary?.keyDates && (
                     <RfpSummary
-                      label='Submission Requirements'
-                      markdown={summary.submissionRequirements
-                        .map((it) => `- ${it}`)
-                        .join('\n\n')}
+                      isDisableEdit={true}
+                      label='Key Dates'
+                      markdown={
+                        summary.keyDates.otherDates?.find(
+                          (x) => x.date === 'MANUAL'
+                        )?.description ||
+                        `- **Issue Date:** ${summary.keyDates.issueDate}
+- **Submission Deadline:** ${summary.keyDates.submissionDeadline}
+- **QnA Deadline:** ${summary.keyDates.qnaDeadline}
+- **Award Date:** ${summary.keyDates.awardDate}
+${summary.keyDates.otherDates?.map((it) => `- ${it.date}: ${it.description}`).join('\n\n')}
+`
+                      }
+                      onMarkdownChange={async (markdown) => {
+                        await handleSummayChange(
+                          'keyDates',
+                          JSON.stringify({
+                            ...summary.keyDates,
+                            otherDates: [
+                              ...(summary.keyDates?.otherDates || []).filter(
+                                (x) => x.date !== 'MANUAL'
+                              ),
+                              { date: 'MANUAL', description: markdown },
+                            ],
+                          })
+                        );
+                      }}
+                      isLoading={isChangingSummary}
                     />
                   )}
+                  {summary?.submissionRequirements &&
+                    summary?.submissionRequirements?.length > 0 && (
+                      <RfpSummary
+                        isDisableEdit={true}
+                        label='Submission Requirements'
+                        markdown={summary.submissionRequirements
+                          .map((it) => `- ${it}`)
+                          .join('\n\n')}
+                        onMarkdownChange={async (markdown) => {
+                          await handleSummayChange('submissionRequirements', [
+                            markdown,
+                          ]);
+                        }}
+                        isLoading={isChangingSummary}
+                      />
+                    )}
                   {summary?.evaluationCriteria && (
                     <RfpSummary
+                      isDisableEdit={true}
                       label='Evaluation Criteria'
+                      onMarkdownChange={async (markdown) => {
+                        await handleSummayChange(
+                          'evaluationCriteria',
+                          markdown
+                        );
+                      }}
+                      isLoading={isChangingSummary}
                       markdown={summary.evaluationCriteria}
                     />
                   )}
                   {summary?.scopeOfWork && (
                     <RfpSummary
+                      isDisableEdit={true}
                       label='Scope of Work'
+                      onMarkdownChange={async (markdown) => {
+                        await handleSummayChange('scopeOfWork', markdown);
+                      }}
+                      isLoading={isChangingSummary}
                       markdown={summary.scopeOfWork}
                     />
-                  )}{' '}
-                  {summary?.discrepancies && (
-                    <RfpSummary
-                      label='Discrepancies'
-                      markdown={summary.discrepancies
-                        .map((it) => `- ${it.description} (${it.type})`)
-                        .join('\n\n')}
-                    />
                   )}
-                  {summary?.questions && (
+                  {summary?.discrepancies &&
+                    summary?.discrepancies?.length > 0 && (
+                      <RfpSummary
+                        isDisableEdit={true}
+                        label='Discrepancies'
+                        markdown={summary.discrepancies
+                          .map((it) => `- ${it.description} (${it.type})`)
+                          .join('\n\n')}
+                        onMarkdownChange={async (markdown) => {
+                          await handleSummayChange('discrepancies', [markdown]);
+                        }}
+                        isLoading={isChangingSummary}
+                      />
+                    )}
+                  {summary?.questions && summary?.questions.length > 0 && (
                     <RfpSummary
+                      isDisableEdit={true}
                       label='Questions'
                       markdown={summary.questions
                         .map((it) => `- ${it}`)
                         .join('\n\n')}
+                      onMarkdownChange={async (markdown) => {
+                        await handleSummayChange('questions', [markdown]);
+                      }}
+                      isLoading={isChangingSummary}
                     />
                   )}
-                  {summary?.otherInfo.length > 0 && (
+                  {summary?.otherInfo && summary?.otherInfo.length > 0 && (
                     <RfpSummary
+                      isDisableEdit={true}
                       label='Other Info'
+                      onMarkdownChange={async (markdown) => {
+                        await handleSummayChange('otherInfo', [markdown]);
+                      }}
+                      isLoading={isChangingSummary}
                       markdown={otherInfoToMDTable(
                         summary.otherInfo as TOtherInfo[]
                       )}
@@ -238,7 +351,7 @@ function RfpDocuments({ files }: { files: string[] }) {
       onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}
       className='w-full p-4'
     >
-      <summary className='cursor-pointer list-none font-medium flex items-center gap-1'>
+      <summary className='cursor-pointer list-none font-medium flex items-center gap-2'>
         {open ? (
           <ChevronUp className='w-4 h-4' />
         ) : (
