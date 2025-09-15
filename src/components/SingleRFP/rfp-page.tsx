@@ -29,7 +29,7 @@ import {
   S3_UPLOADED_FILES_PAYLOAD,
 } from '../file-uploader-dialog';
 import { RfpSummary } from './rfp-summary';
-import { __sample_markdown, otherInfoToMDTable } from '@/lib/utils';
+import { extractFileNameFromKey } from '@/lib/utils';
 import { toast } from 'sonner';
 import { generateSummary, updateRfp } from '@/lib/apis/rfpApi';
 import { LoadingButton } from '../loading-button';
@@ -191,7 +191,7 @@ export default function RfpPage({
       });
       if (res.data) {
         setSummary(res.data.latestVersion.summary);
-        toast.success(`Summary ${key} updated successfully`);
+        toast.success(`Summary updated successfully`);
       }
     } catch (error) {
       console.error(error);
@@ -249,7 +249,7 @@ export default function RfpPage({
               >
                 {!isViewer && proposalFiles.length > 0 && (
                   <LoadingButton
-                    label={'Generate Summary'}
+                    label={`${Object.keys(summary).length > 0 ? 'Regenerate' : 'Generate'} Summary`}
                     isLoading={isLoadingSummary}
                     onClick={handleGenerateSummary}
                     className='bg-white text-gray-800  border-[1px] border-gray-100 hover:bg-gray-100'
@@ -419,7 +419,7 @@ ${summary.keyDates.otherDates
                   {summary?.otherInfo && summary?.otherInfo.length > 0 && (
                     <RfpSummary
                       id='OtherInfo'
-                      isDisableEdit={true}
+                      isDisableEdit={isViewer}
                       label='Other Info'
                       onMarkdownChange={async (markdown) => {
                         await handleSummayChange('otherInfo', [
@@ -482,7 +482,7 @@ function RfpDocuments({ files }: { files: string[] }) {
           <li className='flex items-center gap-2 hover:text-black' key={file}>
             <FileIcon className='w-4 h-4' />
             <span className='flex-1 w-full overflow-hidden text-ellipsis whitespace-nowrap font-medium text-sm'>
-              {file}
+              {extractFileNameFromKey(file)}
             </span>
           </li>
         ))}

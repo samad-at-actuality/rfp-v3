@@ -29,24 +29,16 @@ export const RfpSummary = ({
 
   return (
     <div
-      id={id}
+      id={`${id}`}
       className=' flex flex-col items-start gap-2 rounded-lg border p-4 text-left text-sm transition-all hover:bg-accent w-full  min-w-full z-20 shadow-md bg-white '
     >
       <p className='font-semibold text-lg'>{label}</p>
-      {/* <SimpleEditor /> */}
-      {openEdit ? (
-        <TiptapEditor
-          content={markdown}
-          onUpdate={setMarkdown}
-          editable={!isDisableEdit}
-        />
-      ) : (
-        <TiptapEditor
-          content={markdown}
-          onUpdate={setMarkdown}
-          editable={false}
-        />
-      )}
+      <TiptapEditor
+        key={openEdit.toString() + !isDisableEdit.toString()}
+        content={markdown}
+        onUpdate={setMarkdown}
+        editable={openEdit && !isDisableEdit}
+      />
 
       <div className='w-full flex justify-end items-center gap-4'>
         {openEdit ? (

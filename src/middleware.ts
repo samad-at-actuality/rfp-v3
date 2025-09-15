@@ -65,7 +65,7 @@ export async function middleware(request: NextRequest) {
     return await auth0.middleware(request);
   } catch {
     const { origin } = new URL(request.url);
-    return NextResponse.redirect(`${origin}/not-found`);
+    return NextResponse.redirect(`${origin}/auth/login`);
   }
 }
 

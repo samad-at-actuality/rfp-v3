@@ -196,11 +196,24 @@ export const AskAIDialog = ({
       });
 
       if (res.data) {
-        setSession(res.data);
-        localStorage.setItem(
-          ASK_AI_CHAT_SESSION_LOCAL_STORAGE_KEY,
-          JSON.stringify(res.data)
+        const chatSession = localStorage.getItem(
+          ASK_AI_CHAT_SESSION_LOCAL_STORAGE_KEY
         );
+        if (chatSession) {
+          const session: TChatSessionResponse = JSON.parse(chatSession);
+          setSession({
+            ...res.data,
+            mode,
+            enableWeb,
+            folderIds: [...selectedFolderIds, ...session.folderIds],
+            khTypes: [...selectedKhTypes, ...session.khTypes],
+          });
+          localStorage.setItem(
+            ASK_AI_CHAT_SESSION_LOCAL_STORAGE_KEY,
+            JSON.stringify(res.data)
+          );
+        }
+        toast.success('Chat session updated successfully');
       }
     } catch {
       toast.error('Failed to update chat session');
@@ -389,6 +402,7 @@ export const AskAIDialog = ({
               </DialogTitle>
               <div className='flex items-center gap-0'>
                 <KnowledgeHubDropDownMenu
+                  key={session?.folderIds.join(',')}
                   isSaving={isUpdatingSession}
                   onSave={async (...args) => {
                     await updateChatSession(
@@ -693,11 +707,14 @@ export function KnowledgeHubDropDownMenu({
   onSave: (_: string[], __: TPrimaryFolderEnum[]) => Promise<void>;
   isSaving: boolean;
 }) {
+  console.log('selectedFolderIds_: ', selectedFolderIds_);
   const [open, setOpen] = useState(false);
-  const [selectedFolderIds, setSelectedFolderIds] =
-    useState<string[]>(selectedFolderIds_);
-  const [selectedKhTypes, setSelectedKhTypes] =
-    useState<TPrimaryFolderEnum[]>(khTypes);
+  const [selectedFolderIds, setSelectedFolderIds] = useState<string[]>([]);
+
+  const [selectedKhTypes, setSelectedKhTypes] = useState<TPrimaryFolderEnum[]>(
+    []
+  );
+
   const toggleSelection = (folderId: string) => {
     if (selectedFolderIds.includes(folderId)) {
       setSelectedFolderIds(selectedFolderIds.filter((i) => i !== folderId));
@@ -731,7 +748,10 @@ export function KnowledgeHubDropDownMenu({
                 (i) =>
                   i === folder.values.find((v) => v.folderId === i)?.folderId
               ).length;
-
+              const crtFolderIds = folder.values.map((v) => v.folderId);
+              const hasAllBeenSelected = crtFolderIds.every((i) =>
+                selectedFolderIds_.includes(i)
+              );
               return (
                 <div
                   key={folder.label}
@@ -751,12 +771,19 @@ export function KnowledgeHubDropDownMenu({
                       {folder.values.length > 0 && (
                         <Checkbox
                           className='border-2 border-gray-400'
-                          checked={count === folder.values.length}
+                          checked={
+                            count === folder.values.length || hasAllBeenSelected
+                          }
+                          disabled={hasAllBeenSelected}
                           onCheckedChange={(checked) => {
-                            setSelectedFolderIds((p) => [
-                              ...p,
-                              ...folder.values.map((v) => v.folderId),
-                            ]);
+                            setSelectedFolderIds((p) =>
+                              checked
+                                ? [
+                                    ...p,
+                                    ...folder.values.map((v) => v.folderId),
+                                  ]
+                                : p.filter((i) => !crtFolderIds.includes(i))
+                            );
                             if (checked) {
                               setSelectedKhTypes((p) =>
                                 !checked
@@ -783,7 +810,11 @@ export function KnowledgeHubDropDownMenu({
                             <span className='flex-1'>{item.name}</span>
                             <Checkbox
                               className='border-2 border-gray-400'
-                              checked={selectedFolderIds.includes(
+                              checked={
+                                selectedFolderIds_.includes(item.folderId) ||
+                                selectedFolderIds.includes(item.folderId)
+                              }
+                              disabled={selectedFolderIds_.includes(
                                 item.folderId
                               )}
                               onCheckedChange={(checked) => {
@@ -818,7 +849,7 @@ export function KnowledgeHubDropDownMenu({
             variant='outline'
             size='sm'
             onClick={clearAll}
-            disabled={isSaving}
+            disabled={isSaving || selectedFolderIds.length === 0}
           >
             Clear all
           </Button>
@@ -829,7 +860,10 @@ export function KnowledgeHubDropDownMenu({
             isLoading={isSaving}
             onClick={async () => {
               try {
-                await onSave(selectedFolderIds, selectedKhTypes);
+                await onSave(
+                  selectedFolderIds,
+                  selectedKhTypes.filter((t) => !khTypes.includes(t))
+                );
               } catch {
               } finally {
                 setOpen(false);

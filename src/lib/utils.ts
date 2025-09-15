@@ -312,3 +312,8 @@ export const otherInfoToMDTable = (data: TOtherInfo[]) => {
 
   return md;
 };
+
+export function extractFileNameFromKey(fileKey: string) {
+  const fileNameWithUUID = fileKey.split('/').pop();
+  return fileNameWithUUID?.replace(/^[0-9a-f-]{32,36}-/, '') || '';
+}
