@@ -286,6 +286,7 @@ export default function RfpPage({
                       id='Overview'
                       isDisableEdit={isViewer}
                       label='Overview'
+                      key={summary.overview}
                       markdown={summary.overview}
                       onMarkdownChange={async (markdown) => {
                         await handleSummayChange('overview', markdown);
@@ -298,6 +299,7 @@ export default function RfpPage({
                       id='KeyDates'
                       isDisableEdit={isViewer}
                       label='Key Dates'
+                      key={JSON.stringify(summary.keyDates)}
                       markdown={
                         summary.keyDates.otherDates?.find(
                           (x) => x.date === 'MANUAL'
@@ -332,6 +334,7 @@ ${summary.keyDates.otherDates
                         id='SubmissionRequirements'
                         isDisableEdit={isViewer}
                         label='Submission Requirements'
+                        key={JSON.stringify(summary.submissionRequirements)}
                         markdown={
                           summary.submissionRequirements.length > 1
                             ? summary.submissionRequirements
@@ -352,6 +355,7 @@ ${summary.keyDates.otherDates
                       id='EvaluationCriteria'
                       isDisableEdit={isViewer}
                       label='Evaluation Criteria'
+                      key={summary.evaluationCriteria}
                       onMarkdownChange={async (markdown) => {
                         await handleSummayChange(
                           'evaluationCriteria',
@@ -367,6 +371,7 @@ ${summary.keyDates.otherDates
                       id='ScopeOfWork'
                       isDisableEdit={isViewer}
                       label='Scope of Work'
+                      key={summary.scopeOfWork}
                       onMarkdownChange={async (markdown) => {
                         await handleSummayChange('scopeOfWork', markdown);
                       }}
@@ -380,6 +385,7 @@ ${summary.keyDates.otherDates
                         id='Discrepancies'
                         isDisableEdit={isViewer}
                         label='Discrepancies'
+                        key={JSON.stringify(summary.discrepancies)}
                         markdown={
                           summary.discrepancies.find((d) => d.type === 'MANUAL')
                             ?.description ||
@@ -403,6 +409,7 @@ ${summary.keyDates.otherDates
                       id='Questions'
                       isDisableEdit={isViewer}
                       label='Questions'
+                      key={JSON.stringify(summary.questions)}
                       markdown={
                         summary.questions.length > 1
                           ? summary.questions
@@ -421,6 +428,7 @@ ${summary.keyDates.otherDates
                       id='OtherInfo'
                       isDisableEdit={isViewer}
                       label='Other Info'
+                      key={JSON.stringify(summary.otherInfo)}
                       onMarkdownChange={async (markdown) => {
                         await handleSummayChange('otherInfo', [
                           ...(summary.otherInfo?.filter(

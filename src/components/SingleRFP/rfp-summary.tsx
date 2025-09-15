@@ -38,6 +38,7 @@ export const RfpSummary = ({
         content={markdown}
         onUpdate={setMarkdown}
         editable={openEdit && !isDisableEdit}
+        attributeClass='p-4 hover:bg-white focus:bg-accent bg-white'
       />
 
       <div className='w-full flex justify-end items-center gap-4'>
