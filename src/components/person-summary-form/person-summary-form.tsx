@@ -248,7 +248,7 @@ export const PersonSummaryForm = ({
                 About
               </Label>
               <TiptapEditor
-                key={isReSummarizing ? 're-summarizing' : 'editing'}
+                key={isReSummarizing.toString() + isSavingSummary.toString()}
                 content={personSummary?.about}
                 editable={!isViewer}
                 onUpdate={(html) =>
