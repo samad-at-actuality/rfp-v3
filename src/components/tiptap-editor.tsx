@@ -121,7 +121,7 @@ const TiptapEditor = ({
 
   return (
     <div className='border-1 shadow-md rounded-lg overflow-hidden flex flex-col bg-white w-full'>
-      <Menubar editor={editor} />
+      {editable && <Menubar editor={editor} />}{' '}
       <div className='p-0'>
         <EditorContent editor={editor} />
       </div>

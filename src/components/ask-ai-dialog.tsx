@@ -32,7 +32,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   AskAIPurpose,
   TChatHistory,
-  TChatMessage,
   TChatSessionMode,
   TChatSessionResponse,
 } from '@/types/TAskAI';
@@ -83,21 +82,15 @@ export const AskAIDialog = ({
   } = useOrgCtx();
 
   const [session, setSession] = useState<TChatSessionResponse | null>(null);
+
   const [isLoadingSession, setIsLoadingSession] = useState(false);
 
-  const [chatMessage, setChatMessage] = useState<TChatMessage>({
-    content: '',
-    enableWeb: false,
-    mode: TChatSessionMode.QUICK_RESPONSE,
-  });
+  const [chatMessage, setChatMessage] = useState<string>('');
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setChatMessage({
-      ...chatMessage,
-      content: e.target.value,
-    });
+    setChatMessage(e.target.value);
   };
 
   const contentRef = useRef<HTMLDivElement>(null);
@@ -134,11 +127,6 @@ export const AskAIDialog = ({
       if (chatSession) {
         const session: TChatSessionResponse = JSON.parse(chatSession);
         setSession(session);
-        setChatMessage((p) => ({
-          ...p,
-          mode: session.mode,
-          enableWeb: session.enableWeb,
-        }));
       } else {
         const res = await createChatSession(orgId, {
           fileIds: [],
@@ -176,11 +164,7 @@ export const AskAIDialog = ({
     setSession(null);
     setChatHistory([]);
     setChatMessagesExist(false);
-    setChatMessage({
-      content: '',
-      enableWeb: false,
-      mode: TChatSessionMode.QUICK_RESPONSE,
-    });
+    setChatMessage('');
     setOpen(false);
     getOrSetChatSession();
   };
@@ -189,9 +173,7 @@ export const AskAIDialog = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showScrollUp, setShowScrollUp] = useState(false);
   const [showScrollDown, setShowScrollDown] = useState(false);
-  const [chatMessageClone, setChatMessageClone] = useState<TChatMessage | null>(
-    null
-  );
+  const [chatMessageClone, setChatMessageClone] = useState<string>();
 
   const updateChatSession = async (
     selectedFolderIds: string[],
@@ -250,18 +232,21 @@ export const AskAIDialog = ({
   }, [open, chatHistory.length, chatMessageClone]);
 
   const handleSubmit = async () => {
-    if (!chatMessage.content.trim() || !session?.id) {
+    if (!chatMessage.trim() || !session?.id) {
       return;
     }
 
     setIsSubmitting(true);
-    const contentTemp = chatMessage.content;
-    setChatMessage((p) => ({ ...p, content: '' }));
+    const contentTemp = chatMessage;
+    setChatMessage('');
     setChatMessageClone(chatMessage);
     try {
       const res = await sendChatMessage(orgId, session.id, {
-        ...chatMessage,
-        content: contentTemp,
+        ...{
+          content: contentTemp,
+          enableWeb: session.enableWeb,
+          mode: session.mode,
+        },
       });
 
       if (res.data) {
@@ -269,21 +254,25 @@ export const AskAIDialog = ({
           ...p,
           {
             question: {
-              ...{ ...chatMessage, content: contentTemp },
+              ...{
+                content: contentTemp,
+                enableWeb: session.enableWeb,
+                mode: session.mode,
+              },
               createdAt: new Date().toISOString(),
             },
             answer: res.data,
           },
         ]);
-        setChatMessage((p) => ({ ...p, content: '' }));
+        setChatMessage('');
       } else {
-        setChatMessage((p) => ({ ...p, content: contentTemp }));
+        setChatMessage(contentTemp);
       }
     } catch {
       toast.error('Failed to send chat message');
-      setChatMessage((p) => ({ ...p, content: contentTemp }));
+      setChatMessage(contentTemp);
     } finally {
-      setChatMessageClone(null);
+      setChatMessageClone('');
       setIsSubmitting(false);
       textareaRef.current?.focus();
     }
@@ -385,7 +374,7 @@ export const AskAIDialog = ({
         onInteractOutside={(e) => e.preventDefault()}
       >
         {isLoadingSession ? (
-          <div className='size-full  place-items-center'>
+          <div className='size-full grid place-items-center'>
             <div className='flex flex-col items-center gap-2'>
               <Loader2 className='w-[30%] h-[30%] animate-spin' />
               <p>Loading session...</p>
@@ -404,8 +393,8 @@ export const AskAIDialog = ({
                   onSave={async (...args) => {
                     await updateChatSession(
                       ...args,
-                      chatMessage.mode,
-                      chatMessage.enableWeb
+                      session?.mode || TChatSessionMode.QUICK_RESPONSE,
+                      session?.enableWeb || false
                     );
                   }}
                   selectedFolderIds={session?.folderIds || []}
@@ -470,14 +459,16 @@ export const AskAIDialog = ({
                     </div>
                   </React.Fragment>
                 ))}
-                {isSubmitting && chatMessageClone && (
-                  <QuestionTab
-                    showGeneratingResponse={true}
-                    userName={userName}
-                    question={chatMessageClone.content}
-                    createdAt={new Date().toISOString()}
-                  />
-                )}
+                {isSubmitting &&
+                  chatMessageClone &&
+                  chatMessageClone.trim().length > 0 && (
+                    <QuestionTab
+                      showGeneratingResponse={true}
+                      userName={userName}
+                      question={chatMessageClone}
+                      createdAt={new Date().toISOString()}
+                    />
+                  )}
               </div>
               {(showScrollUp || showScrollDown) && (
                 <div className='absolute bottom-4 right-8 flex flex-col items-center gap-2 bg-white/80 backdrop-blur-sm p-1 rounded-full shadow-lg'>
@@ -523,7 +514,7 @@ export const AskAIDialog = ({
               <div className='relative bg-gray-200 rounded-md'>
                 <textarea
                   ref={textareaRef}
-                  value={chatMessage.content}
+                  value={chatMessage}
                   onChange={handleInputChange}
                   className='border-none outline-none p-2 flex-1 resize-none min-h-[100px] max-h-[100px] w-full overflow-y-auto'
                   placeholder='Ask a question'
@@ -559,138 +550,121 @@ export const AskAIDialog = ({
                   )}
                 </Button>
               </div>
-              <div className='flex items-center justify-normal'>
-                <div className='flex-1'>
-                  <div
-                    className='rounded-full bg-gray-200 w-fit shadow-md p-1'
-                    key={chatMessage.mode || open}
-                  >
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Button
-                          onClick={async () => {
-                            if (
-                              chatMessage.mode ===
-                              TChatSessionMode.CREATIVE_THINKING
-                            ) {
-                              return;
-                            }
-                            setChatMessage((p) => ({
-                              ...p,
-                              mode: TChatSessionMode.CREATIVE_THINKING,
-                            }));
+              {session && (
+                <div className='flex items-center justify-normal'>
+                  <div className='flex-1'>
+                    <div
+                      className='rounded-full bg-gray-200 w-fit shadow-md p-1'
+                      key={session?.mode || open}
+                    >
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Button
+                            onClick={async () => {
+                              if (
+                                session?.mode ===
+                                TChatSessionMode.CREATIVE_THINKING
+                              ) {
+                                return;
+                              }
 
-                            await updateChatSession(
-                              session?.folderIds || [],
-                              session?.khTypes || [],
-                              TChatSessionMode.CREATIVE_THINKING,
-                              chatMessage.enableWeb
-                            );
-                          }}
-                          className={`rounded-full cursor-pointer ${chatMessage.mode === TChatSessionMode.CREATIVE_THINKING ? 'bg-white' : ''}`}
-                          size='icon'
-                          variant='ghost'
-                        >
-                          <FileAudio2 className='w-4 h-6 text-gray-500' />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        {TChatSessionMode.CREATIVE_THINKING}
-                      </TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Button
-                          onClick={async () => {
-                            if (
-                              chatMessage.mode === TChatSessionMode.STATISTICS
-                            ) {
-                              return;
-                            }
+                              await updateChatSession(
+                                session?.folderIds || [],
+                                session?.khTypes || [],
+                                TChatSessionMode.CREATIVE_THINKING,
+                                session?.enableWeb
+                              );
+                            }}
+                            className={`rounded-full cursor-pointer ${session?.mode === TChatSessionMode.CREATIVE_THINKING ? 'bg-white' : ''}`}
+                            size='icon'
+                            variant='ghost'
+                          >
+                            <FileAudio2 className='w-4 h-6 text-gray-500' />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {TChatSessionMode.CREATIVE_THINKING}
+                        </TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Button
+                            onClick={async () => {
+                              if (
+                                session?.mode === TChatSessionMode.STATISTICS
+                              ) {
+                                return;
+                              }
 
-                            setChatMessage((p) => ({
-                              ...p,
-                              mode: TChatSessionMode.STATISTICS,
-                            }));
+                              await updateChatSession(
+                                session?.folderIds || [],
+                                session?.khTypes || [],
+                                TChatSessionMode.STATISTICS,
+                                session?.enableWeb
+                              );
+                            }}
+                            className={`rounded-full cursor-pointer ${session?.mode === TChatSessionMode.STATISTICS ? 'bg-white' : ''}`}
+                            size='icon'
+                            variant='ghost'
+                          >
+                            <ChartNoAxesColumnIncreasing className='w-4 h-6 text-gray-500' />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {TChatSessionMode.STATISTICS}
+                        </TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          {' '}
+                          <Button
+                            onClick={async () => {
+                              if (
+                                session?.mode === TChatSessionMode.BRAINSTORMING
+                              ) {
+                                return;
+                              }
 
-                            await updateChatSession(
-                              session?.folderIds || [],
-                              session?.khTypes || [],
-                              TChatSessionMode.STATISTICS,
-                              chatMessage.enableWeb
-                            );
-                          }}
-                          className={`rounded-full cursor-pointer ${chatMessage.mode === TChatSessionMode.STATISTICS ? 'bg-white' : ''}`}
-                          size='icon'
-                          variant='ghost'
-                        >
-                          <ChartNoAxesColumnIncreasing className='w-4 h-6 text-gray-500' />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        {TChatSessionMode.STATISTICS}
-                      </TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        {' '}
-                        <Button
-                          onClick={async () => {
-                            if (
-                              chatMessage.mode ===
-                              TChatSessionMode.BRAINSTORMING
-                            ) {
-                              return;
-                            }
-
-                            setChatMessage((p) => ({
-                              ...p,
-                              mode: TChatSessionMode.BRAINSTORMING,
-                            }));
-
-                            await updateChatSession(
-                              session?.folderIds || [],
-                              session?.khTypes || [],
-                              TChatSessionMode.BRAINSTORMING,
-                              chatMessage.enableWeb
-                            );
-                          }}
-                          className={`rounded-full cursor-pointer ${chatMessage.mode === TChatSessionMode.BRAINSTORMING ? 'bg-white' : ''}`}
-                          size='icon'
-                          variant='ghost'
-                        >
-                          <LightbulbIcon className='w-4 h-6 text-gray-500' />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        {TChatSessionMode.BRAINSTORMING}
-                      </TooltipContent>
-                    </Tooltip>
+                              await updateChatSession(
+                                session?.folderIds || [],
+                                session?.khTypes || [],
+                                TChatSessionMode.BRAINSTORMING,
+                                session?.enableWeb
+                              );
+                            }}
+                            className={`rounded-full cursor-pointer ${session?.mode === TChatSessionMode.BRAINSTORMING ? 'bg-white' : ''}`}
+                            size='icon'
+                            variant='ghost'
+                          >
+                            <LightbulbIcon className='w-4 h-6 text-gray-500' />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {TChatSessionMode.BRAINSTORMING}
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                   </div>
-                </div>
-                <Button
-                  key={chatMessage.enableWeb.toString() || open.toString()}
-                  className={`text-blue-400 hover:text-blue-400 cursor-pointer ${chatMessage.enableWeb ? '  text-blue-900 hover:text-blue-900' : ''}`}
-                  variant='ghost'
-                  size='sm'
-                  onClick={async () => {
-                    const prevEnableWeb = chatMessage.enableWeb;
-                    setChatMessage((p) => ({
-                      ...p,
-                      enableWeb: !prevEnableWeb,
-                    }));
+                  <Button
+                    key={session?.enableWeb.toString() || open.toString()}
+                    className={`text-blue-400 hover:text-blue-400 cursor-pointer ${session?.enableWeb ? '  text-blue-900 hover:text-blue-900' : ''}`}
+                    variant='ghost'
+                    size='sm'
+                    onClick={async () => {
+                      const prevEnableWeb = session?.enableWeb;
 
-                    await updateChatSession(
-                      session?.folderIds || [],
-                      session?.khTypes || [],
-                      chatMessage.mode,
-                      !prevEnableWeb
-                    );
-                  }}
-                >
-                  <Globe /> Enable web search
-                </Button>
-              </div>
+                      await updateChatSession(
+                        session?.folderIds || [],
+                        session?.khTypes || [],
+                        session?.mode,
+                        !prevEnableWeb
+                      );
+                    }}
+                  >
+                    <Globe /> Enable web search
+                  </Button>
+                </div>
+              )}
             </DialogFooter>
           </>
         )}

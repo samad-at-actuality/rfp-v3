@@ -382,19 +382,13 @@ export const MediaDisplayer = ({
 }) => {
   const [files, setFiles] = useState(files_);
 
-  const ref = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    if (ref.current && files.length === 0 && showAutoPopIfEmpty) {
-      ref.current.click();
-    }
-  }, [files]);
-
   const convertBytesToMB = (size: number): string => {
     if (!size || size <= 0) {
       return '0 MB';
     }
     return `${(size / (1024 * 1024)).toFixed(2)} MB`;
   };
+  const [openFileUploader, setFileUploader] = useState(files.length === 0);
 
   const formatDateTime = (
     isoString: string
@@ -426,8 +420,10 @@ export const MediaDisplayer = ({
         </Label>
         {showUpload && (
           <FileUploaderDialog
+            open={openFileUploader}
+            setOpen={setFileUploader}
             trigger={
-              <Button ref={ref} className='bg-white' variant='outline'>
+              <Button className='bg-white' variant='outline'>
                 <Upload /> Upload Files
               </Button>
             }

@@ -104,6 +104,9 @@ export default function RfpPage({
       return payloads;
     }
   };
+  const [openFileUploader, setFileUploader] = useState(
+    proposalFiles.length === 0
+  );
 
   const [isChangingSummary, setIsChangingSummary] = useState(false);
   const handleSummayChange = async (key: string, value: string | string[]) => {
@@ -191,6 +194,8 @@ export default function RfpPage({
 
                 {!isViewer && (
                   <FileUploaderDialog
+                    open={openFileUploader}
+                    setOpen={setFileUploader}
                     trigger={
                       <Button
                         ref={uploadButtonRfp}

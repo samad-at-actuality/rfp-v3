@@ -35,6 +35,8 @@ export function FileUploaderDialog({
   onUpload,
   trigger,
   showPostProcessing,
+  open,
+  setOpen,
 }: {
   orgId: string;
   folderId: string;
@@ -45,8 +47,9 @@ export function FileUploaderDialog({
   ) => Promise<S3_UPLOADED_FILES_PAYLOAD[]>;
   trigger: React.ReactNode;
   showPostProcessing?: boolean;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }) {
-  const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -139,12 +142,20 @@ export function FileUploaderDialog({
     }
   };
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(e) => {
+        setOpen(e);
+      }}
+    >
       <DialogTrigger asChild>{trigger}</DialogTrigger>
 
       <DialogContent
         className='max-w-2xl max-h-[80vh] flex flex-col'
         onInteractOutside={(e) => {
+          e.preventDefault();
+        }}
+        onCloseAutoFocus={(e) => {
           e.preventDefault();
         }}
       >

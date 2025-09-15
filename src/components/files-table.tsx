@@ -52,6 +52,7 @@ export const FilesTable = ({
   const isViewer = crtOrgAccess === TOrgRole.VIEWER;
 
   const [existingFiles, setExistingFiles] = useState<TFolderFile[]>(files);
+  const [openFileUploader, setFileUploader] = useState(files.length === 0);
 
   const formatFileSize = (bytes: any) => {
     if (bytes === 0) {
@@ -62,13 +63,6 @@ export const FilesTable = ({
     const value = bytes / Math.pow(1024, i);
     return `${value.toFixed(1)} ${sizes[i]}`;
   };
-
-  const ref = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    if (ref.current && files.length === 0) {
-      ref.current.click();
-    }
-  }, [files]);
 
   return (
     <div className='p-6 flex flex-col min-h-screen'>
@@ -227,6 +221,8 @@ export const FilesTable = ({
         <div className='flex items-center gap-3 mt-4'>
           {!isViewer && (
             <FileUploaderDialog
+              open={openFileUploader}
+              setOpen={setFileUploader}
               trigger={
                 <Button
                   style={{
@@ -234,7 +230,6 @@ export const FilesTable = ({
                     backgroundColor: 'white',
                     border: '1px solid #E5E7EB',
                   }}
-                  ref={ref}
                 >
                   <Upload className='w-4 h-4' />
                   Upload
