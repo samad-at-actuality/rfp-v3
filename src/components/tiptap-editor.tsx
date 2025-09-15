@@ -34,14 +34,17 @@ import { defaultMarkdownSerializer } from 'prosemirror-markdown';
 
 import { TableKit } from '@tiptap/extension-table';
 import { marked } from 'marked';
-import { MarkdownSerializer } from 'prosemirror-markdown';
+import {
+  MarkdownSerializer,
+  MarkdownSerializerState,
+} from 'prosemirror-markdown';
 
 // Custom nodes for markdown serialization
-const customNodes = {
+const customNodes: typeof defaultMarkdownSerializer.nodes = {
   bulletList(state: any, node: any) {
     state.renderList(node, '  ', () => '- ');
   },
-  orderedList(state: any, node: any) {
+  orderedList(state: any, node: any, parent: any, index: number) {
     const start = node.attrs?.order || 1;
     state.renderList(node, '  ', (i: number) => `${start + i}. `);
   },
@@ -55,23 +58,110 @@ const customNodes = {
   text(state: any, node: any) {
     state.text(node.text);
   },
+  horizontalRule(state: any) {
+    state.ensureNewLine();
+    state.write('---');
+    state.closeBlock(state.lastWritten);
+  },
+  table(state: any, node: any) {
+    state.renderTable = (tableNode: any) => {
+      state.write('\n');
+      state.renderContent(tableNode);
+      state.ensureNewLine();
+    };
+    state.renderTableRow = (rowNode: any, withDelimiter = false) => {
+      state.write('|');
+      state.renderContent(rowNode);
+      state.write('\n');
+
+      if (withDelimiter) {
+        state.write('|');
+        for (let i = 0; i < rowNode.childCount; i++) {
+          state.write('---|');
+        }
+        state.write('\n');
+      }
+    };
+    state.renderTableHeader = (cellNode: any) => {
+      state.renderTableRow(cellNode, true);
+    };
+    state.renderTableCell = (cellNode: any) => {
+      state.write(' ');
+      state.renderContent(cellNode);
+      state.write(' |');
+    };
+
+    // Process the table
+    state.renderTable(node);
+  },
+  table_row(state: any, node: any) {
+    state.renderTableRow(node);
+  },
+  tableRow: (state: any, node: any) => {
+    state.renderTableRow(node);
+  },
+  // Handle both table_cell and tableCell node types
+  table_cell: (state: any, node: any) => {
+    state.renderTableCell(node);
+  },
+  tableCell: (state: any, node: any) => {
+    state.renderTableCell(node);
+  },
+  // Handle both table_header and tableHeader node types
+  tableHeader: (state: any, node: any) => {
+    state.renderTableHeader(node);
+  },
+  table_header: (state: any, node: any) => {
+    state.renderTableHeader(node);
+  },
   // Add other node types as needed
   ...defaultMarkdownSerializer.nodes,
 };
 
-// Custom marks for markdown serialization
+// Custom marks for markdown serialization with proper ordering
 const customMarks = {
-  // Standard marks
-  strong: defaultMarkdownSerializer.marks.strong,
-  em: defaultMarkdownSerializer.marks.em,
+  // Standard marks with custom handling for combined styles
+  strong: {
+    open: '**',
+    close: '**',
+    mixable: true,
+    expelEnclosingWhitespace: true,
+  },
+  em: {
+    open: '*',
+    close: '*',
+    mixable: true,
+    expelEnclosingWhitespace: true,
+  },
   code: defaultMarkdownSerializer.marks.code,
   link: defaultMarkdownSerializer.marks.link,
   strike: defaultMarkdownSerializer.marks.strike,
-
-  // Tiptap specific marks
-  bold: defaultMarkdownSerializer.marks.strong,
-  italic: defaultMarkdownSerializer.marks.em,
-  underline: defaultMarkdownSerializer.marks.em, // Underline is not standard in Markdown
+  u: {
+    // Underline handling using double underscores (common markdown extension)
+    open: '__',
+    close: '__',
+    mixable: true,
+    expelEnclosingWhitespace: true,
+  },
+  // Tiptap specific marks with full definitions
+  bold: {
+    open: '**',
+    close: '**',
+    mixable: true,
+    expelEnclosingWhitespace: true,
+  },
+  italic: {
+    open: '*',
+    close: '*',
+    mixable: true,
+    expelEnclosingWhitespace: true,
+  },
+  underline: {
+    open: '<u>',
+    close: '</u>',
+    mixable: true,
+    expelEnclosingWhitespace: true,
+  },
 };
 
 export const customMarkdownSerializer = new MarkdownSerializer(
@@ -101,7 +191,6 @@ const TiptapEditor = ({
             const markdown = customMarkdownSerializer.serialize(
               editor.state.doc
             );
-            console.log('markdown: ', markdown);
             onUpdate?.(markdown);
           },
         }
@@ -110,7 +199,7 @@ const TiptapEditor = ({
     immediatelyRender: false,
     editorProps: {
       attributes: {
-        class: 'min-h-[200px] h-[300px] overflow-y-auto p-4',
+        class: 'min-h-[200px] overflow-y-auto p-4',
       },
     },
   });
@@ -120,7 +209,7 @@ const TiptapEditor = ({
   }
 
   return (
-    <div className='border-1 shadow-md rounded-lg overflow-hidden flex flex-col bg-white w-full'>
+    <div className='border-1 rounded-lg overflow-hidden flex flex-col bg-white w-full'>
       {editable && <Menubar editor={editor} />}{' '}
       <div className='p-0'>
         <EditorContent editor={editor} />

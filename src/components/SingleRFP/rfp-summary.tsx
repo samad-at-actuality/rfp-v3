@@ -15,24 +15,37 @@ export const RfpSummary = ({
   onMarkdownChange,
   isLoading,
   isDisableEdit,
+  id,
 }: {
   label: string;
   markdown: string;
   onMarkdownChange: (_: string) => Promise<void>;
   isLoading: boolean;
   isDisableEdit: boolean;
+  id: string;
 }) => {
   const [openEdit, setOpenEdit] = useState(false);
   const [markdown, setMarkdown] = useState(markdown_);
 
   return (
-    <div className=' flex flex-col items-start gap-2 rounded-lg border p-4 text-left text-sm transition-all hover:bg-accent w-full  min-w-full z-20 shadow-md bg-white '>
+    <div
+      id={id}
+      className=' flex flex-col items-start gap-2 rounded-lg border p-4 text-left text-sm transition-all hover:bg-accent w-full  min-w-full z-20 shadow-md bg-white '
+    >
       <p className='font-semibold text-lg'>{label}</p>
       {/* <SimpleEditor /> */}
       {openEdit ? (
-        <TiptapEditor content={markdown} onUpdate={setMarkdown} />
+        <TiptapEditor
+          content={markdown}
+          onUpdate={setMarkdown}
+          editable={!isDisableEdit}
+        />
       ) : (
-        <MarkdownDisplayer markdown={markdown} />
+        <TiptapEditor
+          content={markdown}
+          onUpdate={setMarkdown}
+          editable={false}
+        />
       )}
 
       <div className='w-full flex justify-end items-center gap-4'>
@@ -60,7 +73,6 @@ export const RfpSummary = ({
           </>
         ) : (
           <>
-            {' '}
             <Copy
               className='size-4 cursor-pointer self-end'
               onClick={() =>

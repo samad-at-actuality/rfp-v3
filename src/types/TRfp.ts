@@ -17,33 +17,27 @@ export type TRFP = {
         submissionDeadline?: string | null;
         qnaDeadline?: string | null;
         awardDate?: string | null;
-        otherDates?: [
-          {
-            date: string;
-            description: string;
-          },
-        ];
+        otherDates?: {
+          date: string;
+          description: string;
+        }[];
       };
       overview?: string | null;
       coverLetter?: string | null;
       executiveSummary?: string | null;
-      discrepancies?: [
-        {
-          description: string;
-          type: any;
-        },
-      ];
-      questions?: [string];
+      discrepancies?: {
+        description: string;
+        type: any;
+      }[];
+      questions?: string[];
       scopeOfWork?: string | null;
-      submissionRequirements?: [string];
+      submissionRequirements?: string[];
       evaluationCriteria?: string | null;
-      otherInfo?: [
-        {
-          key: string;
-          value: string;
-          type: 'AI_TEXT';
-        },
-      ];
+      otherInfo?: {
+        key: string;
+        value: string;
+        type: 'AI_TEXT' | 'MANUAL';
+      }[];
     };
     inputFileKeys: [string];
     responseContent: {

@@ -5,14 +5,22 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 import { TRFP } from '@/types/TRfp';
-import { useEffect, useRef, useState } from 'react';
+import { JSX, useEffect, useRef, useState } from 'react';
 import { Button } from '../ui/button';
 import {
   ArrowLeft,
+  Calendar,
   ChevronDown,
   ChevronUp,
   FileIcon,
   Plus,
+  Eye,
+  Upload,
+  CheckSquare,
+  Target,
+  AlertTriangle,
+  HelpCircle,
+  Info,
 } from 'lucide-react';
 import { Separator } from '../ui/separator';
 import { TFolderInfoSummayType, TOtherInfo } from '@/types/TFolderInfo';
@@ -29,6 +37,7 @@ import { useRouter } from 'next/navigation';
 
 import { useOrgCtx } from '@/ctx/org-ctx';
 import { TOrgRole } from '@/types/TUserRole';
+import Link from 'next/link';
 
 const TOP_BAR_HEIGHT = 52;
 
@@ -50,7 +59,7 @@ export default function RfpPage({
   } = useOrgCtx();
   const isAdmin = crtOrgAccess === TOrgRole.ADMIN;
   const isViewer = crtOrgAccess === TOrgRole.VIEWER;
-
+  console.log('isViewer: ', isViewer);
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [summary, setSummary] = useState<TRFP['latestVersion']['summary']>(
     rfp_?.latestVersion?.summary || {}
@@ -77,6 +86,54 @@ export default function RfpPage({
       uploadButtonRfp.current?.click();
     }
   }, []);
+
+  const summary_tabs: {
+    label: string;
+    show: boolean;
+    icon: JSX.Element;
+  }[] = [
+    {
+      label: 'Overview',
+      show: !!summary.overview,
+      icon: <Eye className='w-4 h-4' />, // Changed from FileIcon to Eye for better representation
+    },
+    {
+      label: 'Key Dates',
+      show: !!summary.keyDates,
+      icon: <Calendar className='w-4 h-4' />, // Keep Calendar as it's appropriate
+    },
+    {
+      label: 'Submission requirements',
+      show: !!summary?.submissionRequirements?.length,
+      icon: <Upload className='w-4 h-4' />, // Represents submitting/uploading documents
+    },
+    {
+      label: 'Evaluation criteria',
+      show: !!summary?.evaluationCriteria?.length,
+      icon: <CheckSquare className='w-4 h-4' />, // Represents checking off criteria
+    },
+    {
+      label: 'Scope of work',
+      show: !!summary?.scopeOfWork,
+      icon: <Target className='w-4 h-4' />, // Represents focus and scope
+    },
+    {
+      label: 'Discrepencies',
+      show: !!summary?.discrepancies?.length,
+      icon: <AlertTriangle className='w-4 h-4' />, // Represents warnings/issues
+    },
+    {
+      label: 'Questions',
+      show: !!summary?.questions?.length,
+      icon: <HelpCircle className='w-4 h-4' />, // Clearly represents questions
+    },
+    {
+      label: 'Other info',
+      show: !!summary?.otherInfo?.length,
+      icon: <Info className='w-4 h-4' />, // Standard information icon
+    },
+  ];
+
   const handleProposalUpload = async (
     payloads: S3_UPLOADED_FILES_PAYLOAD[]
   ) => {
@@ -107,9 +164,12 @@ export default function RfpPage({
   const [openFileUploader, setFileUploader] = useState(
     proposalFiles.length === 0
   );
-
+  console.log('rfp: ', rfp);
   const [isChangingSummary, setIsChangingSummary] = useState(false);
-  const handleSummayChange = async (key: string, value: string | string[]) => {
+  const handleSummayChange = async (
+    key: string,
+    value: string | string[] | object
+  ) => {
     try {
       setIsChangingSummary(true);
       const newSummary = { ...summary };
@@ -171,10 +231,14 @@ export default function RfpPage({
               <RfpDocuments files={proposalFiles} />
             )}
             <Separator />
+
+            {summary_tabs?.length > 0 && Object.keys(summary).length > 0 && (
+              <SummmaryTabs summary_tabs={summary_tabs} />
+            )}
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel>
+        <ResizablePanel defaultSize={80}>
           <div className='w-full h-full overflow-x-hidden overflow-y-auto'>
             <div className='w-full h-full overflow-hidden flex flex-col'>
               <div
@@ -185,7 +249,7 @@ export default function RfpPage({
               >
                 {!isViewer && proposalFiles.length > 0 && (
                   <LoadingButton
-                    label={summary ? 'Regenerate Summary' : 'Generate Summary'}
+                    label={'Generate Summary'}
                     isLoading={isLoadingSummary}
                     onClick={handleGenerateSummary}
                     className='bg-white text-gray-800  border-[1px] border-gray-100 hover:bg-gray-100'
@@ -219,7 +283,8 @@ export default function RfpPage({
                 <div className='flex flex-col gap-2'>
                   {summary?.overview && (
                     <RfpSummary
-                      isDisableEdit={true || isViewer}
+                      id='Overview'
+                      isDisableEdit={isViewer}
                       label='Overview'
                       markdown={summary.overview}
                       onMarkdownChange={async (markdown) => {
@@ -230,32 +295,33 @@ export default function RfpPage({
                   )}
                   {summary?.keyDates && (
                     <RfpSummary
-                      isDisableEdit={true || isViewer}
+                      id='KeyDates'
+                      isDisableEdit={isViewer}
                       label='Key Dates'
                       markdown={
                         summary.keyDates.otherDates?.find(
                           (x) => x.date === 'MANUAL'
                         )?.description ||
-                        `- **Issue Date:** ${summary.keyDates.issueDate}
-- **Submission Deadline:** ${summary.keyDates.submissionDeadline}
-- **QnA Deadline:** ${summary.keyDates.qnaDeadline}
-- **Award Date:** ${summary.keyDates.awardDate}
-${summary.keyDates.otherDates?.map((it) => `- ${it.date}: ${it.description}`).join('\n\n')}
+                        `- **Issue Date:** ${summary.keyDates.issueDate || 'N/A'}
+- **Submission Deadline:** ${summary.keyDates.submissionDeadline || 'N/A'}
+- **QnA Deadline:** ${summary.keyDates.qnaDeadline || 'N/A'}
+- **Award Date:** ${summary.keyDates.awardDate || 'N/A'}
+${summary.keyDates.otherDates
+  ?.filter((it) => it.date && it.date !== 'MANUAL')
+  .map((it) => `- **${it.description}**: ${it.date}`)
+  .join('\n\n')}
 `
                       }
                       onMarkdownChange={async (markdown) => {
-                        await handleSummayChange(
-                          'keyDates',
-                          JSON.stringify({
-                            ...summary.keyDates,
-                            otherDates: [
-                              ...(summary.keyDates?.otherDates || []).filter(
-                                (x) => x.date !== 'MANUAL'
-                              ),
-                              { date: 'MANUAL', description: markdown },
-                            ],
-                          })
-                        );
+                        await handleSummayChange('keyDates', {
+                          ...summary.keyDates,
+                          otherDates: [
+                            ...(summary.keyDates?.otherDates || []).filter(
+                              (x) => x.date && x.date !== 'MANUAL'
+                            ),
+                            { date: 'MANUAL', description: markdown },
+                          ],
+                        });
                       }}
                       isLoading={isChangingSummary}
                     />
@@ -263,11 +329,16 @@ ${summary.keyDates.otherDates?.map((it) => `- ${it.date}: ${it.description}`).jo
                   {summary?.submissionRequirements &&
                     summary?.submissionRequirements?.length > 0 && (
                       <RfpSummary
-                        isDisableEdit={true || isViewer}
+                        id='SubmissionRequirements'
+                        isDisableEdit={isViewer}
                         label='Submission Requirements'
-                        markdown={summary.submissionRequirements
-                          .map((it) => `- ${it}`)
-                          .join('\n\n')}
+                        markdown={
+                          summary.submissionRequirements.length > 1
+                            ? summary.submissionRequirements
+                                .map((it) => `- ${it}`)
+                                .join('\n\n')
+                            : summary.submissionRequirements[0]
+                        }
                         onMarkdownChange={async (markdown) => {
                           await handleSummayChange('submissionRequirements', [
                             markdown,
@@ -278,7 +349,8 @@ ${summary.keyDates.otherDates?.map((it) => `- ${it.date}: ${it.description}`).jo
                     )}
                   {summary?.evaluationCriteria && (
                     <RfpSummary
-                      isDisableEdit={true || isViewer}
+                      id='EvaluationCriteria'
+                      isDisableEdit={isViewer}
                       label='Evaluation Criteria'
                       onMarkdownChange={async (markdown) => {
                         await handleSummayChange(
@@ -292,7 +364,8 @@ ${summary.keyDates.otherDates?.map((it) => `- ${it.date}: ${it.description}`).jo
                   )}
                   {summary?.scopeOfWork && (
                     <RfpSummary
-                      isDisableEdit={true || isViewer}
+                      id='ScopeOfWork'
+                      isDisableEdit={isViewer}
                       label='Scope of Work'
                       onMarkdownChange={async (markdown) => {
                         await handleSummayChange('scopeOfWork', markdown);
@@ -304,24 +377,39 @@ ${summary.keyDates.otherDates?.map((it) => `- ${it.date}: ${it.description}`).jo
                   {summary?.discrepancies &&
                     summary?.discrepancies?.length > 0 && (
                       <RfpSummary
-                        isDisableEdit={true || isViewer}
+                        id='Discrepancies'
+                        isDisableEdit={isViewer}
                         label='Discrepancies'
-                        markdown={summary.discrepancies
-                          .map((it) => `- ${it.description} (${it.type})`)
-                          .join('\n\n')}
+                        markdown={
+                          summary.discrepancies.find((d) => d.type === 'MANUAL')
+                            ?.description ||
+                          summary.discrepancies
+                            .map((it) => `- ${it.description} `)
+                            .join('\n\n')
+                        }
                         onMarkdownChange={async (markdown) => {
-                          await handleSummayChange('discrepancies', [markdown]);
+                          await handleSummayChange('discrepancies', [
+                            ...(summary.discrepancies?.filter(
+                              (d) => d.type !== 'MANUAL'
+                            ) || []),
+                            { description: markdown, type: 'MANUAL' },
+                          ]);
                         }}
                         isLoading={isChangingSummary}
                       />
                     )}
                   {summary?.questions && summary?.questions.length > 0 && (
                     <RfpSummary
-                      isDisableEdit={true || isViewer}
+                      id='Questions'
+                      isDisableEdit={isViewer}
                       label='Questions'
-                      markdown={summary.questions
-                        .map((it) => `- ${it}`)
-                        .join('\n\n')}
+                      markdown={
+                        summary.questions.length > 1
+                          ? summary.questions
+                              .map((it) => `- ${it}`)
+                              .join('\n\n')
+                          : summary.questions[0]
+                      }
                       onMarkdownChange={async (markdown) => {
                         await handleSummayChange('questions', [markdown]);
                       }}
@@ -330,15 +418,30 @@ ${summary.keyDates.otherDates?.map((it) => `- ${it.date}: ${it.description}`).jo
                   )}
                   {summary?.otherInfo && summary?.otherInfo.length > 0 && (
                     <RfpSummary
-                      isDisableEdit={true || isViewer}
+                      id='OtherInfo'
+                      isDisableEdit={true}
                       label='Other Info'
                       onMarkdownChange={async (markdown) => {
-                        await handleSummayChange('otherInfo', [markdown]);
+                        await handleSummayChange('otherInfo', [
+                          ...(summary.otherInfo?.filter(
+                            (o) => o.key && o.key !== 'MANUAL'
+                          ) || []),
+                          { value: markdown, key: 'MANUAL' },
+                        ]);
                       }}
                       isLoading={isChangingSummary}
-                      markdown={otherInfoToMDTable(
-                        summary.otherInfo as TOtherInfo[]
-                      )}
+                      markdown={
+                        summary.otherInfo.find((o) => o.key === 'MANUAL')
+                          ?.value ||
+                        summary.otherInfo
+                          .map((p) => `**${p.key}**: ${p.value}`)
+                          .join('\n\n')
+                        // otherInfoToMDTable(
+                        //   summary.otherInfo.filter(
+                        //     (o) => o.key !== 'MANUAL'
+                        //   ) as TOtherInfo[]
+                        // )
+                      }
                     />
                   )}
                 </div>
@@ -383,6 +486,56 @@ function RfpDocuments({ files }: { files: string[] }) {
             </span>
           </li>
         ))}
+      </ul>
+    </details>
+  );
+}
+
+function SummmaryTabs({
+  summary_tabs,
+}: {
+  summary_tabs: {
+    label: string;
+    show: boolean;
+    icon: JSX.Element;
+  }[];
+}) {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <details
+      open={open}
+      onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}
+      className='w-full p-4'
+    >
+      <summary className='cursor-pointer list-none font-medium flex items-center gap-2'>
+        {open ? (
+          <ChevronUp className='w-4 h-4' />
+        ) : (
+          <ChevronDown className='w-4 h-4' />
+        )}
+        <span>Summary</span>
+      </summary>
+
+      <ul className='ml-6 mt-4 space-y-4'>
+        {summary_tabs
+          .filter((x) => x.show)
+          .map((tab) => (
+            <li
+              className='flex items-center gap-2 hover:text-black'
+              key={tab.label}
+            >
+              <Link
+                className='flex items-center gap-2 hover:text-black w-full h-full'
+                href={`#${tab.label.split(' ').join('')}`}
+              >
+                {tab.icon}
+                <span className='flex-1 w-full overflow-hidden text-ellipsis whitespace-nowrap font-medium text-sm'>
+                  {tab.label}
+                </span>
+              </Link>
+            </li>
+          ))}
       </ul>
     </details>
   );
