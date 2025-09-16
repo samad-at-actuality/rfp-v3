@@ -50,6 +50,7 @@ import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning';
 import { flushSync } from 'react-dom';
 import { Upload } from 'lucide-react';
 import TiptapEditor from './tiptap-editor';
+import { useUserInfoCtx } from '@/ctx/user-context';
 
 export const ProjectSummaryForm = ({
   folderInfo: folderInfo_,
@@ -67,7 +68,8 @@ export const ProjectSummaryForm = ({
   const {
     currentOrg: { role: crtOrgAccess },
   } = useOrgCtx();
-  const isAdmin = crtOrgAccess === TOrgRole.ADMIN;
+  const { userInfo } = useUserInfoCtx();
+  const isAdmin = crtOrgAccess === TOrgRole.ADMIN || userInfo.isSuperAdmin;
   const isViewer = crtOrgAccess === TOrgRole.VIEWER;
 
   const [isDirty, setIsDirty] = useState(false);

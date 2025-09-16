@@ -8,7 +8,6 @@ export default async function DataPage({
 }) {
   const orgId = (await params).orgId;
   const folderCounts = await getPrimaryFolderChildrenCount({ orgId });
-
   return (
     <div className='p-6 space-y-6'>
       <h2 className='text-2xl font-bold'>Knowledge Hub</h2>

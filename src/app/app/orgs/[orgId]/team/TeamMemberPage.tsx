@@ -193,7 +193,7 @@ export const TeamMemberPage = ({
           <CardTitle>Members of the Organization</CardTitle>
         </CardHeader>
         <CardContent className='space-y-6'>
-          {currentOrgRole === TOrgRole.ADMIN && (
+          {(currentOrgRole === TOrgRole.ADMIN || userInfo.isSuperAdmin) && (
             <>
               <CardDescription>
                 Send email to invite users to the organization

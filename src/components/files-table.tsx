@@ -30,6 +30,7 @@ import { FileUploaderDialog } from './file-uploader-dialog';
 import { Upload } from 'lucide-react';
 import { FileDeleter } from './file-deleter';
 import { FileDownloader } from './file-downloader';
+import { useUserInfoCtx } from '@/ctx/user-context';
 
 export const FilesTable = ({
   folderInfo: folderInfo_,
@@ -48,7 +49,8 @@ export const FilesTable = ({
   const {
     currentOrg: { role: crtOrgAccess },
   } = useOrgCtx();
-  const isAdmin = crtOrgAccess === TOrgRole.ADMIN;
+  const { userInfo } = useUserInfoCtx();
+  const isAdmin = crtOrgAccess === TOrgRole.ADMIN || userInfo.isSuperAdmin;
   const isViewer = crtOrgAccess === TOrgRole.VIEWER;
 
   const [existingFiles, setExistingFiles] = useState<TFolderFile[]>(files);

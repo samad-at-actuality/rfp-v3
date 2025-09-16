@@ -51,6 +51,7 @@ import {
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning';
 import { flushSync } from 'react-dom';
 import TiptapEditor from '../tiptap-editor';
+import { useUserInfoCtx } from '@/ctx/user-context';
 // import dynamic from 'next/dynamic';
 
 // const TiptapEditor = dynamic(() => import('../tiptap-editor'), { ssr: false });
@@ -71,8 +72,10 @@ export const PersonSummaryForm = ({
   const {
     currentOrg: { role: crtOrgAccess },
   } = useOrgCtx();
-  const isAdmin = crtOrgAccess === TOrgRole.ADMIN;
+  const { userInfo } = useUserInfoCtx();
+  const isAdmin = crtOrgAccess === TOrgRole.ADMIN || userInfo.isSuperAdmin;
   const isViewer = crtOrgAccess === TOrgRole.VIEWER;
+
   const [isDirty, setIsDirty] = useState(false);
   useUnsavedChangesWarning(isDirty);
 

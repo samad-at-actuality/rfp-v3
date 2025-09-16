@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { auth0 } from '@/lib/auth0';
-import { getMyOrgs } from '@/lib/apis/organisationsApi';
+import { getMyOrgs, getSuperAdminOrgs } from '@/lib/apis/organisationsApi';
 import { getUserInfo } from '@/lib/apis/userProfileApi';
 
 export async function middleware(request: NextRequest) {
@@ -26,12 +26,11 @@ export async function middleware(request: NextRequest) {
 
     const userInfo = userInfo_.data;
 
-    if (userInfo.isSuperAdmin) {
-      // Allow access to admin routes and static assets
-      if (request.nextUrl.pathname.startsWith('/app/admin')) {
+    if (request.nextUrl.pathname.startsWith('/app/admin')) {
+      if (userInfo.isSuperAdmin) {
         return NextResponse.next();
       }
-      return NextResponse.redirect(`${origin}/app/admin`);
+      return NextResponse.redirect(`${origin}/app/orgs`);
     }
 
     if (
@@ -44,7 +43,9 @@ export async function middleware(request: NextRequest) {
         process.env.COOKIE_NAME_FOR_ORG_PREFERENCE!
       );
 
-      const orgs_ = await getMyOrgs(session.tokenSet.accessToken);
+      const orgs_ = userInfo.isSuperAdmin
+        ? await getSuperAdminOrgs(session.tokenSet.accessToken)
+        : await getMyOrgs(session.tokenSet.accessToken);
 
       if (orgs_.error || !orgs_.data || orgs_.data.length === 0) {
         return NextResponse.redirect(`${origin}/not-found`);

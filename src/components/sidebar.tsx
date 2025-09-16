@@ -2,7 +2,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Home, Package, Users, FilePen, User } from 'lucide-react';
+import { Home, Package, Users, FilePen, User, PlusSquare } from 'lucide-react';
 
 import {
   Tooltip,
@@ -24,9 +24,8 @@ export const Sidebar = ({ showAdminButton }: { showAdminButton?: boolean }) => {
   const projectSlug: string | undefined = currentPath
     ?.split('/app/orgs/')[1]
     ?.split('/')[0];
-
   const { userInfo } = useUserInfoCtx();
-  const { chatMessagesExist, setOpen } = useAskAI();
+
   if (showAdminButton) {
     return (
       <aside className='z-10 w-full flex-col border-r bg-background flex'>
@@ -72,19 +71,6 @@ export const Sidebar = ({ showAdminButton }: { showAdminButton?: boolean }) => {
         >
           <Home className='h-5 w-5' />
         </LinkComponent>
-        {userInfo.isSuperAdmin && (
-          <LinkComponent
-            onClick={() => {
-              setCurrentPath(`/app/admin`);
-            }}
-            whenEqual={currentPath === `/app/admin`}
-            currentPath={currentPath}
-            linkPath={`/app/admin`}
-            name='Admin'
-          >
-            <User className='h-5 w-5 text-gray-600' />
-          </LinkComponent>
-        )}
 
         <LinkComponent
           onClick={() => {
@@ -96,6 +82,7 @@ export const Sidebar = ({ showAdminButton }: { showAdminButton?: boolean }) => {
         >
           <FilePen className='h-5 w-5' />
         </LinkComponent>
+
         <LinkComponent
           onClick={() => {
             setCurrentPath(`/app/orgs/${projectSlug}/data`);
@@ -116,20 +103,33 @@ export const Sidebar = ({ showAdminButton }: { showAdminButton?: boolean }) => {
         >
           <Users className='h-5 w-5' />
         </LinkComponent>
-      </nav>
-      <div className='grid place-items-center pb-4 justify-self-end'>
-        {chatMessagesExist && (
-          <Button variant='ghost' size='icon' onClick={() => setOpen(true)}>
-            <Image
-              src='/assets/wand-icon.svg'
-              alt='logo'
-              width={24}
-              height={24}
-            />
-          </Button>
+        {userInfo.isSuperAdmin && (
+          <>
+            <LinkComponent
+              onClick={() => {
+                setCurrentPath(`/app/admin`);
+              }}
+              whenEqual={currentPath === `/app/admin`}
+              currentPath={currentPath}
+              linkPath={`/app/admin`}
+              name='Admin'
+            >
+              <User className='h-5 w-5 text-gray-600' />
+            </LinkComponent>
+            <LinkComponent
+              onClick={() => {
+                setCurrentPath(`/app/orgs/${projectSlug}/prompt-hub`);
+              }}
+              currentPath={currentPath}
+              linkPath={`/app/orgs/${projectSlug}/prompt-hub`}
+              name='Prompt Hub'
+            >
+              <PlusSquare className='h-5 w-5' />
+            </LinkComponent>
+          </>
         )}
-        {/* Wand action button can be added here when needed */}
-      </div>
+      </nav>
+      <AskAiWizardIcon />
     </aside>
   );
 };
@@ -175,5 +175,24 @@ const LinkComponent = ({
       </TooltipTrigger>
       <TooltipContent side='right'>{name}</TooltipContent>
     </Tooltip>
+  );
+};
+
+export const AskAiWizardIcon = () => {
+  const { chatMessagesExist, setOpen } = useAskAI();
+  return (
+    <div className='grid place-items-center pb-4 justify-self-end'>
+      {chatMessagesExist && (
+        <Button variant='ghost' size='icon' onClick={() => setOpen(true)}>
+          <Image
+            src='/assets/wand-icon.svg'
+            alt='logo'
+            width={24}
+            height={24}
+          />
+        </Button>
+      )}
+      {/* Wand action button can be added here when needed */}
+    </div>
   );
 };

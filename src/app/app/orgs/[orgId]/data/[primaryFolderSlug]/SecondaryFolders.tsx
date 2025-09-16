@@ -22,6 +22,7 @@ import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { useRouter } from 'next/navigation';
 import { TOrgRole } from '@/types/TUserRole';
+import { useUserInfoCtx } from '@/ctx/user-context';
 
 export const SecondaryFolders = ({
   folders: folders_,
@@ -35,7 +36,7 @@ export const SecondaryFolders = ({
   const {
     currentOrg: { id: orgId, role: currentOrgRole },
   } = useOrgCtx();
-
+  const { userInfo } = useUserInfoCtx();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [folders, setFolders] = useState(folders_);
@@ -218,7 +219,8 @@ export const SecondaryFolders = ({
                       Rename
                     </DropdownMenuItem>
 
-                    {currentOrgRole === TOrgRole.ADMIN && (
+                    {(currentOrgRole === TOrgRole.ADMIN ||
+                      userInfo.isSuperAdmin) && (
                       <DropdownMenuItem
                         className='flex items-center gap-2 text-red-600 cursor-pointer'
                         onClick={() => {

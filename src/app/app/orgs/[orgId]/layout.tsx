@@ -2,12 +2,13 @@ import { notFound, redirect } from 'next/navigation';
 import { Header } from '@/components/header';
 import { Sidebar } from '@/components/sidebar';
 
-import { getMyOrgs } from '@/lib/apis/organisationsApi';
+import { getMyOrgs, getSuperAdminOrgs } from '@/lib/apis/organisationsApi';
 import { OrgsWrapper } from '@/ctx/org-ctx';
 import { LastOrgVisitSaver } from './LAST_ORG_VISIT_saver';
 import { AskAIWrapper } from '@/ctx/ask-ai-ctx';
 import { TPrimaryFolderEnum } from '@/types/TPrimaryFolderEnum';
 import { getPrimaryFoldersChildren } from '@/lib/apis/foldersApi';
+import { getUserInfo } from '@/lib/apis/userProfileApi';
 
 const HEADER_HEIGHT = 64;
 const getKnowledgeHubStructure = async ({ orgId }: { orgId: string }) => {
@@ -107,7 +108,14 @@ export default async function AppLayout({
   children: React.ReactNode;
   params: Promise<{ orgId: string }>;
 }) {
-  const orgs_ = await getMyOrgs();
+  const userinfo = await getUserInfo();
+  if (userinfo.error || !userinfo.data) {
+    return redirect('/auth/logout');
+  }
+
+  const orgs_ = userinfo.data?.isSuperAdmin
+    ? await getSuperAdminOrgs()
+    : await getMyOrgs();
 
   if (!orgs_.data) {
     return redirect('/auth/logout');

@@ -23,6 +23,7 @@ import { apiFetch } from '@/lib/fetchClient';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { useRouter } from 'next/navigation';
 import { TOrgRole } from '@/types/TUserRole';
+import { useUserInfoCtx } from '@/ctx/user-context';
 
 export const RFPListing = ({
   rfps: rfps_,
@@ -41,7 +42,8 @@ export const RFPListing = ({
   const {
     currentOrg: { role: currentOrgRole },
   } = useOrgCtx();
-  const isAdmin = currentOrgRole === TOrgRole.ADMIN;
+  const { userInfo } = useUserInfoCtx();
+  const isAdmin = currentOrgRole === TOrgRole.ADMIN || userInfo.isSuperAdmin;
   const isViewer = currentOrgRole === TOrgRole.VIEWER;
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

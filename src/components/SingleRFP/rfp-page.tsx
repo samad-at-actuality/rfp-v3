@@ -57,9 +57,10 @@ export default function RfpPage({
   const {
     currentOrg: { role: crtOrgAccess },
   } = useOrgCtx();
+
   const isAdmin = crtOrgAccess === TOrgRole.ADMIN;
   const isViewer = crtOrgAccess === TOrgRole.VIEWER;
-  console.log('isViewer: ', isViewer);
+
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [summary, setSummary] = useState<TRFP['latestVersion']['summary']>(
     rfp_?.latestVersion?.summary || {}
