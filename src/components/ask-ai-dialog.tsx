@@ -778,10 +778,12 @@ export function KnowledgeHubDropDownMenu({
                           onCheckedChange={(checked) => {
                             setSelectedFolderIds((p) =>
                               checked
-                                ? [
-                                    ...p,
-                                    ...folder.values.map((v) => v.folderId),
-                                  ]
+                                ? Array.from(
+                                    new Set([
+                                      ...p,
+                                      ...folder.values.map((v) => v.folderId),
+                                    ])
+                                  )
                                 : p.filter((i) => !crtFolderIds.includes(i))
                             );
                             if (checked) {
