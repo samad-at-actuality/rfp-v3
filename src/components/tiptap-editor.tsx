@@ -307,7 +307,7 @@ const Menubar = ({ editor }: { editor: Editor }) => {
       },
       {
         icon: <Underline className='size-4' />,
-        onClick: () => editor.chain().focus().setUnderline().run(),
+        onClick: () => editor.chain().focus().toggleUnderline().run(),
         isActive: editorState.isUnderline,
         disabled: !editorState.canUnderline,
       },
