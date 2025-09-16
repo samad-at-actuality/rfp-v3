@@ -2,7 +2,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Home, Package, Users, FilePen, User, PlusSquare } from 'lucide-react';
+import { Home, Package, Users, FilePen, User, PlusSquare, Sparkles } from 'lucide-react';
 
 import {
   Tooltip,
@@ -124,7 +124,7 @@ export const Sidebar = ({ showAdminButton }: { showAdminButton?: boolean }) => {
               linkPath={`/app/orgs/${projectSlug}/prompt-hub`}
               name='Prompt Hub'
             >
-              <PlusSquare className='h-5 w-5' />
+              <Sparkles  className='h-5 w-5' />
             </LinkComponent>
           </>
         )}
