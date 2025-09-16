@@ -23,16 +23,23 @@ export const FileDownloader = ({
         setIsDownloading(true);
         downloadFile({ orgId, fileId })
           .then((res) => {
-            if (!(res.data instanceof Blob)) {
-              throw new Error('Response data is not a Blob');
+            const data = res.data;
+            let blob;
+
+            if (typeof data === 'string') {
+              // Convert string to Blob for text files
+              blob = new Blob([data], { type: 'text/plain' });
+            } else if (data instanceof Blob) {
+              blob = data;
+            } else {
+              throw new Error('Unsupported response data type');
             }
 
-            const url = window.URL.createObjectURL(res.data);
+            const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
 
             const contentType = res.headers.get('content-type');
-
             // Keep provided name, fallback extension if missing
             let fileName = filaName;
             if (!/\.[a-z0-9]+$/i.test(fileName)) {
@@ -46,6 +53,8 @@ export const FileDownloader = ({
                 fileName += '.png';
               } else if (contentType?.includes('jpeg')) {
                 fileName += '.jpg';
+              } else if (contentType?.includes('text/plain')) {
+                fileName += '.txt';
               } else {
                 fileName += '.bin'; // fallback
               }
@@ -57,7 +66,8 @@ export const FileDownloader = ({
             link.remove();
             window.URL.revokeObjectURL(url);
           })
-          .catch(() => {
+          .catch((ee) => {
+            console.log('ee', ee);
             toast.error('Failed to download file');
           })
           .finally(() => {

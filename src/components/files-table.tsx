@@ -31,6 +31,7 @@ import { Upload } from 'lucide-react';
 import { FileDeleter } from './file-deleter';
 import { FileDownloader } from './file-downloader';
 import { useUserInfoCtx } from '@/ctx/user-context';
+import { convertBytesToMBOrKB } from '@/lib/utils';
 
 export const FilesTable = ({
   folderInfo: folderInfo_,
@@ -55,16 +56,6 @@ export const FilesTable = ({
 
   const [existingFiles, setExistingFiles] = useState<TFolderFile[]>(files);
   const [openFileUploader, setFileUploader] = useState(files.length === 0);
-
-  const formatFileSize = (bytes: any) => {
-    if (bytes === 0) {
-      return '0 Bytes';
-    }
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    const value = bytes / Math.pow(1024, i);
-    return `${value.toFixed(1)} ${sizes[i]}`;
-  };
 
   return (
     <div className='p-6 flex flex-col min-h-screen'>
@@ -133,21 +124,21 @@ export const FilesTable = ({
           >
             <TableHeader className='text-gray-500 border-b bg-gray-50'>
               <TableRow>
-                <TableHead className='py-3 px-4'>
+                {/* <TableHead className='py-3 px-4'>
                   <input type='checkbox' />
-                </TableHead>
+                </TableHead> */}
                 <TableHead className='py-3 px-4 font-normal text-md text-[#6B7280]'>
                   File name
                 </TableHead>
-                <TableHead className='py-3 px-4 font-normal text-md text-[#6B7280]'>
+                {/* <TableHead className='py-3 px-4 font-normal text-md text-[#6B7280]'>
                   Uploaded by
-                </TableHead>
+                </TableHead> */}
                 <TableHead className='py-3 px-4 font-normal text-md text-[#6B7280]'>
                   Size
                 </TableHead>
-                <TableHead className='py-3 px-4 font-normal text-md text-[#6B7280]'>
+                {/* <TableHead className='py-3 px-4 font-normal text-md text-[#6B7280]'>
                   Credential name
-                </TableHead>
+                </TableHead> */}
                 <TableHead className='py-3 px-4 font-normal text-right text-md text-[#6B7280]'>
                   Date
                 </TableHead>
@@ -172,21 +163,21 @@ export const FilesTable = ({
 
                 return (
                   <TableRow key={index} className='border-b last:border-0'>
-                    <TableCell className='py-3 px-4'>
+                    {/* <TableCell className='py-3 px-4'>
                       <input type='checkbox' />
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className='py-3 px-4 text-[#000000] text-md'>
                       {doc.name}
                     </TableCell>
-                    <TableCell className='py-3 px-4 text-md text-[#6B7280]'>
+                    {/* <TableCell className='py-3 px-4 text-md text-[#6B7280]'>
                       XYZ
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className='py-3 px-4 text-md text-[#6B7280]'>
-                      {formatFileSize(doc.size)}
+                      {convertBytesToMBOrKB(doc.size)}
                     </TableCell>
-                    <TableCell className='py-3 px-4 text-md text-[#6B7280]'>
+                    {/* <TableCell className='py-3 px-4 text-md text-[#6B7280]'>
                       ABC
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className='py-3 px-4 text-right whitespace-nowrap text-md text-[#6B7280]'>
                       {formattedDate}{' '}
                       <span className='text-xs text-gray-400'>

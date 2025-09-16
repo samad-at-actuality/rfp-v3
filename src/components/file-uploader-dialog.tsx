@@ -57,7 +57,17 @@ export function FileUploaderDialog({
 
   const handleFiles = (newFiles: FileList | null) => {
     if (newFiles) {
-      const validFiles = Array.from(newFiles).filter((f) => f.type !== '');
+      const filesArray = Array.from(newFiles);
+      const gifFiles = filesArray.filter((file) => file.type === 'image/gif');
+
+      if (gifFiles.length > 0) {
+        toast.error('GIF files are not supported');
+      }
+
+      const validFiles = filesArray.filter(
+        (f) => f.type !== '' && f.type !== 'image/gif'
+      );
+
       setFiles((prev) => [...prev, ...validFiles]);
     }
   };

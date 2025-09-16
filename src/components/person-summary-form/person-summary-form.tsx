@@ -17,7 +17,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { isImageUrl } from '@/lib/utils';
+import { convertBytesToMBOrKB, isImageUrl } from '@/lib/utils';
 import {
   TFolderFile,
   TFolderInfo,
@@ -566,12 +566,6 @@ export const MediaDisplayer = ({
 }) => {
   const [files, setFiles] = useState(files_);
 
-  const convertBytesToMB = (size: number): string => {
-    if (!size || size <= 0) {
-      return '0 MB';
-    }
-    return `${(size / (1024 * 1024)).toFixed(2)} MB`;
-  };
   const [openFileUploader, setFileUploader] = useState(files.length === 0);
 
   const formatDateTime = (
@@ -671,15 +665,15 @@ export const MediaDisplayer = ({
         <Table>
           <TableHeader>
             <TableRow className='text-gray-500 border-b'>
-              <TableHead className='py-3 px-4'>
+              {/* <TableHead className='py-3 px-4'>
                 <input type='checkbox' />
-              </TableHead>
+              </TableHead> */}
               <TableHead className='py-3 px-4 font-normal text-lg text-[#6B7280]'>
                 File name
               </TableHead>
-              <TableHead className='py-3 px-4 font-normal text-lg text-[#6B7280]'>
+              {/* <TableHead className='py-3 px-4 font-normal text-lg text-[#6B7280]'>
                 Uploaded by
-              </TableHead>
+              </TableHead> */}
               <TableHead className='py-3 px-4 font-normal text-lg text-[#6B7280]'>
                 Size
               </TableHead>
@@ -700,20 +694,20 @@ export const MediaDisplayer = ({
 
                 return (
                   <TableRow key={doc.id} className='border-b last:border-0'>
-                    <TableCell className='py-3 px-4'>
+                    {/* <TableCell className='py-3 px-4'>
                       <input type='checkbox' />
-                    </TableCell>
+                    </TableCell> */}
 
                     <TableCell className='py-3 px-4 text-black-800 text-lg'>
                       {doc.name}
                     </TableCell>
-
+                    {/* 
                     <TableCell className='py-3 px-4 text-lg text-[#6B7280]'>
                       ABC
-                    </TableCell>
+                    </TableCell> */}
 
                     <TableCell className='py-3 px-4 text-lg text-[#6B7280]'>
-                      {convertBytesToMB(doc.size)}
+                      {convertBytesToMBOrKB(doc.size)}
                     </TableCell>
 
                     <TableCell className='py-3 px-4 whitespace-nowrap text-lg text-[#6B7280]'>

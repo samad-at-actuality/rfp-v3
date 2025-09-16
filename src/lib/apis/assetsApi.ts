@@ -31,7 +31,9 @@ export const downloadFile = ({
   orgId: string;
   fileId: string;
 }) => {
-  return apiFetch<Blob>(`/api/${orgId}/knowledge-hub/files/${fileId}/download`);
+  return apiFetch<Blob | string>(
+    `/api/${orgId}/knowledge-hub/files/${fileId}/download`
+  );
 };
 
 export const deleteFile = ({
