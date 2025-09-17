@@ -70,9 +70,13 @@ export function RfpDetailPageWrapper({ rfp: rfp_ }: { rfp: TRFP }) {
       orgId={currentOrg.id}
       showUploadBtn={!isViewer}
       showVersinBtn={true}
+      disabledUploadBtn={false}
+      disabledSummaryBtn={false}
+      disabledVersinBtn={false}
     />
   );
 }
+
 export function RfpDetailPageWrapperForVersion({ rfp: rfp_ }: { rfp: TRFP }) {
   const [rfp, setRfp] = useState(rfp_);
   const { currentOrg } = useOrgCtx();
@@ -81,12 +85,15 @@ export function RfpDetailPageWrapperForVersion({ rfp: rfp_ }: { rfp: TRFP }) {
     <RfpDetailPage
       rfp={rfp}
       allowSummaryEdit={false}
-      showTopHeader={false}
-      showSummaryBtn={false}
+      showTopHeader={true}
+      showSummaryBtn={true}
       setRfp={setRfp}
       orgId={currentOrg.id}
-      showUploadBtn={false}
-      showVersinBtn={false}
+      showUploadBtn={true}
+      showVersinBtn={true}
+      disabledUploadBtn={true}
+      disabledSummaryBtn={true}
+      disabledVersinBtn={false}
     />
   );
 }
@@ -100,6 +107,9 @@ function RfpDetailPage({
   showSummaryBtn,
   showUploadBtn,
   showVersinBtn,
+  disabledUploadBtn,
+  disabledSummaryBtn,
+  disabledVersinBtn,
 }: {
   rfp: TRFP;
   orgId: string;
@@ -109,6 +119,9 @@ function RfpDetailPage({
   showUploadBtn: boolean;
   showSummaryBtn: boolean;
   showVersinBtn: boolean;
+  disabledUploadBtn: boolean;
+  disabledSummaryBtn: boolean;
+  disabledVersinBtn: boolean;
 }) {
   const router = useRouter();
 
@@ -123,11 +136,26 @@ function RfpDetailPage({
   >([]);
 
   useEffect(() => {
-    setRfpVersions([]);
+    if (isVersionsPanelOpen) {
+      getRfpAllVersionUtil().then((res) => {
+        setRfpVersions(res);
+      });
+    } else {
+      setRfpVersions([]);
+    }
   }, [rfp]);
 
   const [isVersionsPanelOpen, setIsVersionsPanelOpen] = useState(false);
   const [isLoadingRfpVersions, setIsLoadingRfpVersions] = useState(false);
+  const getRfpAllVersionUtil = async () => {
+    try {
+      const response = await getRfpAllVersion({ orgId, rfpId: rfp.id });
+      return response.data || [];
+    } catch (error) {
+      return [];
+    }
+  };
+
   const handleGettingRfpVersions = async () => {
     if (rfpVersions.length > 0) {
       setIsVersionsPanelOpen(true);
@@ -365,13 +393,16 @@ function RfpDetailPage({
                               isLoading={isLoadingSummary}
                               onClick={handleGenerateSummary}
                               className='bg-white text-gray-800  border-[1px] border-gray-200 hover:bg-gray-100'
+                              isDisabled={
+                                disabledSummaryBtn || isLoadingSummary
+                              }
                             />
                           )}
                       </div>
                       {showVersinBtn && (
                         <Button
                           variant='ghost'
-                          disabled={isLoadingRfpVersions}
+                          disabled={isLoadingRfpVersions || disabledVersinBtn}
                           size='sm'
                           onClick={handleGettingRfpVersions}
                           className={`gap-1 mr-2 bg-white text-black hover:bg-gray-200 border-[1px] border-gray-100`}
@@ -390,6 +421,7 @@ function RfpDetailPage({
                           trigger={
                             <Button
                               ref={uploadButtonRfp}
+                              disabled={disabledUploadBtn}
                               size='sm'
                               variant='default'
                               className={`gap-1 mr-2 bg-white text-black hover:bg-gray-200 border-[1px] border-gray-100`}
@@ -447,7 +479,7 @@ function RfpDetailPage({
                     .map((rfpVersion, index) => (
                       <Link
                         key={rfpVersion.id}
-                        href={`/app/orgs/${orgId}/rfps/${rfp.id}/v/${rfpVersion.version}`}
+                        href={`/app/orgs/${orgId}/rfps/${rfp.id}${index === 0 ? '' : `/v/${rfpVersion.version}`}`}
                       >
                         <div className='p-2 hover:bg-gray-100 rounded-md cursor-pointer'>
                           <div className='flex items-end gap-2'>
