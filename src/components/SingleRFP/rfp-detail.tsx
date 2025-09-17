@@ -120,6 +120,11 @@ function RfpDetailPage({
   const [rfpVersions, setRfpVersions] = useState<
     (TRFP & { version: number })[]
   >([]);
+
+  useEffect(() => {
+    setRfpVersions([]);
+  }, [rfp]);
+
   const [isVersionsPanelOpen, setIsVersionsPanelOpen] = useState(false);
   const [isLoadingRfpVersions, setIsLoadingRfpVersions] = useState(false);
   const handleGettingRfpVersions = async () => {
@@ -413,7 +418,7 @@ function RfpDetailPage({
               </div>
             </div>
             <div
-              className={`overflow-auto transition-all duration-300 ${
+              className={`overflow-auto transition-all duration-300 border-l-2 ${
                 isVersionsPanelOpen ? 'w-[30%]' : 'w-0'
               }`}
             >
