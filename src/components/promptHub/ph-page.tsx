@@ -6,7 +6,7 @@ import {
 } from '@/components/ui/resizable';
 import { TRFP } from '@/types/TRfp';
 import { JSX, useEffect, useRef, useState } from 'react';
-import { Button } from '../ui/button';
+
 import {
   ArrowLeft,
   Calendar,
@@ -21,6 +21,20 @@ import {
   AlertTriangle,
   HelpCircle,
   Info,
+  Users,
+  FileText,
+  Sparkles,
+  MoreHorizontal,
+  Pencil,
+  PencilLine,
+  File,
+  TestTube2,
+  Copy,
+  X,
+  RotateCcw,
+  RotateCw,
+  Bot,
+  FilePlus2,
 } from 'lucide-react';
 import { Separator } from '../ui/separator';
 import { TFolderInfoSummayType, TOtherInfo } from '@/types/TFolderInfo';
@@ -29,7 +43,7 @@ import {
   S3_UPLOADED_FILES_PAYLOAD,
 } from '../file-uploader-dialog';
 // import { PhSummary } from './rfp-summary';
-import { extractFileNameFromKey } from '@/lib/utils';
+import { cn, extractFileNameFromKey } from '@/lib/utils';
 import { toast } from 'sonner';
 import { generateSummary, updateRfp } from '@/lib/apis/rfpApi';
 import { LoadingButton } from '../loading-button';
@@ -39,6 +53,30 @@ import { useOrgCtx } from '@/ctx/org-ctx';
 import { TOrgRole } from '@/types/TUserRole';
 import Link from 'next/link';
 import { PhSummary } from './ph-summary';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from '@/components/ui/card';
+import { Button } from '../ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import Image from 'next/image';
 
 const TOP_BAR_HEIGHT = 52;
 
@@ -60,12 +98,64 @@ export default function PhPage({
   } = useOrgCtx();
   const isAdmin = crtOrgAccess === TOrgRole.ADMIN;
   const isViewer = crtOrgAccess === TOrgRole.VIEWER;
-  
+
   console.log('isViewer: ', isViewer);
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
+  const [isLoadingResponse, setIsLoadingResponse] = useState(false);
   const [summary, setSummary] = useState<TRFP['latestVersion']['summary']>(
     rfp_?.latestVersion?.summary || {}
   );
+
+  const [active, setActive] = useState('prompt');
+
+  const [openSummary, setOpenSummary] = useState(true);
+
+  const summarySections = [
+    'Overview',
+    'Key dates',
+    'Submission requirements',
+    'Evaluation criteria',
+    'Scope of work',
+  ];
+
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [prompts, setPrompts] = useState<{
+    [key: number]: { index: number; title: string; prompt: string };
+  }>({});
+
+  const models = [
+    { id: 'gemini', label: 'Gemini 2.5', icon: '/assets/gemini.svg' },
+    { id: 'gpt4.5', label: 'GPT 4.5', icon: '/assets/chatgpt.svg' },
+    { id: 'gpt5', label: 'GPT 5', icon: '/assets/chatgpt.svg' },
+  ];
+
+  const [selected, setSelected] = useState(models[0]); // Default = Gemini 2.5
+
+  // Default prompt template
+  const defaultPrompt = `Based on the RFP content below, create a concise 50-word maximum overview of the RFP. Focus only on the core project purpose, client, location, and deliverables. Maintain simple English and formal tone.\n\n\${content}\n\nFormatting Rules:\n- Use 1 short paragraph.\n- Do not exceed 50 words.\n- No extra commentary.`;
+
+  const handleOpenForm = (title: string) => {
+    setActiveSection(activeSection === title ? null : title); // toggle
+  };
+
+  const [openResponse, setOpenResponse] = useState(false);
+
+  const [prompt, setPrompt] = useState(
+    `Based on the RFP content below, create a concise 50-word maximum overview of the RFP. Focus only on the core project purpose, client, location, and deliverables. Maintain simple English and formal tone.\n\n\${content}\n\nFormatting Rules:\n- Use 1 short paragraph.\n- Do not exceed 50 words.\n- No extra commentary.`
+  );
+
+  const buttons = [
+    { id: 'team', label: 'Team', icon: Users },
+    { id: 'askRfp', label: 'Ask RFP', icon: FileText },
+    { id: 'prompt', label: 'Prompt', icon: Sparkles },
+  ];
+
+  const [showDialog, setShowDialog] = useState(false);
+
+  const handleCancel = () => {
+    console.log('Discarded ❌');
+    setShowDialog(false);
+  };
 
   const handleGenerateSummary = async () => {
     setIsLoadingSummary(true);
@@ -204,7 +294,10 @@ export default function PhPage({
   };
 
   return (
-    <div className='w-full h-full overflow-hidden bg-white' style={{fontFamily: 'Arial, sans-serif'}}>
+    <div
+      className='w-full h-full overflow-hidden bg-white'
+      style={{ fontFamily: 'Arial, sans-serif' }}
+    >
       <ResizablePanelGroup direction='horizontal' autoSaveId='rfp-layout'>
         <ResizablePanel defaultSize={20} minSize={5} maxSize={20}>
           <div className='w-full h-full overflow-hidden flex flex-col'>
@@ -240,45 +333,57 @@ export default function PhPage({
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={80}>
+        <ResizablePanel defaultSize={55} maxSize={80} minSize={40}>
           <div className='w-full h-full overflow-x-hidden overflow-y-auto'>
             <div className='w-full h-full overflow-hidden flex flex-col'>
               <div
-                className='flex items-center py-4 mb-1 pl-2 gap-2 justify-end h-[52px] pr-6'
+                className='flex items-center py-4 mb-1 pl-2 gap-2 justify-between h-[52px] pr-6'
                 style={{
                   height: `${TOP_BAR_HEIGHT}px`,
                 }}
               >
-                {!isViewer && proposalFiles.length > 0 && (
-                  <LoadingButton
-                    label={`${Object.keys(summary).length > 0 ? 'Regenerate' : 'Generate'} Summary`}
-                    isLoading={isLoadingSummary}
-                    onClick={handleGenerateSummary}
-                    className='bg-white text-gray-800  border-[1px] border-gray-100 hover:bg-gray-100'
-                  />
-                )}
+                <div className='buttons-summary px-2'>
+                  {!isViewer && proposalFiles.length > 0 && (
+                    <LoadingButton
+                      label={`${Object.keys(summary).length > 0 ? 'Regenerate' : 'Generate'} Summary`}
+                      isLoading={isLoadingSummary}
+                      onClick={handleGenerateSummary}
+                      className='bg-white text-gray-800  border-[1px] border-gray-100 hover:bg-gray-100 mr-2'
+                    />
+                  )}
+                  {!isViewer && proposalFiles.length > 0 && (
+                    <LoadingButton
+                      label={`Generate Response`}
+                      isLoading={isLoadingResponse}
+                      // onClick={handleGenerateSummary}
+                      className='bg-white text-gray-800  border-[1px] border-gray-100 hover:bg-gray-100'
+                    />
+                  )}
+                </div>
 
-                {!isViewer && (
-                  <FileUploaderDialog
-                    open={openFileUploader}
-                    setOpen={setFileUploader}
-                    trigger={
-                      <Button
-                        ref={uploadButtonRfp}
-                        size='sm'
-                        variant='default'
-                        className={`gap-1 mr-2 bg-white text-black hover:bg-gray-200 border-[1px] border-gray-100`}
-                      >
-                        <Plus className='w-4 h-4' />
-                        <FileIcon className='w-4 h-4' />
-                      </Button>
-                    }
-                    orgId={rfp.orgId}
-                    folderId={rfp.id}
-                    type={TFolderInfoSummayType.RFP_SUMMARY}
-                    onUpload={handleProposalUpload}
-                  />
-                )}
+                <div className='uploader'>
+                  {!isViewer && (
+                    <FileUploaderDialog
+                      open={openFileUploader}
+                      setOpen={setFileUploader}
+                      trigger={
+                        <Button
+                          ref={uploadButtonRfp}
+                          size='sm'
+                          variant='default'
+                          className={`gap-1 mr-2 bg-white text-[#6B7280] hover:bg-gray-200 border-[1px] border-gray-100`}
+                        >
+                          <FilePlus2 className='w-5 h-5' />
+                          {/* <FileIcon className='w-4 h-4' /> */}
+                        </Button>
+                      }
+                      orgId={rfp.orgId}
+                      folderId={rfp.id}
+                      type={TFolderInfoSummayType.RFP_SUMMARY}
+                      onUpload={handleProposalUpload}
+                    />
+                  )}
+                </div>
               </div>
               <Separator />
               <div className='flex-1 h-full overflow-y-auto scrollbar-thin p-4'>
@@ -460,8 +565,323 @@ ${summary.keyDates.otherDates
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={0} minSize={0} maxSize={20}>
-          <div className='w-full h-full overflow-x-hidden overflow-y-auto'></div>
+        <ResizablePanel defaultSize={25} minSize={10} maxSize={30}>
+          <div className='w-full h-full overflow-x-hidden overflow-y-auto no-scrollbar'>
+            <div className='flex flex-col items-center justify-between     bg-white border-r  '>
+              {/* Top Buttons */}
+              <div
+                className='p-3 mb-1'
+                style={{
+                  height: `${TOP_BAR_HEIGHT}px`,
+                }}
+              >
+                <div className='flex items-center gap-1 bg-gray-100  rounded-sm '>
+                  {buttons.map(({ id, label, icon: Icon }) => (
+                    <button
+                      key={id}
+                      // onClick={() => setActive(id)}
+                      className={cn(
+                        'flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-all',
+                        active === id
+                          ? 'bg-white text-gray-900 shadow-sm'
+                          : 'text-gray-500 hover:text-gray-700'
+                      )}
+                    >
+                      <Icon size={16} />
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className=' w-full rounded-0'>
+                {/* Summary */}
+                <details
+                  open={openSummary}
+                  onToggle={(e) =>
+                    setOpenSummary((e.target as HTMLDetailsElement).open)
+                  }
+                  className='w-full rounded-0'
+                >
+                  {/* Header */}
+                  <summary
+                    style={{
+                      backgroundColor: openSummary ? '#EEF2FF' : 'white',
+                    }}
+                    className='flex items-center justify-between cursor-pointer list-none p-3 hover:bg-gray-100'
+                  >
+                    <div
+                      className='flex items-center gap-2 text-sm'
+                      style={{ fontWeight: '600' }}
+                    >
+                      {openSummary ? (
+                        <ChevronUp className='w-4 h-4 text-gray-500' />
+                      ) : (
+                        <ChevronDown className='w-4 h-4 text-gray-500' />
+                      )}
+                      <span>Summary</span>
+                    </div>
+                    <MoreHorizontal className='w-4 h-4 text-gray-500' />
+                  </summary>
+
+                  {/* Section list */}
+                  {summarySections.map((title, index) => {
+                    return (
+                      <ul className='mt-2 font-semibold' key={title}>
+                        <li className='flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-50'>
+                          <div className='flex items-center gap-2'>
+                            <div className='w-8 h-8 flex items-center justify-center rounded-md bg-indigo-50 text-indigo-500'>
+                              <File className='w-4 h-4' />
+                            </div>
+                            <span className='text-sm text-gray-800'>
+                              {title}
+                            </span>
+                          </div>
+                          <div className='flex gap-2'>
+                            {activeSection === title ? (
+                              <>
+                                <button className='flex items-center justify-center w-7 h-7 rounded-md   bg-white shadow-sm border border-gray-200 hover:bg-gray-50'>
+                                  <RotateCcw className='w-3 h-3 text-gray-500 hover:text-gray-600 cursor-pointer' />
+                                </button>
+                                <button className='flex items-center justify-center w-7 h-7 rounded-md   bg-white shadow-sm border border-gray-200 hover:bg-gray-50'>
+                                  <RotateCw className='w-3 h-3 text-gray-500 hover:text-gray-600 cursor-pointer' />
+                                </button>
+                                <button
+                                  style={{ backgroundColor: '#F3F4F6' }}
+                                  className='flex items-center justify-center w-7 h-7 rounded-md   bg-white shadow-sm border   '
+                                >
+                                  <PencilLine
+                                    className='w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer'
+                                    onClick={() => handleOpenForm(title)}
+                                  />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <PencilLine
+                                  className='w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer'
+                                  onClick={() => handleOpenForm(title)}
+                                />
+                              </>
+                            )}
+                          </div>
+                        </li>
+
+                        {activeSection === title && (
+                          <div className='px-3 py-2'>
+                            <Card
+                              style={{ backgroundColor: '#F3F4F6' }}
+                              className='w-full border rounded-lg shadow-sm pt-2 gap-0'
+                            >
+                              {/* Header */}
+                              <CardHeader className='flex items-center gap-1 justify-end px-3'>
+                                <Copy className='w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer' />
+                                <X
+                                  onClick={() => setActiveSection(null)}
+                                  className='w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer ml-1'
+                                />
+                              </CardHeader>
+
+                              {/* JSON Content */}
+                              <CardContent className='px-3 py-0 m-0'>
+                                <pre className='text-xs text-gray-800 whitespace-pre-wrap  m-0'>
+                                  {`{
+  "index": ${index},
+  "title": "${title}",
+  "prompt": `}
+                                </pre>
+                                <textarea
+                                  value={prompt}
+                                  onChange={(e) => setPrompt(e.target.value)}
+                                  rows={6}
+                                  className='w-full text-xs text-xs text-gray-800 font-mono bg-transparent   px-2 py-1 my-1 rounded'
+                                />
+                                <pre className='text-xs text-gray-800 whitespace-pre-wrap m-0'>
+                                  {`}`}
+                                </pre>
+                              </CardContent>
+
+                              {/* Footer */}
+                              <CardFooter className='flex items-center justify-between gap-2 px-3 mt-2'>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      className='bg-white border rounded-md px-3 py-1 text-[#6B7280] text-sm font-medium flex items-center gap-1'
+                                      variant='outline'
+                                      size='sm'
+                                    >
+                                      <img
+                                        src={selected.icon}
+                                        alt={selected.label}
+                                        className='w-4 h-4'
+                                      />
+                                      {selected.label}
+                                    </Button>
+                                  </DropdownMenuTrigger>
+
+                                  <DropdownMenuContent
+                                    align='start'
+                                    className='w-[120px]'
+                                  >
+                                    {models.map((model) => (
+                                      <DropdownMenuItem
+                                        key={model.id}
+                                        onClick={() => setSelected(model)}
+                                        className={`flex items-center gap-2 cursor-pointer ${
+                                          selected.id === model.id
+                                            ? 'text-purple-600 font-semibold bg-purple-50'
+                                            : 'text-gray-700'
+                                        }`}
+                                      >
+                                        <img
+                                          src={model.icon}
+                                          alt={model.label}
+                                          className='w-4 h-4'
+                                        />
+                                        {model.label}
+                                      </DropdownMenuItem>
+                                    ))}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                                <div className='flex gap-1'>
+                                  <Button
+                                    className='bg-white'
+                                    variant='outline'
+                                    size={'sm'}
+                                  >
+                                    Test
+                                  </Button>
+                                  <Button
+                                    size={'sm'}
+                                    onClick={() => setShowDialog(true)}
+                                  >
+                                    Publish
+                                  </Button>
+
+                                  <Dialog
+                                    open={showDialog}
+                                    onOpenChange={setShowDialog}
+                                  >
+                                    <DialogContent className='sm:max-w-[380px] rounded-xl p-6'>
+                                      {/* Close Button */}
+
+                                      {/* Icon */}
+                                      <div className='flex justify-start mb-1'>
+                                        <div className='  flex items-center justify-center rounded-full bg-purple-100'>
+                                          <img
+                                            src='/assets/rounded-file.svg'
+                                            alt='fileImage'
+                                            className='w-15 h-15'
+                                          />
+                                        </div>
+                                      </div>
+
+                                      {/* Title */}
+                                      <DialogHeader className='text-center  '>
+                                        <DialogTitle
+                                          style={{ fontSize: '20px' }}
+                                          className='text-gray-900 font-semibold  '
+                                        >
+                                          Publish changes
+                                        </DialogTitle>
+                                        <DialogDescription
+                                          style={{ fontSize: '16px' }}
+                                          className='text-sm text-gray-600'
+                                        >
+                                          Do you want to Publish or discard
+                                          changes?
+                                        </DialogDescription>
+                                      </DialogHeader>
+
+                                      <div className='flex gap-2 w-full max-w-sm'>
+                                        {/* Cancel Button */}
+                                        <button
+                                          onClick={() => setShowDialog(false)}
+                                          className='flex-1 px-4 py-2 border border-gray-300 text-gray-700 bg-white rounded-md hover:bg-gray-100 font-medium'
+                                        >
+                                          Cancel
+                                        </button>
+
+                                        {/* Publish Button */}
+                                        <button
+                                          onClick={() => {
+                                            const jsonData = {
+                                              index,
+                                              title,
+                                              prompt,
+                                            };
+                                            console.log(
+                                              'Saved JSON:',
+                                              jsonData
+                                            );
+                                            setPrompts(jsonData);
+                                            // setPrompt(defaultPrompt);
+                                            // setActiveSection(null);
+                                            setShowDialog(false);
+                                          }}
+                                          className='flex-1 px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 font-medium'
+                                        >
+                                          Publish
+                                        </button>
+                                      </div>
+                                    </DialogContent>
+                                  </Dialog>
+                                </div>
+                              </CardFooter>
+                            </Card>
+                          </div>
+                        )}
+                      </ul>
+                    );
+                  })}
+                </details>
+
+                {/* Response */}
+                <details
+                  open={openResponse}
+                  onToggle={(e) =>
+                    setOpenResponse((e.target as HTMLDetailsElement).open)
+                  }
+                  className='w-full rounded-0 '
+                >
+                  {/* Header */}
+                  <summary
+                    style={{
+                      backgroundColor: openResponse ? '#EEF2FF' : 'white',
+                    }}
+                    className='flex items-center justify-between cursor-pointer list-none p-3       hover:bg-gray-100'
+                  >
+                    <div
+                      className='flex items-center gap-2   text-sm'
+                      style={{ fontWeight: '600' }}
+                    >
+                      {openResponse ? (
+                        <ChevronUp className='w-4 h-4 text-gray-500' />
+                      ) : (
+                        <ChevronDown className='w-4 h-4 text-gray-500' />
+                      )}
+                      <span>Response</span>
+                    </div>
+                    <MoreHorizontal className='w-4 h-4 text-gray-500' />
+                  </summary>
+
+                  {/* Dropdown content */}
+                  <ul className='mt-2' style={{ fontWeight: '600' }}>
+                    <li className='flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-50'>
+                      <div className='flex items-center gap-2'>
+                        <div className='w-8 h-8 flex items-center justify-center rounded-md bg-indigo-50 text-indigo-500'>
+                          <File className='w-4 h-4' />
+                        </div>
+                        <span className='text-sm   text-gray-800'>
+                          Overview
+                        </span>
+                      </div>
+                      <PencilLine className='w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer' />
+                    </li>
+                  </ul>
+                </details>
+              </div>
+            </div>
+          </div>
         </ResizablePanel>
         <ResizableHandle />
       </ResizablePanelGroup>
