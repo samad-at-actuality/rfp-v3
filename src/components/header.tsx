@@ -37,14 +37,14 @@ export const Header = async ({
       </div>
 
       {!disableOrgSwitcher && <ProjectSwitcher />}
-      <div className='gap-6 flex flex-1 justify-end items-center'>
+      <div className='flex flex-1 justify-end items-center'>
         {!disableAskAi && (
-          <div className='border-r-2 border-gray-200 pr-4 mr-2'>
+          <div className='border-r-2 border-gray-200 pr-4 mr-4 '>
             <HeaderSearchBar />
           </div>
         )}
         {!disableNotification && (
-          <span>
+          <span className='block mr-4'>
             <BellRingIcon className='w-6 h-6 text-gray-400' />
           </span>
         )}

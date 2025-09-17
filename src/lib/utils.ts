@@ -336,3 +336,16 @@ export const convertBytesToMBOrKB = (bytes: number): string => {
 
   return `${formattedSize} ${units[i]}`;
 };
+export const formattedTimestamp = (date: string) => {
+  const timestamp = new Date(date);
+
+  const formatted = timestamp.toLocaleString('en-US', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+  return formatted;
+};

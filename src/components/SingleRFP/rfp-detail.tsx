@@ -52,6 +52,7 @@ import { TOrgRole } from '@/types/TUserRole';
 import { RfpFiles } from './rfp-files';
 import { RfpSummmaryLinks } from './rfp-summay-links';
 import Link from 'next/link';
+import { formattedTimestamp } from '@/lib/utils';
 
 const TOP_BAR_HEIGHT = 52;
 
@@ -440,21 +441,32 @@ function RfpDetailPage({
                 </div>
                 <Separator />
 
-                <div className='flex-1 h-full overflow-y-auto scrollbar-thin p-4 pt-0 space-y-4'>
-                  {rfpVersions.map((rfpVersion, index) => (
-                    <Link
-                      key={rfpVersion.id}
-                      className='p-2 hover:bg-gray-50 rounded-md cursor-pointer'
-                      href={`/app/orgs/${orgId}/rfps/${rfp.id}/v/${rfpVersion.version}`}
-                    >
-                      <p className='font-medium'>
-                        Version {rfpVersion.version}
-                      </p>
-                      <p className='text-sm text-gray-500'>
-                        {new Date(rfpVersion.createdAt).toLocaleDateString()}
-                      </p>
-                    </Link>
-                  ))}
+                <div className='flex-1 h-full overflow-y-auto scrollbar-thin p-4 pt-0 flex flex-col gap-2'>
+                  {rfpVersions
+                    .sort((a, b) => b.version - a.version)
+                    .map((rfpVersion, index) => (
+                      <Link
+                        key={rfpVersion.id}
+                        href={`/app/orgs/${orgId}/rfps/${rfp.id}/v/${rfpVersion.version}`}
+                      >
+                        <div className='p-2 hover:bg-gray-100 rounded-md cursor-pointer'>
+                          <div className='flex items-end gap-2'>
+                            <p className='font-medium'>
+                              Version {rfpVersion.version}
+                            </p>
+                            {index === 0 && (
+                              <p className='text-gray-500 text-xs italic'>
+                                Current Version
+                              </p>
+                            )}
+                          </div>
+
+                          <p className='text-sm text-gray-500'>
+                            {formattedTimestamp(rfpVersion.createdAt)}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
                 </div>
               </div>
             </div>
