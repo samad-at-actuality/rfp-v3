@@ -10,7 +10,7 @@ export type TRFP = {
   latestVersion: {
     id: string;
     rfpId: string;
-    summary: {
+    summary?: {
       title?: string;
       keyDates?: {
         issueDate?: string;
@@ -39,7 +39,7 @@ export type TRFP = {
         type: 'AI_TEXT' | 'MANUAL';
       }[];
     };
-    inputFileKeys: [string];
+    inputFileKeys: string[];
     responseContent: {
       intro: {
         companyName: string;

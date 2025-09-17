@@ -1,4 +1,5 @@
-import RfpPage from '@/components/SingleRFP/rfp-page';
+import { RfpDetailPageWrapper } from '@/components/SingleRFP/rfp-detail';
+
 import { getRfpById } from '@/lib/apis/rfpApi';
 import { notFound } from 'next/navigation';
 
@@ -12,5 +13,6 @@ export default async function SingleRfpPage({
   if (!rfp.data) {
     return notFound();
   }
-  return <RfpPage rfp={rfp.data} orgId={orgId} />;
+
+  return <RfpDetailPageWrapper rfp={rfp.data} />;
 }

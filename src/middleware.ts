@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
   try {
     // authentication routes — let the middleware handle it
     if (request.nextUrl.pathname.startsWith('/auth')) {
-      return await auth0.middleware(request);
+      return auth0.middleware(request);
     }
 
     const { origin } = new URL(request.url);
@@ -19,14 +19,13 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(`${origin}/auth/login`);
     }
 
-    const userInfo_ = await getUserInfo(session.tokenSet.accessToken);
-    if (userInfo_.error || !userInfo_?.data) {
-      return NextResponse.redirect(`${origin}/auth/logout`);
-    }
-
-    const userInfo = userInfo_.data;
-
     if (request.nextUrl.pathname.startsWith('/app/admin')) {
+      const userInfo_ = await getUserInfo(session.tokenSet.accessToken);
+      if (userInfo_.error || !userInfo_?.data) {
+        return NextResponse.redirect(`${origin}/auth/logout`);
+      }
+
+      const userInfo = userInfo_.data;
       if (userInfo.isSuperAdmin) {
         return NextResponse.next();
       }
@@ -38,6 +37,12 @@ export async function middleware(request: NextRequest) {
       request.nextUrl.pathname === '/app' ||
       request.nextUrl.pathname === '/'
     ) {
+      const userInfo_ = await getUserInfo(session.tokenSet.accessToken);
+      if (userInfo_.error || !userInfo_?.data) {
+        return NextResponse.redirect(`${origin}/auth/logout`);
+      }
+
+      const userInfo = userInfo_.data;
       const cookieStore = await cookies();
       const lastTimeVisitedOrg = cookieStore.get(
         process.env.COOKIE_NAME_FOR_ORG_PREFERENCE!

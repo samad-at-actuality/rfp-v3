@@ -8,7 +8,7 @@ export const PromptHubPage = ({ orgId }: { orgId: string }) => {
   const { userInfo } = useUserInfoCtx();
   const router = useRouter();
   useEffect(() => {
-    if (userInfo.isSuperAdmin) {
+    if (!userInfo.isSuperAdmin) {
       router.push('/app/orgs');
     }
   }, []);

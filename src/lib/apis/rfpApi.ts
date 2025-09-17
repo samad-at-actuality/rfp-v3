@@ -20,11 +20,15 @@ export const createRfp = ({ orgId, name }: { orgId: string; name: string }) => {
 export const getRfpById = ({
   orgId,
   rfpId,
+  version,
 }: {
   orgId: string;
   rfpId: string;
+  version?: number;
 }) => {
-  return apiFetch<TRFP>(`/api/${orgId}/rfps/${rfpId}`);
+  return apiFetch<TRFP>(
+    `/api/${orgId}/rfps/${rfpId}${version ? `?version=${version}` : ''}`
+  );
 };
 
 export const updateRfp = ({
@@ -67,4 +71,16 @@ export const deleteRfp = ({
   return apiFetch<TRFP>(`/api/${orgId}/rfps/${rfpId}`, {
     method: 'DELETE',
   });
+};
+
+export const getRfpAllVersion = async ({
+  orgId,
+  rfpId,
+}: {
+  orgId: string;
+  rfpId: string;
+}) => {
+  return apiFetch<({ version: number } & TRFP)[]>(
+    `/api/${orgId}/rfps/${rfpId}/versions`
+  );
 };
