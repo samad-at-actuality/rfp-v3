@@ -89,7 +89,7 @@ export const Sidebar = ({ showAdminButton }: { showAdminButton?: boolean }) => {
           }}
           currentPath={currentPath}
           linkPath={`/app/orgs/${projectSlug}/data`}
-          name='Database'
+          name='Knowledge Hub'
         >
           <Package className='h-5 w-5' />
         </LinkComponent>

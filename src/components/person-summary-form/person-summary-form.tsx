@@ -23,7 +23,7 @@ import {
   TFolderInfo,
   TFolderInfoSummayType,
 } from '@/types/TFolderInfo';
-import { PlusIcon, Trash2, Upload } from 'lucide-react';
+import { PencilIcon, PlusIcon, Trash2, Upload } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { PersonProjectDialog } from './project-dialog';
@@ -479,43 +479,15 @@ export const PersonSummaryForm = ({
                 )}
               </div>
 
-              <div className='rounded-lg shadow-[0px_1px_12px_0px_#1F29370D] p-4 space-y-4 bg-white'>
-                {personSummary?.projects?.map((project) => (
-                  <div key={project.name} className='flex items-start gap-4'>
-                    {/* <img
-                      src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyzpztEZ2ykCnjQGcdYsKIMaj4Skvv_w9PPQ&s'
-                      alt={project.name}
-                      className='w-11 h-11 rounded-md object-cover'
-                    /> */}
-                    <div className='flex-1'>
-                      <div className='flex items-center gap-1'>
-                        <p className='font-semibold text-sm text-gray-900'>
-                          {project.name}
-                        </p>
-                      </div>
-                      <p className='text-sm' style={{ color: '#6B7280' }}>
-                        {project?.designations[0] || 'No designation'}
-                      </p>
-                    </div>
-                    {!isViewer && (
-                      <Button
-                        variant='ghost'
-                        className='p-0 cursor-pointer'
-                        onClick={() => {
-                          setPersonSummary({
-                            ...personSummary,
-                            projects: personSummary?.projects?.filter(
-                              (p) => p.name !== project.name
-                            ),
-                          });
-                        }}
-                      >
-                        <Trash2 className='w-4 h-4 text-red-400' />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <PersonProjects
+                key={personSummary.projects.length}
+                handleChange={(projects) => {
+                  setPersonSummary((p) => ({ ...p, projects }));
+                }}
+                projects={personSummary.projects}
+                showDelete={!isViewer}
+                showEdit={!isViewer}
+              />
             </div>
           </div>
         </div>
@@ -738,6 +710,72 @@ export const MediaDisplayer = ({
           </TableBody>
         </Table>
       </div>
+    </div>
+  );
+};
+const PersonProjects = ({
+  projects: projects_,
+  showDelete,
+  showEdit,
+  handleChange,
+}: {
+  projects: NonNullable<
+    NonNullable<TFolderInfo['summary']>['person']
+  >['projects'];
+  showDelete: boolean;
+  showEdit: boolean;
+  handleChange: (
+    _: NonNullable<NonNullable<TFolderInfo['summary']>['person']>['projects']
+  ) => void;
+}) => {
+  const [projects, setProjects] = useState(projects_);
+
+  return !projects.length ? null : (
+    <div className='rounded-lg shadow-[0px_1px_12px_0px_#1F29370D] p-4 space-y-4 bg-white'>
+      {projects?.map((project, index) => (
+        <div key={JSON.stringify(project)} className='flex items-start gap-4'>
+          <div className='flex-1'>
+            <div className='flex items-center gap-1'>
+              <p className='font-semibold text-sm text-gray-900'>
+                {project.name}
+              </p>
+            </div>
+            <p className='text-sm' style={{ color: '#6B7280' }}>
+              {project?.designations[0] || 'No designation'}
+            </p>
+          </div>
+          {showEdit && (
+            <PersonProjectDialog
+              preSavedObject={project}
+              onSave={(newProject) => {
+                const newProjects = [
+                  ...projects.map((p, idx) => (idx === index ? newProject : p)),
+                ];
+                handleChange(newProjects);
+                setProjects(newProjects);
+              }}
+              trigger={
+                <Button variant='ghost' className='p-0 cursor-pointer'>
+                  <PencilIcon className='w-4 h-4 text-red-400' />
+                </Button>
+              }
+            />
+          )}
+          {showDelete && (
+            <Button
+              variant='ghost'
+              className='p-0 cursor-pointer'
+              onClick={() => {
+                const p = projects?.filter((p) => p.name !== project.name);
+                handleChange(p);
+                setProjects(p);
+              }}
+            >
+              <Trash2 className='w-4 h-4 text-red-400' />
+            </Button>
+          )}
+        </div>
+      ))}
     </div>
   );
 };

@@ -205,11 +205,10 @@ export const SecondaryFolders = ({
                   </DropdownMenuTrigger>
 
                   <DropdownMenuContent
-                    style={{
-                      position: 'absolute',
-                      top: '-45px',
-                      left: '-20px',
-                    }}
+                    side='right'
+                    align='start'
+                    sideOffset={5}
+                    className='min-w-[150px]'
                   >
                     <DropdownMenuItem
                       className='flex items-center gap-2 cursor-pointer'

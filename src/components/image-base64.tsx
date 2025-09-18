@@ -62,7 +62,7 @@ export const ImageBase64 = ({
             height,
           }}
         >
-          <div className='absolute opacity-0 transition-all duration-300 group-hover:opacity-100  flex items-center gap-4 bg-white rounded-md w-fit'>
+          <div className='absolute opacity-0 group-hover:opacity-100  flex items-center gap-4 bg-white rounded-md w-fit'>
             <FileDownloader fileId={fileId} orgId={orgId} filaName={alt} />
             {showDelete && (
               <FileDeleter
@@ -89,14 +89,16 @@ export const ImageBase64 = ({
           />
         </div>
       </DialogTrigger>
-      <DialogContent className='max-w-4xl flex items-center justify-center border-0 shadow-none bg-white p-4'>
-        <Image
-          src={src}
-          alt={alt}
-          width={800}
-          height={800}
-          className='object-contain rounded-lg'
-        />
+      <DialogContent className='flex items-center justify-center border-0 shadow-none bg-transparent p-0'>
+        <div className='p-2 bg-white rounded-lg shadow-md max-w-[90vw] max-h-[90vh]'>
+          <Image
+            src={src}
+            alt={alt}
+            width={800}
+            height={800}
+            className='object-contain rounded-lg max-w-full max-h-[85vh]'
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );

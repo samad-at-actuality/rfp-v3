@@ -13,39 +13,37 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
-import { TOtherInfo } from '@/types/TFolderInfo';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../ui/table';
+import { TFolderInfo } from '@/types/TFolderInfo';
 
 export const PersonProjectDialog = ({
   trigger,
   onSave,
+  preSavedObject,
 }: {
   trigger: React.ReactNode;
-  onSave: (_: {
+  preSavedObject?: {
     name: string;
     designations: string[];
     description: string;
-    otherInfo: TOtherInfo[];
-  }) => void;
+  };
+  onSave: (
+    _: NonNullable<
+      NonNullable<TFolderInfo['summary']>['person']
+    >['projects'][number]
+  ) => void;
 }) => {
   const [form, setForm] = useState<{
     name: string;
     designations: string[];
     description: string;
-    otherInfo: TOtherInfo[];
-  }>({
-    name: '',
-    designations: [],
-    description: '',
-    otherInfo: [],
-  });
+  }>(
+    preSavedObject || {
+      name: '',
+      designations: [],
+      description: '',
+    }
+  );
+
   const [designationTemp, setDesignationTemp] = useState<string>('');
 
   const handleAddDesignation = () => {
@@ -66,19 +64,21 @@ export const PersonProjectDialog = ({
   };
 
   const handleSubmit = () => {
-    onSave(form);
-    setForm({ name: '', designations: [], description: '', otherInfo: [] });
+    onSave({ ...form, otherInfo: [] });
+    setForm({ name: '', designations: [], description: '' });
   };
 
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
-        className='w-[625px] pb-0 flex flex-col h-full max-h-[80vh] space-y-6'
+        className='w-[625px] pb-0 flex flex-col h-full max-h-[60vh] space-y-6'
         onInteractOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle>Add Project</DialogTitle>
+          <DialogTitle>
+            {preSavedObject ? 'Edit Project' : 'Add Project'}
+          </DialogTitle>
         </DialogHeader>
         <div className='flex-1 overflow-hidden'>
           <div className='h-full overflow-y-auto space-y-6'>
@@ -94,7 +94,7 @@ export const PersonProjectDialog = ({
             </div>
 
             <div className='space-y-2'>
-              <Label>Designations</Label>
+              <Label>Designers</Label>
               <div className='relative'>
                 <Input
                   value={designationTemp}
@@ -152,112 +152,6 @@ export const PersonProjectDialog = ({
                 rows={4}
               />
             </div>
-            <div className='space-y-2'>
-              <Label>Other Info</Label>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Value</TableHead>
-                    <TableHead className='w-[50px] text-center'>
-                      Actions
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {(form.otherInfo.length > 0
-                    ? form.otherInfo
-                    : [{ key: '', value: '' }]
-                  ).map((info, index) => (
-                    <TableRow key={index}>
-                      <TableCell>
-                        <Input
-                          value={info.key}
-                          onChange={(e) =>
-                            setForm({
-                              ...form,
-                              otherInfo:
-                                form.otherInfo.length > 0
-                                  ? form.otherInfo.map((i, iIndex) =>
-                                      iIndex === index
-                                        ? { ...i, key: e.target.value }
-                                        : i
-                                    )
-                                  : [
-                                      {
-                                        key: e.target.value,
-                                        value: info.value,
-                                      },
-                                    ],
-                            })
-                          }
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          value={info.value}
-                          onChange={(e) =>
-                            setForm({
-                              ...form,
-                              otherInfo:
-                                form.otherInfo.length > 0
-                                  ? form.otherInfo.map((i, iIndex) =>
-                                      iIndex === index
-                                        ? { ...i, value: e.target.value }
-                                        : i
-                                    )
-                                  : [{ key: info.key, value: e.target.value }],
-                            })
-                          }
-                        />
-                      </TableCell>
-                      <TableCell className='flex items-center justify-center gap-2'>
-                        {form.otherInfo.length > 0 && (
-                          <Button
-                            type='button'
-                            variant='ghost'
-                            size='icon'
-                            onClick={() =>
-                              setForm({
-                                ...form,
-                                otherInfo: form.otherInfo.filter(
-                                  (_, iIndex) => iIndex !== index
-                                ),
-                              })
-                            }
-                          >
-                            <XIcon className='w-4 h-4 text-red-500' />
-                          </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              <div className='flex justify-end'>
-                <Button
-                  type='button'
-                  variant='outline'
-                  size='sm'
-                  disabled={
-                    form.otherInfo.length === 0
-                      ? false
-                      : !form.otherInfo[form.otherInfo.length - 1].key.trim() ||
-                        !form.otherInfo[form.otherInfo.length - 1].value.trim()
-                  }
-                  onClick={() =>
-                    setForm({
-                      ...form,
-                      otherInfo: [...form.otherInfo, { key: '', value: '' }],
-                    })
-                  }
-                >
-                  <PlusIcon className='w-4 h-4 mr-1' />
-                  Add Row
-                </Button>
-              </div>
-            </div>
           </div>
         </div>
         <DialogFooter>
@@ -270,14 +164,10 @@ export const PersonProjectDialog = ({
               disabled={
                 !form.name.trim() ||
                 !form.designations.length ||
-                !form.description.trim() ||
-                (form.otherInfo.length > 0 &&
-                  form.otherInfo.some(
-                    (info) => !info.key.trim() || !info.value.trim()
-                  ))
+                !form.description.trim()
               }
             >
-              Add Project
+              {preSavedObject ? 'Edit Project' : 'Add Project'}
             </Button>
           </DialogClose>
         </DialogFooter>
